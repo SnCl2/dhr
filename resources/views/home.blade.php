@@ -67,6 +67,23 @@
     </div>
 </div>
 
+<!-- Brand Badges (Group Companies & Partners) -->
+<div class="bg-white py-6 border-b border-indigo-50 shadow-sm relative z-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+            <span class="text-xxs font-bold text-slate-400 uppercase tracking-widest">Partner Group Brands:</span>
+            <div class="flex items-center gap-8">
+                <a href="https://swagatham.co.in/" target="_blank" class="opacity-60 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
+                    <span class="font-outfit font-extrabold text-slate-800 text-sm sm:text-base tracking-wider"><i class="fa-solid fa-hotel mr-2 text-indigo-500"></i>SWAGATHAM</span>
+                </a>
+                <a href="https://flickjobs.in/" target="_blank" class="opacity-60 hover:opacity-100 transition-all duration-300 transform hover:scale-105">
+                    <span class="font-outfit font-extrabold text-slate-800 text-sm sm:text-base tracking-wider"><i class="fa-solid fa-briefcase mr-2 text-indigo-500"></i>FLICKJOBS</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Section 2: Services We Provide -->
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-b border-indigo-50">
     <div class="text-center max-w-3xl mx-auto mb-16">
