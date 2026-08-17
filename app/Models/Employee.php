@@ -55,6 +55,15 @@ class Employee extends Authenticatable
         'work_location',
         'designation',
         'nth_salary',
+        'doc_aadhaar_front',
+        'doc_aadhaar_back',
+        'doc_pan',
+        'doc_voter_front',
+        'doc_voter_back',
+        'doc_qualification_marksheet',
+        'doc_qualification_certificate',
+        'doc_photo',
+        'doc_bank_passbook',
     ];
 
     protected $hidden = [

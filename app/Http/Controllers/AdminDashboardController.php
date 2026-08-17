@@ -139,7 +139,41 @@ class AdminDashboardController extends Controller
             'work_location' => ['nullable', 'string', 'max:255'],
             'designation' => ['nullable', 'string', 'max:255'],
             'nth_salary' => ['nullable', 'numeric', 'min:0'],
+
+            // Documents
+            'doc_aadhaar_front' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_aadhaar_back' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_pan' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_voter_front' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_voter_back' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_qualification_marksheet' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_qualification_certificate' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:5120'],
+            'doc_bank_passbook' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
         ]);
+
+        $documentFields = [
+            'doc_aadhaar_front',
+            'doc_aadhaar_back',
+            'doc_pan',
+            'doc_voter_front',
+            'doc_voter_back',
+            'doc_qualification_marksheet',
+            'doc_qualification_certificate',
+            'doc_photo',
+            'doc_bank_passbook',
+        ];
+
+        foreach ($documentFields as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $fileName = time() . '_' . $field . '_' . $file->getClientOriginalName();
+                $file->move(public_path('storage/documents'), $fileName);
+                $validated[$field] = 'storage/documents/' . $fileName;
+            } else {
+                $validated[$field] = null;
+            }
+        }
 
         // Auto-generate Employee ID: EMP-YYYY-XXXX
         $year = date('Y');
@@ -222,7 +256,41 @@ class AdminDashboardController extends Controller
             'work_location' => ['nullable', 'string', 'max:255'],
             'designation' => ['nullable', 'string', 'max:255'],
             'nth_salary' => ['nullable', 'numeric', 'min:0'],
+
+            // Documents
+            'doc_aadhaar_front' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_aadhaar_back' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_pan' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_voter_front' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_voter_back' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_qualification_marksheet' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_qualification_certificate' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            'doc_photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:5120'],
+            'doc_bank_passbook' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
         ]);
+
+        $documentFields = [
+            'doc_aadhaar_front',
+            'doc_aadhaar_back',
+            'doc_pan',
+            'doc_voter_front',
+            'doc_voter_back',
+            'doc_qualification_marksheet',
+            'doc_qualification_certificate',
+            'doc_photo',
+            'doc_bank_passbook',
+        ];
+
+        foreach ($documentFields as $field) {
+            if ($request->hasFile($field)) {
+                $file = $request->file($field);
+                $fileName = time() . '_' . $field . '_' . $file->getClientOriginalName();
+                $file->move(public_path('storage/documents'), $fileName);
+                $validated[$field] = 'storage/documents/' . $fileName;
+            } else {
+                unset($validated[$field]);
+            }
+        }
 
         $employee->update($validated);
 
