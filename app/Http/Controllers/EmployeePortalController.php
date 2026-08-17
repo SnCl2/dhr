@@ -64,7 +64,7 @@ class EmployeePortalController extends Controller
     public function documents()
     {
         $employee = Auth::guard('employee')->user();
-        $offerLetters = OfferLetter::where('employee_id', $employee->id)->with('template')->get();
+        $offerLetters = OfferLetter::where('employee_id', $employee->id)->get();
         $payslips = Payslip::where('employee_id', $employee->id)->latest()->get();
 
         return view('employee.documents', compact('offerLetters', 'payslips'));
