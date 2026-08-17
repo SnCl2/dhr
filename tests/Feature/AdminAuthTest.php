@@ -153,4 +153,121 @@ class AdminAuthTest extends TestCase
             'company_id' => null,
         ]);
     }
+
+    /**
+     * Test admin can create an employee with uploaded documents and update their details.
+     */
+    public function test_admin_can_create_and_update_employee_with_documents(): void
+    {
+        $this->seed();
+
+        $admin = Admin::first();
+        $dept = Department::first();
+        $desig = Designation::first();
+        $company = Company::first();
+
+        // 1. Create Employee with simulated documents
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $aadhaarFront = \Illuminate\Http\UploadedFile::fake()->create('aadhaar_front.jpg', 200);
+        $aadhaarBack = \Illuminate\Http\UploadedFile::fake()->create('aadhaar_back.jpg', 200);
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.store'), [
+            'first_name' => 'John',
+            'last_name' => 'Doe',
+            'email' => 'unique.test.employee@example.com',
+            'status' => 'active',
+            'department_id' => $dept->id,
+            'designation_id' => $desig->id,
+            'company_id' => $company->id,
+            'joining_date' => '2026-08-17',
+            'salary' => 15000.00,
+            'aadhaar_full_name' => 'John Doe',
+            'aadhaar_number' => '987654321012',
+            'prefix' => 'Mr.',
+            'father_name_aadhaar' => 'Richard Doe',
+            'mother_name_aadhaar' => 'Mary Doe',
+            'gender' => 'Male',
+            'dob' => '1990-05-15',
+            'mother_tongue' => 'Hindi',
+            'aadhaar_address' => '456 Park Avenue, Delhi',
+            'landmark' => 'Near Metro Gate 3',
+            'contact_number' => '9999988888',
+            'city' => 'Delhi',
+            'emergency_contact_number' => '9999988889',
+            'pin_code' => '110001',
+            'state' => 'Delhi',
+            'last_qualification' => 'Post Graduate',
+            'pass_out_year' => '2012',
+            'marital_status' => 'Married',
+            'old_uan_number' => '100888888888',
+            'bank_account_number' => '9876543210',
+            'ifsc_code' => 'SBIN0000123',
+            'bank_name' => 'State Bank of India',
+            'client_name' => 'Client B',
+            'work_location' => 'Delhi Hub',
+            'designation' => 'Lead Engineer',
+            'nth_salary' => 13000.00,
+            'doc_aadhaar_front' => $aadhaarFront,
+            'doc_aadhaar_back' => $aadhaarBack,
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+        
+        $employee = \App\Models\Employee::where('email', 'unique.test.employee@example.com')->first();
+        $this->assertNotNull($employee);
+        $this->assertNotNull($employee->doc_aadhaar_front);
+        $this->assertNotNull($employee->doc_aadhaar_back);
+
+        // 2. Update Employee details and upload a new voter document
+        $voterFront = \Illuminate\Http\UploadedFile::fake()->create('voter_front.pdf', 300);
+
+        $response = $this->actingAs($admin, 'admin')->put(route('admin.employees.update', $employee), [
+            'first_name' => 'John Updated',
+            'last_name' => 'Doe',
+            'email' => 'unique.test.employee@example.com',
+            'status' => 'inactive',
+            'department_id' => $dept->id,
+            'designation_id' => $desig->id,
+            'company_id' => $company->id,
+            'joining_date' => '2026-08-17',
+            'salary' => 16000.00,
+            'aadhaar_full_name' => 'John Doe',
+            'aadhaar_number' => '987654321012',
+            'prefix' => 'Mr.',
+            'father_name_aadhaar' => 'Richard Doe',
+            'mother_name_aadhaar' => 'Mary Doe',
+            'gender' => 'Male',
+            'dob' => '1990-05-15',
+            'mother_tongue' => 'Hindi',
+            'aadhaar_address' => '456 Park Avenue, Delhi',
+            'landmark' => 'Near Metro Gate 3',
+            'contact_number' => '9999988888',
+            'city' => 'Delhi',
+            'emergency_contact_number' => '9999988889',
+            'pin_code' => '110001',
+            'state' => 'Delhi',
+            'last_qualification' => 'Post Graduate',
+            'pass_out_year' => '2012',
+            'marital_status' => 'Married',
+            'old_uan_number' => '100888888888',
+            'bank_account_number' => '9876543210',
+            'ifsc_code' => 'SBIN0000123',
+            'bank_name' => 'State Bank of India',
+            'client_name' => 'Client B',
+            'work_location' => 'Delhi Hub',
+            'designation' => 'Lead Engineer',
+            'nth_salary' => 14000.00,
+            'doc_voter_front' => $voterFront,
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+        
+        $employee->refresh();
+        $this->assertEquals('John Updated', $employee->first_name);
+        $this->assertEquals('inactive', $employee->status);
+        $this->assertEquals(16000.00, $employee->salary);
+        $this->assertNotNull($employee->doc_voter_front);
+        // Assert previous documents are preserved
+        $this->assertNotNull($employee->doc_aadhaar_front);
+    }
 }
