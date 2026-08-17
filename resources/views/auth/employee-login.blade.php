@@ -77,12 +77,7 @@
                 </div>
             </form>
 
-            <div class="mt-6 pt-6 border-t border-slate-800 text-center text-sm">
-                <span class="text-slate-400">Prospective Candidate or New Hire?</span>
-                <a href="{{ route('employee.register') }}" class="block mt-2 text-purple-400 hover:text-purple-300 font-semibold transition-colors">
-                    Create Candidate Profile <i class="fa-solid fa-arrow-right ml-1 text-xs"></i>
-                </a>
-            </div>
+
         </div>
     </div>
 </div>

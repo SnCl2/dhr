@@ -147,6 +147,10 @@
                         <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
                             <i class="fa-solid fa-user-shield mr-2"></i>Admin Panel
                         </a>
+                    @else
+                        <a href="{{ route('login') }}" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
+                            <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i>Employee Login
+                        </a>
                     @endauth
                 </div>
 
@@ -171,6 +175,8 @@
                     <a href="{{ route('employee.dashboard') }}" class="w-full text-center px-4 py-2 bg-purple-600 text-white rounded-lg text-base font-semibold">Dashboard</a>
                 @elseauth('admin')
                     <a href="{{ route('admin.dashboard') }}" class="w-full text-center px-4 py-2 bg-purple-600 text-white rounded-lg text-base font-semibold">Admin Panel</a>
+                @else
+                    <a href="{{ route('login') }}" class="w-full text-center px-4 py-2 bg-purple-600 text-white rounded-lg text-base font-semibold">Employee Login</a>
                 @endauth
             </div>
         </div>
@@ -241,7 +247,7 @@
                 <div>
                     <h3 class="font-outfit font-bold text-sm text-slate-200 uppercase tracking-widest mb-4">Portals</h3>
                     <ul class="space-y-2 text-sm">
-                        <li><a href="{{ route('employee.register') }}" class="text-slate-400 hover:text-purple-400 transition-colors"><i class="fa-solid fa-user-plus mr-1 text-xs"></i> Candidate Sign Up</a></li>
+                        <li><a href="{{ route('login') }}" class="text-slate-400 hover:text-purple-400 transition-colors"><i class="fa-solid fa-arrow-right-to-bracket mr-1 text-xs"></i> Employee Login</a></li>
                     </ul>
                 </div>
 

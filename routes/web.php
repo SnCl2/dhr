@@ -35,8 +35,6 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admi
 */
 Route::get('/login', [EmployeeAuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [EmployeeAuthController::class, 'login'])->name('login.submit');
-Route::get('/register', [EmployeeAuthController::class, 'showRegister'])->name('employee.register');
-Route::post('/register', [EmployeeAuthController::class, 'register'])->name('employee.register.submit');
 Route::post('/logout', [EmployeeAuthController::class, 'logout'])->name('employee.logout');
 
 // Forced Password Change (For first-login employees)

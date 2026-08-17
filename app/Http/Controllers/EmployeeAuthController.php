@@ -72,60 +72,6 @@ class EmployeeAuthController extends Controller
     }
 
     /**
-     * Display candidate self-registration view.
-     */
-    public function showRegister()
-    {
-        return view('auth.employee-register');
-    }
-
-    /**
-     * Process candidate self-registration.
-     */
-    public function register(Request $request)
-    {
-        $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:employees'],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'password' => ['required', 'confirmed', Password::defaults()],
-        ]);
-
-        // Generate unique Employee ID: EMP-YYYY-XXXX
-        $year = date('Y');
-        $prefix = "EMP-{$year}-";
-
-        $lastEmployee = Employee::where('employee_id', 'like', $prefix . '%')
-            ->orderBy('employee_id', 'desc')
-            ->first();
-
-        if ($lastEmployee) {
-            $lastNum = (int) substr($lastEmployee->employee_id, -4);
-            $nextNum = str_pad($lastNum + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $nextNum = '0001';
-        }
-
-        $employeeId = $prefix . $nextNum;
-
-        // Create the employee with status 'pending_review'
-        $employee = Employee::create([
-            'employee_id' => $employeeId,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($request->password),
-            'status' => 'pending_review',
-            'is_password_changed' => true, // Already customized by candidate since they register with their own chosen password
-        ]);
-
-        return redirect()->route('login')
-            ->with('success', "Registration successful! Your generated Employee ID is: {$employeeId}. Please login using this ID and your chosen password.");
-    }
-
-    /**
      * Display forced password change view.
      */
     public function showPasswordChange()

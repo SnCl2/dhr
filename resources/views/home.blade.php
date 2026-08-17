@@ -23,8 +23,8 @@
                     {{ $cms['banner_subtitle'] }}
                 </p>
                 <div class="mt-10 sm:flex sm:justify-center lg:justify-start gap-4">
-                    <a href="{{ route('employee.register') }}" class="flex items-center justify-center px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-2xl text-base font-bold shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-all duration-300">
-                        <i class="fa-solid fa-user-plus mr-2"></i> Register as Candidate
+                    <a href="{{ route('login') }}" class="flex items-center justify-center px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-2xl text-base font-bold shadow-xl shadow-purple-500/20 hover:scale-[1.02] transition-all duration-300">
+                        <i class="fa-solid fa-arrow-right-to-bracket mr-2"></i> Employee Login
                     </a>
                     <a href="{{ route('contact') }}" class="mt-4 sm:mt-0 flex items-center justify-center px-8 py-4 border border-slate-700 hover:border-purple-500 bg-slate-900/40 text-slate-200 hover:text-white rounded-2xl text-base font-bold hover:scale-[1.02] transition-all duration-300">
                         <i class="fa-solid fa-paper-plane mr-2 text-purple-400"></i> Contact Us
