@@ -357,7 +357,7 @@ class DocumentGeneratorService
     /**
      * Generate a Payslip PDF using FPDF and return the relative path.
      */
-    public function generatePayslipPdf($employee, $month, $basic, $allowances, $deductions, $net, $type)
+    public function generatePayslipPdf($employee, $month, $basic, $allowances, $deductions, $net, $type, $extra = null)
     {
         // Ensure output directory exists
         $dir = public_path('storage/payslips');
@@ -368,112 +368,249 @@ class DocumentGeneratorService
         $fileName = 'Payslip_' . $employee->employee_id . '_' . str_replace(' ', '_', $month) . '_' . time() . '.pdf';
         $filePath = $dir . '/' . $fileName;
 
+        // Parse extra parameters (with default fallbacks)
+        $workingDays = data_get($extra, 'working_days', 31);
+        $netPayableDays = data_get($extra, 'net_payable_days', 31);
+        $otDays = data_get($extra, 'ot_days', 0);
+        $payMode = data_get($extra, 'pay_mode', 'Bank Transfer');
+
+        $hra = data_get($extra, 'hra', $allowances);
+        $medical = data_get($extra, 'medical_allowance', 0.0);
+        $special = data_get($extra, 'special_allowance', 0.0);
+        $leave = data_get($extra, 'leave_encashment', 0.0);
+        $otAllow = data_get($extra, 'ot_allowance', 0.0);
+
+        $ptax = data_get($extra, 'professional_tax', 0.0);
+        $pf = data_get($extra, 'provident_fund', $deductions);
+        $esic = data_get($extra, 'esic', 0.0);
+
+        $totalEarnings = $basic + $hra + $medical + $special + $leave + $otAllow;
+        $totalDeductions = $ptax + $pf + $esic;
+        $net = $totalEarnings - $totalDeductions;
+
         // Initialize FPDF
         $pdf = new \FPDF('P', 'mm', 'A4');
         $pdf->AddPage();
         $pdf->SetMargins(15, 15, 15);
+        $pdf->SetAutoPageBreak(false);
 
-        // 1. Header Styles based on Internal vs External
-        if ($type === 'internal') {
-            $pdf->SetFillColor(30, 58, 138); // Royal Navy Blue Header Block
-            $pdf->Rect(0, 0, 210, 30, 'F');
-            $pdf->SetTextColor(255, 255, 255);
-            $pdf->SetFont('Arial', 'B', 16);
-            $pdf->Text(15, 15, 'RMHRSOLUTIONS');
-            $pdf->SetFont('Arial', '', 10);
-            $pdf->Text(15, 22, 'INTERNAL PAYROLL DIVISION | MONTHLY PAYSLIP');
+        // --- 1. Header Section ---
+        // Header Outer border box
+        $pdf->SetDrawColor(0, 0, 0);
+        $pdf->SetLineWidth(0.3);
+        $pdf->Rect(15, 15, 180, 30);
+
+        // Vertical divider at X = 50
+        $pdf->Line(50, 15, 50, 45);
+
+        // Render Company Logo
+        $logoPath = public_path('images/logo.png');
+        if (file_exists($logoPath)) {
+            $pdf->Image($logoPath, 18, 17, 28);
         } else {
-            $pdf->SetDrawColor(30, 58, 138);
-            $pdf->SetLineWidth(0.5);
-            $pdf->Rect(5, 5, 200, 287);
-
-            $pdf->SetTextColor(30, 58, 138);
-            $pdf->SetFont('Arial', 'B', 18);
-            $pdf->Cell(0, 10, 'RMHRSOLUTIONS RECRUITMENT & STAFFING', 0, 1, 'C');
-            $pdf->SetFont('Arial', '', 9);
-            $pdf->SetTextColor(107, 114, 128);
-            $pdf->Cell(0, 4, 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503', 0, 1, 'C');
-            $pdf->Cell(0, 4, 'Payslip Statement (External Staff)', 0, 1, 'C');
-            $pdf->Ln(4);
-            $pdf->Line(15, 28, 195, 28);
+            $pdf->SetFont('Arial', 'B', 8);
+            $pdf->SetXY(15, 25);
+            $pdf->Cell(35, 10, 'RM HR Solutions', 0, 0, 'C');
         }
 
-        $pdf->SetY(35);
-        $pdf->SetTextColor(17, 24, 39);
+        // Title Block
+        $pdf->SetFont('Arial', 'B', 22);
+        $pdf->SetXY(50, 18);
+        $pdf->Cell(145, 10, 'RM HR Solutions Pvt. Ltd.', 0, 0, 'C');
 
-        // Title
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->Cell(0, 8, 'PAYSLIP FOR THE MONTH OF ' . strtoupper($month), 0, 1, 'C');
-        $pdf->Ln(3);
+        // Address Subtitle
+        $pdf->SetFont('Arial', '', 8.5);
+        $pdf->SetXY(50, 29);
+        $pdf->Cell(145, 5, 'Panchla, Panchla, Howrah, 711322 West Bengal, India', 0, 0, 'C');
 
-        // 2. Employee Info Table
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->SetFillColor(243, 244, 246);
-        $pdf->Cell(180, 6, 'EMPLOYEE DETAILS', 1, 1, 'L', true);
+        // Month Bar Row
+        $pdf->Rect(15, 45, 180, 6);
+        $pdf->SetFont('Arial', 'B', 8.5);
+        $pdf->SetXY(15, 45);
+        $pdf->Cell(180, 6, 'PAY SLIP For the Month of - ' . $month, 0, 0, 'C');
 
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(45, 6, 'Employee ID:', 1, 0);
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(45, 6, $employee->employee_id, 1, 0);
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(45, 6, 'Employee Name:', 1, 0);
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(45, 6, $employee->full_name, 1, 1);
+        // --- 2. Employee Details Section ---
+        // Draw grid outline
+        $pdf->Rect(15, 51, 180, 36);
 
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(45, 6, 'Department:', 1, 0);
-        $pdf->Cell(45, 6, $employee->department ? $employee->department->name : 'N/A', 1, 0);
-        $pdf->Cell(45, 6, 'Designation:', 1, 0);
-        $pdf->Cell(45, 6, $employee->designation ? $employee->designation->name : 'N/A', 1, 1);
+        // Draw vertical division lines
+        $pdf->Line(55, 51, 55, 87);
+        $pdf->Line(105, 51, 105, 87);
+        $pdf->Line(145, 51, 145, 87);
 
-        $pdf->Cell(45, 6, 'Joining Date:', 1, 0);
-        $pdf->Cell(45, 6, $employee->joining_date ? $employee->joining_date->format('d-M-Y') : 'N/A', 1, 0);
-        $pdf->Cell(45, 6, 'Mode:', 1, 0);
-        $pdf->Cell(45, 6, strtoupper($type), 1, 1);
+        // Draw horizontal division lines
+        for ($y = 57; $y <= 81; $y += 6) {
+            $pdf->Line(15, $y, 195, $y);
+        }
 
-        $pdf->Ln(8);
+        $pdf->SetFont('Arial', '', 8.5);
+        // Row 1
+        $pdf->SetXY(15, 51); $pdf->Cell(40, 6, '  Working Days', 0, 0, 'L');
+        $pdf->SetXY(55, 51); $pdf->Cell(50, 6, ': ' . $workingDays, 0, 0, 'L');
+        $pdf->SetXY(105, 51); $pdf->Cell(40, 6, '  Net Payable Days', 0, 0, 'L');
+        $pdf->SetXY(145, 51); $pdf->Cell(50, 6, ': ' . $netPayableDays, 0, 0, 'L');
 
-        // 3. Earnings & Deductions Table
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(90, 6, 'EARNINGS / ALLOWANCES', 1, 0, 'L', true);
-        $pdf->Cell(90, 6, 'DEDUCTIONS', 1, 1, 'L', true);
+        // Row 2
+        $pdf->SetXY(15, 57); $pdf->Cell(40, 6, '  Employee ID', 0, 0, 'L');
+        $pdf->SetXY(55, 57); $pdf->Cell(50, 6, ': ' . $employee->employee_id, 0, 0, 'L');
+        $pdf->SetXY(105, 57); $pdf->Cell(40, 6, '  OT Days', 0, 0, 'L');
+        $pdf->SetXY(145, 57); $pdf->Cell(50, 6, ': ' . $otDays, 0, 0, 'L');
 
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(55, 6, 'Basic Salary:', 1, 0);
-        $pdf->Cell(35, 6, number_format($basic, 2), 1, 0, 'R');
-        $pdf->Cell(55, 6, 'Tax / EPF Deductions:', 1, 0);
-        $pdf->Cell(35, 6, number_format($deductions, 2), 1, 1, 'R');
+        // Row 3
+        $pdf->SetXY(15, 63); $pdf->Cell(40, 6, '  Employee Name', 0, 0, 'L');
+        $pdf->SetXY(55, 63); $pdf->Cell(50, 6, ': ' . $employee->full_name, 0, 0, 'L');
+        $pdf->SetXY(105, 63); $pdf->Cell(40, 6, '  Pay Mode', 0, 0, 'L');
+        $pdf->SetXY(145, 63); $pdf->Cell(50, 6, ': ' . $payMode, 0, 0, 'L');
 
-        $pdf->Cell(55, 6, 'Allowances (HRA/DA):', 1, 0);
-        $pdf->Cell(35, 6, number_format($allowances, 2), 1, 0, 'R');
-        $pdf->Cell(55, 6, 'Other Deductions:', 1, 0);
-        $pdf->Cell(35, 6, '0.00', 1, 1, 'R');
+        // Row 4
+        $pdf->SetXY(15, 69); $pdf->Cell(40, 6, '  Joining Date', 0, 0, 'L');
+        $pdf->SetXY(55, 69); $pdf->Cell(50, 6, ': ' . ($employee->joining_date ? $employee->joining_date->format('d-M-Y') : 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(105, 69); $pdf->Cell(40, 6, '  Bank Name', 0, 0, 'L');
+        $pdf->SetXY(145, 69); $pdf->Cell(50, 6, ': ' . ($employee->bank_name ?? 'N/A'), 0, 0, 'L');
 
-        // Total
-        $pdf->SetFont('Arial', 'B', 9);
-        $pdf->Cell(55, 6, 'Total Earnings (A):', 1, 0);
-        $pdf->Cell(35, 6, number_format($basic + $allowances, 2), 1, 0, 'R');
-        $pdf->Cell(55, 6, 'Total Deductions (B):', 1, 0);
-        $pdf->Cell(35, 6, number_format($deductions, 2), 1, 1, 'R');
+        // Row 5
+        $pdf->SetXY(15, 75); $pdf->Cell(40, 6, '  UAN', 0, 0, 'L');
+        $pdf->SetXY(55, 75); $pdf->Cell(50, 6, ': ' . ($employee->old_uan_number ?? 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(105, 75); $pdf->Cell(40, 6, '  Account No.', 0, 0, 'L');
+        $pdf->SetXY(145, 75); $pdf->Cell(50, 6, ': ' . ($employee->bank_account_number ?? 'N/A'), 0, 0, 'L');
 
-        $pdf->Ln(8);
+        // Row 6
+        $pdf->SetXY(15, 81); $pdf->Cell(40, 6, '  ESI No', 0, 0, 'L');
+        $pdf->SetXY(55, 81); $pdf->Cell(50, 6, ': ' . ($employee->old_esic_number ?? 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(105, 81); $pdf->Cell(40, 6, '  IFSC Code', 0, 0, 'L');
+        $pdf->SetXY(145, 81); $pdf->Cell(50, 6, ': ' . ($employee->ifsc_code ?? 'N/A'), 0, 0, 'L');
 
-        // 4. Net Salary Block
-        $pdf->SetFillColor(219, 234, 254); // Light Blue-100 Header Block
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(180, 8, 'NET TAKE-HOME SALARY: Rs. ' . number_format($net, 2), 1, 1, 'C', true);
+        // --- 3. Earnings & Deductions Section ---
+        // Header Row (Earnings | Amount | Deductions | Amount)
+        $pdf->Rect(15, 92, 180, 6);
+        $pdf->SetFont('Arial', 'B', 8.5);
+        $pdf->SetXY(15, 92); $pdf->Cell(60, 6, '  Earnings', 0, 0, 'L');
+        $pdf->SetXY(75, 92); $pdf->Cell(30, 6, 'Amount', 0, 0, 'C');
+        $pdf->SetXY(105, 92); $pdf->Cell(60, 6, '  Deductions', 0, 0, 'L');
+        $pdf->SetXY(165, 92); $pdf->Cell(30, 6, 'Amount', 0, 0, 'C');
 
-        // Words representation (Simple static/basic representation or empty space for signatures)
-        $pdf->Ln(25);
+        // Draw detail grid outline
+        $pdf->Rect(15, 98, 180, 36);
 
-        // Signatures
-        $pdf->SetFont('Arial', '', 9);
-        $pdf->Cell(90, 5, 'Employee Signature', 0, 0, 'C');
-        $pdf->Cell(90, 5, 'Manager Signature / Seal', 0, 1, 'C');
+        // Draw vertical division lines
+        $pdf->Line(75, 98, 75, 134);
+        $pdf->Line(105, 98, 105, 134);
+        $pdf->Line(165, 98, 165, 134);
+
+        // Draw horizontal division lines
+        for ($y = 104; $y <= 128; $y += 6) {
+            $pdf->Line(15, $y, 195, $y);
+        }
+
+        $pdf->SetFont('Arial', '', 8.5);
+        // Row 1
+        $pdf->SetXY(15, 98); $pdf->Cell(60, 6, '  BASIC SALARY', 0, 0, 'L');
+        $pdf->SetXY(75, 98); $pdf->Cell(30, 6, number_format($basic, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY(105, 98); $pdf->Cell(60, 6, '  PROFESSIONAL TAX', 0, 0, 'L');
+        $pdf->SetXY(165, 98); $pdf->Cell(30, 6, number_format($ptax, 2) . '  ', 0, 0, 'R');
+
+        // Row 2
+        $pdf->SetXY(15, 104); $pdf->Cell(60, 6, '  H.R.A.', 0, 0, 'L');
+        $pdf->SetXY(75, 104); $pdf->Cell(30, 6, number_format($hra, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY(105, 104); $pdf->Cell(60, 6, '  Provident Fund', 0, 0, 'L');
+        $pdf->SetXY(165, 104); $pdf->Cell(30, 6, number_format($pf, 2) . '  ', 0, 0, 'R');
+
+        // Row 3
+        $pdf->SetXY(15, 110); $pdf->Cell(60, 6, '  MEDICAL ALLOWANCE', 0, 0, 'L');
+        $pdf->SetXY(75, 110); $pdf->Cell(30, 6, number_format($medical, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY(105, 110); $pdf->Cell(60, 6, '  ESIC', 0, 0, 'L');
+        $pdf->SetXY(165, 110); $pdf->Cell(30, 6, number_format($esic, 2) . '  ', 0, 0, 'R');
+
+        // Row 4
+        $pdf->SetXY(15, 116); $pdf->Cell(60, 6, '  SPECIAL ALLOWANCE', 0, 0, 'L');
+        $pdf->SetXY(75, 116); $pdf->Cell(30, 6, number_format($special, 2) . '  ', 0, 0, 'R');
+
+        // Row 5
+        $pdf->SetXY(15, 122); $pdf->Cell(60, 6, '  LEAVE ENCASHMENT', 0, 0, 'L');
+        $pdf->SetXY(75, 122); $pdf->Cell(30, 6, number_format($leave, 2) . '  ', 0, 0, 'R');
+
+        // Row 6
+        $pdf->SetXY(15, 128); $pdf->Cell(60, 6, '  OT ALLOWANCE', 0, 0, 'L');
+        $pdf->SetXY(75, 128); $pdf->Cell(30, 6, number_format($otAllow, 2) . '  ', 0, 0, 'R');
+
+        // --- 4. Totals Row ---
+        $pdf->Rect(15, 134, 180, 6);
+        $pdf->SetFont('Arial', 'B', 8.5);
+        $pdf->SetXY(15, 134); $pdf->Cell(60, 6, '  Total', 0, 0, 'L');
+        $pdf->SetXY(75, 134); $pdf->Cell(30, 6, number_format($totalEarnings, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY(105, 134); $pdf->Cell(60, 6, '  Total', 0, 0, 'L');
+        $pdf->SetXY(165, 134); $pdf->Cell(30, 6, number_format($totalDeductions, 2) . '  ', 0, 0, 'R');
+
+        // --- 5. Net Pay & Words Block ---
+        // Net Pay Bar
+        $pdf->Rect(15, 140, 180, 6);
+        $pdf->SetXY(15, 140); $pdf->Cell(30, 6, '  *Net Pay', 0, 0, 'L');
+        $pdf->SetXY(45, 140); $pdf->Cell(150, 6, 'Rs. ' . number_format($net, 2), 0, 0, 'L');
+
+        // Rupees in Word Bar
+        $netInWords = $this->convertNumberToWords($net);
+        $pdf->Rect(15, 146, 180, 6);
+        $pdf->SetXY(15, 146); $pdf->Cell(180, 6, '  Rupees in word: ' . $netInWords, 0, 0, 'L');
+
+        // --- 6. Disclaimer Footer ---
+        $pdf->Rect(15, 154, 180, 7);
+        $pdf->SetFont('Arial', '', 7.5);
+        $pdf->SetXY(15, 154);
+        $pdf->Cell(180, 7, '  * This is computer generated document and does not require any signature.', 0, 0, 'L');
 
         // Output to file
         $pdf->Output('F', $filePath);
 
         return 'storage/payslips/' . $fileName;
+    }
+
+    /**
+     * Convert decimal number to Indian numbering words.
+     */
+    private function convertNumberToWords($number)
+    {
+        $no = floor($number);
+        $point = round($number - $no, 2) * 100;
+        $hundred = null;
+        $digits_1 = strlen($no);
+        $i = 0;
+        $str = array();
+        $words = array(
+            '0' => '', '1' => 'One', '2' => 'Two',
+            '3' => 'Three', '4' => 'Four', '5' => 'Five', '6' => 'Six',
+            '7' => 'Seven', '8' => 'Eight', '9' => 'Nine',
+            '10' => 'Ten', '11' => 'Eleven', '12' => 'Twelve',
+            '13' => 'Thirteen', '14' => 'Fourteen',
+            '15' => 'Fifteen', '16' => 'Sixteen', '17' => 'Seventeen',
+            '18' => 'Eighteen', '19' => 'Nineteen', '20' => 'Twenty',
+            '30' => 'Thirty', '40' => 'Forty', '50' => 'Fifty',
+            '60' => 'Sixty', '70' => 'Seventy',
+            '80' => 'Eighty', '90' => 'Ninety'
+        );
+        $digits = array('', 'Hundred', 'Thousand', 'Lakh', 'Crore');
+        while ($i < $digits_1) {
+            $divider = ($i == 2) ? 10 : 100;
+            $number = floor($no % $divider);
+            $no = floor($no / $divider);
+            $i += ($divider == 10) ? 1 : 2;
+            if ($number) {
+                $plural = (($counter = count($str)) && $number > 9) ? 's' : null;
+                $hundred = ($counter == 1 && $str[0]) ? ' and ' : null;
+                $str [] = ($number < 21) ? $words[$number] .
+                    " " . $digits[$counter] . $plural . " " . $hundred
+                    :
+                    $words[floor($number / 10) * 10]
+                    . " " . $words[$number % 10] . " "
+                    . $digits[$counter] . $plural . " " . $hundred;
+            } else {
+                $str[] = null;
+            }
+        }
+        $str = array_reverse($str);
+        $result = implode('', $str);
+        $points = ($point) ?
+            "and " . $words[floor($point / 10) * 10] . " " . 
+            $words[$point % 10] . " Paisa" : '';
+        return $result . "Rupees " . $points . " Only";
     }
 }

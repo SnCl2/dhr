@@ -67,4 +67,60 @@ class DocumentGenerationTest extends TestCase
             unlink(public_path($payslipPath));
         }
     }
+
+    public function test_payslip_generation_stores_and_renders_all_detailed_fields(): void
+    {
+        $this->seed();
+        $employee = Employee::first();
+        $admin = \App\Models\Admin::first();
+        if (!$admin) {
+            $admin = \App\Models\Admin::create([
+                'name' => 'Test Admin',
+                'email' => 'admin.test@example.com',
+                'password' => bcrypt('password123'),
+            ]);
+        }
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.payslips.generate.submit'), [
+            'employee_id' => $employee->id,
+            'month' => 'August 2026',
+            'type' => 'external',
+            'working_days' => 31,
+            'net_payable_days' => 30,
+            'ot_days' => 2,
+            'pay_mode' => 'Bank Transfer',
+            'basic_salary' => 15000.00,
+            'hra' => 750.00,
+            'medical_allowance' => 500.00,
+            'special_allowance' => 1000.00,
+            'leave_encashment' => 0.00,
+            'ot_allowance' => 1016.13,
+            'professional_tax' => 130.00,
+            'provident_fund' => 1800.00,
+            'esic' => 118.13,
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+
+        // Check if database record exists
+        $this->assertDatabaseHas('payslips', [
+            'employee_id' => $employee->id,
+            'month' => 'August 2026',
+            'working_days' => 31,
+            'net_payable_days' => 30,
+            'ot_days' => 2,
+            'pay_mode' => 'Bank Transfer',
+            'basic_salary' => 15000.00,
+            'hra' => 750.00,
+        ]);
+
+        $payslip = \App\Models\Payslip::where('employee_id', $employee->id)->where('month', 'August 2026')->first();
+        $this->assertNotNull($payslip);
+        $this->assertFileExists(public_path($payslip->pdf_path));
+
+        // Cleanup
+        if (file_exists(public_path($payslip->pdf_path))) {
+            unlink(public_path($payslip->pdf_path));
+        }
+    }
 }

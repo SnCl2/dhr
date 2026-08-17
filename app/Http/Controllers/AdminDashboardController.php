@@ -692,38 +692,69 @@ class AdminDashboardController extends Controller
         $request->validate([
             'employee_id' => ['required', 'exists:employees,id'],
             'month' => ['required', 'string'],
-            'basic_salary' => ['required', 'numeric', 'min:0'],
-            'allowances' => ['nullable', 'numeric', 'min:0'],
-            'deductions' => ['nullable', 'numeric', 'min:0'],
             'type' => ['required', 'string'], // internal, external
+            'working_days' => ['required', 'integer', 'min:1'],
+            'net_payable_days' => ['required', 'integer', 'min:0'],
+            'ot_days' => ['required', 'integer', 'min:0'],
+            'pay_mode' => ['required', 'string'],
+            
+            'basic_salary' => ['required', 'numeric', 'min:0'],
+            'hra' => ['nullable', 'numeric', 'min:0'],
+            'medical_allowance' => ['nullable', 'numeric', 'min:0'],
+            'special_allowance' => ['nullable', 'numeric', 'min:0'],
+            'leave_encashment' => ['nullable', 'numeric', 'min:0'],
+            'ot_allowance' => ['nullable', 'numeric', 'min:0'],
+            
+            'professional_tax' => ['nullable', 'numeric', 'min:0'],
+            'provident_fund' => ['nullable', 'numeric', 'min:0'],
+            'esic' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $employee = Employee::findOrFail($request->employee_id);
+        
+        $extra = [
+            'working_days' => (int) $request->working_days,
+            'net_payable_days' => (int) $request->net_payable_days,
+            'ot_days' => (int) $request->ot_days,
+            'pay_mode' => $request->pay_mode,
+            'hra' => (float) ($request->hra ?? 0),
+            'medical_allowance' => (float) ($request->medical_allowance ?? 0),
+            'special_allowance' => (float) ($request->special_allowance ?? 0),
+            'leave_encashment' => (float) ($request->leave_encashment ?? 0),
+            'ot_allowance' => (float) ($request->ot_allowance ?? 0),
+            'professional_tax' => (float) ($request->professional_tax ?? 0),
+            'provident_fund' => (float) ($request->provident_fund ?? 0),
+            'esic' => (float) ($request->esic ?? 0),
+        ];
+
         $basic = (float) $request->basic_salary;
-        $allowances = (float) ($request->allowances ?? 0);
-        $deductions = (float) ($request->deductions ?? 0);
-        $net = $basic + $allowances - $deductions;
+        $totalEarnings = $basic + $extra['hra'] + $extra['medical_allowance'] + $extra['special_allowance'] + $extra['leave_encashment'] + $extra['ot_allowance'];
+        $totalDeductions = $extra['professional_tax'] + $extra['provident_fund'] + $extra['esic'];
+        $net = $totalEarnings - $totalDeductions;
 
         $pdfPath = $this->pdfService->generatePayslipPdf(
             $employee,
             $request->month,
             $basic,
-            $allowances,
-            $deductions,
+            $extra['hra'],
+            $totalDeductions,
             $net,
-            $request->type
+            $request->type,
+            $extra
         );
 
-        Payslip::create([
+        $payslipData = array_merge([
             'employee_id' => $employee->id,
             'month' => $request->month,
             'basic_salary' => $basic,
-            'allowances' => $allowances,
-            'deductions' => $deductions,
+            'allowances' => $totalEarnings - $basic,
+            'deductions' => $totalDeductions,
             'net_salary' => $net,
             'type' => $request->type,
             'pdf_path' => $pdfPath,
-        ]);
+        ], $extra);
+
+        Payslip::create($payslipData);
 
         return redirect()->route('admin.employees.index')
             ->with('success', "Payslip generated successfully for {$employee->full_name} for {$request->month}.");
@@ -738,7 +769,6 @@ class AdminDashboardController extends Controller
         $path = $request->file('csv_file')->getRealPath();
         $file = fopen($path, 'r');
 
-        // Columns: employee_id, month, basic_salary, allowances, deductions, type
         $header = fgetcsv($file);
 
         $count = 0;
@@ -749,32 +779,52 @@ class AdminDashboardController extends Controller
             $employee = Employee::where('employee_id', trim($data['employee_id']))->first();
 
             if ($employee) {
-                $basic = (float) $data['basic_salary'];
-                $allowances = (float) ($data['allowances'] ?? 0);
-                $deductions = (float) ($data['deductions'] ?? 0);
-                $net = $basic + $allowances - $deductions;
+                $month = $data['month'];
                 $type = $data['type'] ?? 'external';
+                
+                $basic = (float) ($data['basic_salary'] ?? 0);
+                $extra = [
+                    'working_days' => (int) ($data['working_days'] ?? 31),
+                    'net_payable_days' => (int) ($data['net_payable_days'] ?? 31),
+                    'ot_days' => (int) ($data['ot_days'] ?? 0),
+                    'pay_mode' => $data['pay_mode'] ?? 'Bank Transfer',
+                    'hra' => (float) ($data['hra'] ?? 0),
+                    'medical_allowance' => (float) ($data['medical_allowance'] ?? 0),
+                    'special_allowance' => (float) ($data['special_allowance'] ?? 0),
+                    'leave_encashment' => (float) ($data['leave_encashment'] ?? 0),
+                    'ot_allowance' => (float) ($data['ot_allowance'] ?? 0),
+                    'professional_tax' => (float) ($data['professional_tax'] ?? 0),
+                    'provident_fund' => (float) ($data['provident_fund'] ?? 0),
+                    'esic' => (float) ($data['esic'] ?? 0),
+                ];
+
+                $totalEarnings = $basic + $extra['hra'] + $extra['medical_allowance'] + $extra['special_allowance'] + $extra['leave_encashment'] + $extra['ot_allowance'];
+                $totalDeductions = $extra['professional_tax'] + $extra['provident_fund'] + $extra['esic'];
+                $net = $totalEarnings - $totalDeductions;
 
                 $pdfPath = $this->pdfService->generatePayslipPdf(
                     $employee,
-                    $data['month'],
+                    $month,
                     $basic,
-                    $allowances,
-                    $deductions,
+                    $extra['hra'],
+                    $totalDeductions,
                     $net,
-                    $type
+                    $type,
+                    $extra
                 );
 
-                Payslip::create([
+                $payslipData = array_merge([
                     'employee_id' => $employee->id,
-                    'month' => $data['month'],
+                    'month' => $month,
                     'basic_salary' => $basic,
-                    'allowances' => $allowances,
-                    'deductions' => $deductions,
+                    'allowances' => $totalEarnings - $basic,
+                    'deductions' => $totalDeductions,
                     'net_salary' => $net,
                     'type' => $type,
                     'pdf_path' => $pdfPath,
-                ]);
+                ], $extra);
+
+                Payslip::create($payslipData);
 
                 $count++;
             }
@@ -783,6 +833,64 @@ class AdminDashboardController extends Controller
 
         return redirect()->route('admin.employees.index')
             ->with('success', "Successfully bulk generated {$count} payslips from CSV.");
+    }
+
+    public function downloadPayslipTemplate()
+    {
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=payslip_bulk_template.csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = [
+            'employee_id',
+            'month',
+            'type',
+            'working_days',
+            'net_payable_days',
+            'ot_days',
+            'pay_mode',
+            'basic_salary',
+            'hra',
+            'medical_allowance',
+            'special_allowance',
+            'leave_encashment',
+            'ot_allowance',
+            'professional_tax',
+            'provident_fund',
+            'esic'
+        ];
+
+        $callback = function() use($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            
+            // Add a sample row
+            fputcsv($file, [
+                'EMP-2026-0001',
+                'August 2026',
+                'external',
+                '31',
+                '31',
+                '0',
+                'Bank Transfer',
+                '15000.00',
+                '750.00',
+                '0.00',
+                '0.00',
+                '0.00',
+                '0.00',
+                '130.00',
+                '1800.00',
+                '118.13'
+            ]);
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     /*

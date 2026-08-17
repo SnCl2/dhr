@@ -97,6 +97,7 @@ Route::middleware(['auth.admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/payslips/generate', [AdminDashboardController::class, 'showGeneratePayslip'])->name('payslips.generate');
     Route::post('/payslips/generate', [AdminDashboardController::class, 'generatePayslip'])->name('payslips.generate.submit');
     Route::post('/payslips/bulk', [AdminDashboardController::class, 'generatePayslipsBulk'])->name('payslips.bulk');
+    Route::get('/payslips/template', [AdminDashboardController::class, 'downloadPayslipTemplate'])->name('payslips.template');
 
     // Bulletins & Notices
     Route::get('/bulletins', [AdminDashboardController::class, 'bulletinsIndex'])->name('bulletins.index');
