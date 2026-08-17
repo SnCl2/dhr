@@ -52,19 +52,9 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('offer_letter_templates', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('subject');
-            $table->string('type'); // internal, external
-            $table->text('content'); // text template/format JSON or markdown/HTML
-            $table->timestamps();
-        });
-
         Schema::create('offer_letters', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
-            $table->foreignId('template_id')->constrained('offer_letter_templates')->cascadeOnDelete();
             $table->string('pdf_path');
             $table->timestamps();
         });
@@ -119,7 +109,6 @@ return new class extends Migration
         Schema::dropIfExists('inquiries');
         Schema::dropIfExists('payslips');
         Schema::dropIfExists('offer_letters');
-        Schema::dropIfExists('offer_letter_templates');
         Schema::dropIfExists('employees');
         Schema::dropIfExists('designations');
         Schema::dropIfExists('departments');

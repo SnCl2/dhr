@@ -308,63 +308,7 @@ class AdminDashboardController extends Controller
             ->with('success', 'Company deleted successfully.');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Templates CRUD
-    |--------------------------------------------------------------------------
-    */
-    public function templatesIndex()
-    {
-        $templates = OfferLetterTemplate::all();
-        return view('admin.templates.index', compact('templates'));
-    }
 
-    public function templatesCreate()
-    {
-        return view('admin.templates.create');
-    }
-
-    public function templatesStore(Request $request)
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'subject' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string'],
-            'content' => ['required', 'string'],
-        ]);
-
-        OfferLetterTemplate::create($request->all());
-
-        return redirect()->route('admin.templates.index')
-            ->with('success', 'Offer Letter Template created successfully.');
-    }
-
-    public function templatesEdit(OfferLetterTemplate $template)
-    {
-        return view('admin.templates.edit', compact('template'));
-    }
-
-    public function templatesUpdate(Request $request, OfferLetterTemplate $template)
-    {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'subject' => ['required', 'string', 'max:255'],
-            'type' => ['required', 'string'],
-            'content' => ['required', 'string'],
-        ]);
-
-        $template->update($request->all());
-
-        return redirect()->route('admin.templates.index')
-            ->with('success', 'Offer Letter Template updated successfully.');
-    }
-
-    public function templatesDestroy(OfferLetterTemplate $template)
-    {
-        $template->delete();
-        return redirect()->route('admin.templates.index')
-            ->with('success', 'Offer Letter Template deleted successfully.');
-    }
 
     /*
     |--------------------------------------------------------------------------
@@ -374,21 +318,19 @@ class AdminDashboardController extends Controller
     public function showGenerateOfferLetter()
     {
         $employees = Employee::where('status', '!=', 'terminated')->get();
-        $templates = OfferLetterTemplate::all();
-        return view('admin.documents.generate-offer', compact('employees', 'templates'));
+        return view('admin.documents.generate-offer', compact('employees'));
     }
 
     public function generateOfferLetter(Request $request)
     {
         $request->validate([
             'employee_id' => ['required', 'exists:employees,id'],
-            'template_id' => ['required', 'exists:offer_letter_templates,id'],
+            'type' => ['required', 'in:internal,external'],
             'salary' => ['nullable', 'numeric'],
             'joining_date' => ['nullable', 'date'],
         ]);
 
         $employee = Employee::findOrFail($request->employee_id);
-        $template = OfferLetterTemplate::findOrFail($request->template_id);
 
         $customData = [
             'salary' => $request->salary ?? $employee->salary,
@@ -396,12 +338,11 @@ class AdminDashboardController extends Controller
         ];
 
         // Generate PDF path using service
-        $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $template, $customData);
+        $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $request->type, $customData);
 
         // Store letter in database
         OfferLetter::create([
             'employee_id' => $employee->id,
-            'template_id' => $template->id,
             'pdf_path' => $pdfPath,
         ]);
 
@@ -413,10 +354,10 @@ class AdminDashboardController extends Controller
     {
         $request->validate([
             'csv_file' => ['required', 'file', 'mimes:csv,txt'],
-            'template_id' => ['required', 'exists:offer_letter_templates,id'],
+            'type' => ['required', 'in:internal,external'],
         ]);
 
-        $template = OfferLetterTemplate::findOrFail($request->template_id);
+        $type = $request->type;
         $path = $request->file('csv_file')->getRealPath();
         $file = fopen($path, 'r');
 
@@ -436,11 +377,10 @@ class AdminDashboardController extends Controller
                     'joining_date' => isset($data['joining_date']) ? date('d-M-Y', strtotime($data['joining_date'])) : null,
                 ];
 
-                $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $template, $customData);
+                $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $type, $customData);
 
                 OfferLetter::create([
                     'employee_id' => $employee->id,
-                    'template_id' => $template->id,
                     'pdf_path' => $pdfPath,
                 ]);
 
@@ -450,7 +390,7 @@ class AdminDashboardController extends Controller
         fclose($file);
 
         return redirect()->route('admin.employees.index')
-            ->with('success', "Bulk offer letters generated for {$count} employees.");
+            ->with('success', "Bulk generated {$count} offer letters successfully.");
     }
 
     /*

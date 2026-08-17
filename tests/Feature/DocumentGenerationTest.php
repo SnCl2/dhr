@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use App\Models\Employee;
 use App\Models\Department;
 use App\Models\Designation;
-use App\Models\OfferLetterTemplate;
+
 use App\Services\DocumentGeneratorService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -34,17 +34,10 @@ class DocumentGenerationTest extends TestCase
             'designation_id' => Designation::first()->id,
         ]);
 
-        $template = OfferLetterTemplate::create([
-            'name' => 'Test Template',
-            'subject' => 'Welcome to the Team',
-            'type' => 'external',
-            'content' => "Dear {full_name},\nWe are pleased to offer you the position of {designation} in our {department} department with a salary of Rs. {salary} starting on {joining_date}.\nWelcome aboard!",
-        ]);
-
         $service = new DocumentGeneratorService();
 
         // 1. Test Offer Letter PDF generation
-        $offerLetterPath = $service->generateOfferLetterPdf($employee, $template, [
+        $offerLetterPath = $service->generateOfferLetterPdf($employee, 'external', [
             'salary' => 25000.00,
             'joining_date' => '01-Aug-2026',
         ]);

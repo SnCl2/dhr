@@ -72,14 +72,6 @@ Route::middleware(['auth.admin'])->prefix('admin')->name('admin.')->group(functi
     Route::put('/companies/{company}/update', [AdminDashboardController::class, 'companiesUpdate'])->name('companies.update');
     Route::delete('/companies/{company}/destroy', [AdminDashboardController::class, 'companiesDestroy'])->name('companies.destroy');
 
-    // Offer Letter Templates
-    Route::get('/templates', [AdminDashboardController::class, 'templatesIndex'])->name('templates.index');
-    Route::get('/templates/create', [AdminDashboardController::class, 'templatesCreate'])->name('templates.create');
-    Route::post('/templates/store', [AdminDashboardController::class, 'templatesStore'])->name('templates.store');
-    Route::get('/templates/{template}/edit', [AdminDashboardController::class, 'templatesEdit'])->name('templates.edit');
-    Route::put('/templates/{template}/update', [AdminDashboardController::class, 'templatesUpdate'])->name('templates.update');
-    Route::delete('/templates/{template}/destroy', [AdminDashboardController::class, 'templatesDestroy'])->name('templates.destroy');
-
     // Offer Letter Generation
     Route::get('/offer-letters/generate', [AdminDashboardController::class, 'showGenerateOfferLetter'])->name('offer-letters.generate');
     Route::post('/offer-letters/generate', [AdminDashboardController::class, 'generateOfferLetter'])->name('offer-letters.generate.submit');

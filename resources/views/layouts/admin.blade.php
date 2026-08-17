@@ -158,11 +158,6 @@
                 <span>Manage Companies</span>
             </a>
 
-            <a href="{{ route('admin.templates.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.templates.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
-                <i class="fa-solid fa-file-invoice w-5 text-center"></i>
-                <span>Offer Templates</span>
-            </a>
-
             <a href="{{ route('admin.offer-letters.generate') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.offer-letters.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-file-pdf w-5 text-center"></i>
                 <span>Generate Offer Letters</span>

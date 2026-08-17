@@ -7,7 +7,7 @@ class DocumentGeneratorService
     /**
      * Generate an Offer Letter PDF using FPDF and return the relative path.
      */
-    public function generateOfferLetterPdf($employee, $template, $customData)
+    public function generateOfferLetterPdf($employee, $type, $customData)
     {
         // 1. Ensure output directory exists
         $dir = public_path('storage/offer_letters');
@@ -24,39 +24,39 @@ class DocumentGeneratorService
         $pdf->SetMargins(20, 20, 20);
 
         // 3. Dynamic layout based on type (Internal vs External)
-        if ($template->type === 'internal') {
+        if ($type === 'internal') {
             // Internal layout: Clean, corporate, compact style
             $pdf->SetFillColor(243, 244, 246); // Light gray header strip
             $pdf->Rect(0, 0, 210, 40, 'F');
 
-            $pdf->SetTextColor(76, 29, 149); // Dark purple title
+            $pdf->SetTextColor(30, 58, 138); // Royal Navy Blue
             $pdf->SetFont('Arial', 'B', 18);
-            $pdf->Text(20, 22, 'PROPSZY INFOTECH');
+            $pdf->Text(20, 22, 'RMHRSOLUTIONS');
             $pdf->SetFont('Arial', 'I', 9);
             $pdf->SetTextColor(107, 114, 128);
             $pdf->Text(20, 28, 'Internal Appointment Letter');
 
             // Draw line
-            $pdf->SetDrawColor(139, 92, 246);
+            $pdf->SetDrawColor(37, 99, 235); // Brand Blue
             $pdf->SetLineWidth(0.8);
             $pdf->Line(20, 39, 190, 39);
 
             $pdf->SetY(48);
         } else {
             // External layout: Formal, elegant client-facing style with border frame
-            $pdf->SetDrawColor(76, 29, 149); // Purple frame border
+            $pdf->SetDrawColor(30, 58, 138); // Royal Navy Blue frame border
             $pdf->SetLineWidth(0.5);
             $pdf->Rect(8, 8, 194, 281);
 
             // Double header lines
             $pdf->SetY(15);
             $pdf->SetFont('Arial', 'B', 22);
-            $pdf->SetTextColor(76, 29, 149);
-            $pdf->Cell(0, 10, 'PROPSZY RECRUITMENT SERVICES', 0, 1, 'C');
+            $pdf->SetTextColor(30, 58, 138); // Royal Navy Blue
+            $pdf->Cell(0, 10, 'RMHRSOLUTIONS RECRUITMENT SERVICES', 0, 1, 'C');
             $pdf->SetFont('Arial', '', 9);
             $pdf->SetTextColor(107, 114, 128);
             $pdf->Cell(0, 4, 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503', 0, 1, 'C');
-            $pdf->Cell(0, 4, 'Email: info@propszy.com | Phone: +91 94323 13430', 0, 1, 'C');
+            $pdf->Cell(0, 4, 'Email: info@rmhrsolutions.in | Phone: +91 94323 13430', 0, 1, 'C');
 
             $pdf->SetDrawColor(229, 231, 235);
             $pdf->SetLineWidth(0.3);
@@ -84,13 +84,22 @@ class DocumentGeneratorService
         $pdf->Ln(8);
 
         // Subject line
+        $subject = ($type === 'internal')
+            ? 'Appointment Letter for the position of ' . ($employee->designation ? $employee->designation->name : 'Staff')
+            : 'Offer of Employment (Contractual Staff)';
+
         $pdf->SetFont('Arial', 'B', 11);
         $pdf->SetTextColor(17, 24, 39);
-        $pdf->Cell(0, 6, 'Subject: ' . $template->subject, 0, 1);
+        $pdf->Cell(0, 6, 'Subject: ' . $subject, 0, 1);
         $pdf->Ln(5);
 
-        // 5. Replace Placeholders in template content
-        $content = $template->content;
+        // 5. Hardcoded Template Content depending on Type
+        if ($type === 'internal') {
+            $content = "Dear {full_name},\n\nWe are pleased to offer you the position of {designation} in the {department} department at RMHRSolutions Plotters Private Limited.\n\nYour joining date will be {joining_date}. Your monthly salary will be Rs. {salary}.\n\nPlease sign and return a copy of this letter as confirmation of your acceptance.\n\nWelcome to our team!";
+        } else {
+            $content = "Dear {full_name},\n\nOn behalf of RMHRSolutions, we are pleased to extend you an offer of employment as a contract staff member for the position of {designation}.\n\nYou will be deployed to one of our client sites starting on {joining_date}. Your monthly gross salary will be Rs. {salary}.\n\nWe look forward to working with you.";
+        }
+
         $placeholders = [
             '{first_name}' => $employee->first_name,
             '{last_name}' => $employee->last_name,
@@ -124,7 +133,7 @@ class DocumentGeneratorService
         $pdf->Cell(0, 5, 'Yours sincerely,', 0, 1);
         $pdf->Ln(10);
         $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 5, 'For Propszy Recruitment Agency', 0, 1);
+        $pdf->Cell(0, 5, 'For RMHRSolutions', 0, 1);
         $pdf->SetFont('Arial', 'I', 9);
         $pdf->SetTextColor(107, 114, 128);
         $pdf->Cell(0, 5, 'Authorized Signatory', 0, 1);
@@ -156,21 +165,21 @@ class DocumentGeneratorService
 
         // 1. Header Styles based on Internal vs External
         if ($type === 'internal') {
-            $pdf->SetFillColor(76, 29, 149); // Purple Header Block
+            $pdf->SetFillColor(30, 58, 138); // Royal Navy Blue Header Block
             $pdf->Rect(0, 0, 210, 30, 'F');
             $pdf->SetTextColor(255, 255, 255);
             $pdf->SetFont('Arial', 'B', 16);
-            $pdf->Text(15, 15, 'PROPSZY INFOTECH');
+            $pdf->Text(15, 15, 'RMHRSOLUTIONS');
             $pdf->SetFont('Arial', '', 10);
             $pdf->Text(15, 22, 'INTERNAL PAYROLL DIVISION | MONTHLY PAYSLIP');
         } else {
-            $pdf->SetDrawColor(76, 29, 149);
+            $pdf->SetDrawColor(30, 58, 138);
             $pdf->SetLineWidth(0.5);
             $pdf->Rect(5, 5, 200, 287);
 
-            $pdf->SetTextColor(76, 29, 149);
+            $pdf->SetTextColor(30, 58, 138);
             $pdf->SetFont('Arial', 'B', 18);
-            $pdf->Cell(0, 10, 'PROPSZY RECRUITMENT & STAFFING', 0, 1, 'C');
+            $pdf->Cell(0, 10, 'RMHRSOLUTIONS RECRUITMENT & STAFFING', 0, 1, 'C');
             $pdf->SetFont('Arial', '', 9);
             $pdf->SetTextColor(107, 114, 128);
             $pdf->Cell(0, 4, 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503', 0, 1, 'C');
@@ -240,7 +249,7 @@ class DocumentGeneratorService
         $pdf->Ln(8);
 
         // 4. Net Salary Block
-        $pdf->SetFillColor(237, 233, 254);
+        $pdf->SetFillColor(219, 234, 254); // Light Blue-100 Header Block
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(180, 8, 'NET TAKE-HOME SALARY: Rs. ' . number_format($net, 2), 1, 1, 'C', true);
 

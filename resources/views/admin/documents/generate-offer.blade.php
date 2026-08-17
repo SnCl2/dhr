@@ -34,19 +34,16 @@
                 @enderror
             </div>
 
-            <!-- Template -->
+            <!-- Offer Letter Type -->
             <div>
-                <label for="template_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Select Template format</label>
-                <select id="template_id" name="template_id" required
+                <label for="type" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Select Letter Type</label>
+                <select id="type" name="type" required
                     class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
-                    <option value="">-- Choose Template --</option>
-                    @foreach($templates as $tmpl)
-                        <option value="{{ $tmpl->id }}" {{ old('template_id') == $tmpl->id ? 'selected' : '' }}>
-                            {{ $tmpl->name }} [{{ strtoupper($tmpl->type) }}]
-                        </option>
-                    @endforeach
+                    <option value="">-- Choose Type --</option>
+                    <option value="internal" {{ old('type') == 'internal' ? 'selected' : '' }}>Internal Staff Layout</option>
+                    <option value="external" {{ old('type') == 'external' ? 'selected' : '' }}>External/Contractor Layout</option>
                 </select>
-                @error('template_id')
+                @error('type')
                     <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
                 @enderror
             </div>
@@ -101,18 +98,18 @@
             <form action="{{ route('admin.offer-letters.bulk') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
-                <!-- Template -->
+                <!-- Offer Letter Type -->
                 <div>
-                    <label for="bulk_template_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Select Template format</label>
-                    <select id="bulk_template_id" name="template_id" required
+                    <label for="bulk_type" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Select Letter Type</label>
+                    <select id="bulk_type" name="type" required
                         class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
-                        <option value="">-- Choose Template --</option>
-                        @foreach($templates as $tmpl)
-                            <option value="{{ $tmpl->id }}">
-                                {{ $tmpl->name }} [{{ strtoupper($tmpl->type) }}]
-                            </option>
-                        @endforeach
+                        <option value="">-- Choose Type --</option>
+                        <option value="internal">Internal Staff Layout</option>
+                        <option value="external">External/Contractor Layout</option>
                     </select>
+                    @error('type')
+                        <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <!-- CSV File -->
