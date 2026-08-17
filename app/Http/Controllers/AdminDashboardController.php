@@ -93,7 +93,7 @@ class AdminDashboardController extends Controller
 
     public function employeesStore(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:employees,email'],
@@ -104,6 +104,38 @@ class AdminDashboardController extends Controller
             'company_id' => ['nullable', 'exists:companies,id'],
             'joining_date' => ['nullable', 'date'],
             'salary' => ['nullable', 'numeric', 'min:0'],
+
+            // Aadhaar and KYC Attributes
+            'aadhaar_full_name' => ['nullable', 'string', 'max:255'],
+            'aadhaar_number' => ['nullable', 'string', 'max:20'],
+            'pan_number' => ['nullable', 'string', 'max:20'],
+            'voter_id_number' => ['nullable', 'string', 'max:20'],
+            'prefix' => ['nullable', 'string', 'max:10'],
+            'father_name_aadhaar' => ['nullable', 'string', 'max:255'],
+            'mother_name_aadhaar' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', 'max:20'],
+            'dob' => ['nullable', 'date'],
+            'mother_tongue' => ['nullable', 'string', 'max:100'],
+            'aadhaar_address' => ['nullable', 'string'],
+            'landmark' => ['nullable', 'string', 'max:255'],
+            'contact_number' => ['nullable', 'string', 'max:20'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'emergency_contact_number' => ['nullable', 'string', 'max:20'],
+            'pin_code' => ['nullable', 'string', 'max:10'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'last_qualification' => ['nullable', 'string', 'max:255'],
+            'pass_out_year' => ['nullable', 'string', 'max:10'],
+            'marital_status' => ['nullable', 'string', 'max:50'],
+            'email_id' => ['nullable', 'string', 'email', 'max:255'],
+            'old_uan_number' => ['nullable', 'string', 'max:50'],
+            'old_esic_number' => ['nullable', 'string', 'max:50'],
+            'bank_account_number' => ['nullable', 'string', 'max:50'],
+            'ifsc_code' => ['nullable', 'string', 'max:20'],
+            'bank_name' => ['nullable', 'string', 'max:255'],
+            'client_name' => ['nullable', 'string', 'max:255'],
+            'work_location' => ['nullable', 'string', 'max:255'],
+            'designation' => ['nullable', 'string', 'max:255'],
+            'nth_salary' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         // Auto-generate Employee ID: EMP-YYYY-XXXX
@@ -124,21 +156,11 @@ class AdminDashboardController extends Controller
         // Auto-generate random temp password
         $plainPassword = strtolower($request->first_name) . rand(1000, 9999);
 
-        Employee::create([
-            'employee_id' => $employeeId,
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-            'password' => Hash::make($plainPassword),
-            'status' => $request->status,
-            'department_id' => $request->department_id,
-            'designation_id' => $request->designation_id,
-            'company_id' => $request->company_id,
-            'joining_date' => $request->joining_date,
-            'salary' => $request->salary,
-            'is_password_changed' => false, // Forces change on login
-        ]);
+        $validated['employee_id'] = $employeeId;
+        $validated['password'] = Hash::make($plainPassword);
+        $validated['is_password_changed'] = false; // Forces change on login
+
+        Employee::create($validated);
 
         return redirect()->route('admin.employees.index')
             ->with('success', "Employee created successfully! ID: {$employeeId} | Temp Password: {$plainPassword}");
@@ -154,7 +176,7 @@ class AdminDashboardController extends Controller
 
     public function employeesUpdate(Request $request, Employee $employee)
     {
-        $request->validate([
+        $validated = $request->validate([
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:employees,email,' . $employee->id],
@@ -165,9 +187,41 @@ class AdminDashboardController extends Controller
             'company_id' => ['nullable', 'exists:companies,id'],
             'joining_date' => ['nullable', 'date'],
             'salary' => ['nullable', 'numeric', 'min:0'],
+
+            // Aadhaar and KYC Attributes
+            'aadhaar_full_name' => ['nullable', 'string', 'max:255'],
+            'aadhaar_number' => ['nullable', 'string', 'max:20'],
+            'pan_number' => ['nullable', 'string', 'max:20'],
+            'voter_id_number' => ['nullable', 'string', 'max:20'],
+            'prefix' => ['nullable', 'string', 'max:10'],
+            'father_name_aadhaar' => ['nullable', 'string', 'max:255'],
+            'mother_name_aadhaar' => ['nullable', 'string', 'max:255'],
+            'gender' => ['nullable', 'string', 'max:20'],
+            'dob' => ['nullable', 'date'],
+            'mother_tongue' => ['nullable', 'string', 'max:100'],
+            'aadhaar_address' => ['nullable', 'string'],
+            'landmark' => ['nullable', 'string', 'max:255'],
+            'contact_number' => ['nullable', 'string', 'max:20'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'emergency_contact_number' => ['nullable', 'string', 'max:20'],
+            'pin_code' => ['nullable', 'string', 'max:10'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'last_qualification' => ['nullable', 'string', 'max:255'],
+            'pass_out_year' => ['nullable', 'string', 'max:10'],
+            'marital_status' => ['nullable', 'string', 'max:50'],
+            'email_id' => ['nullable', 'string', 'email', 'max:255'],
+            'old_uan_number' => ['nullable', 'string', 'max:50'],
+            'old_esic_number' => ['nullable', 'string', 'max:50'],
+            'bank_account_number' => ['nullable', 'string', 'max:50'],
+            'ifsc_code' => ['nullable', 'string', 'max:20'],
+            'bank_name' => ['nullable', 'string', 'max:255'],
+            'client_name' => ['nullable', 'string', 'max:255'],
+            'work_location' => ['nullable', 'string', 'max:255'],
+            'designation' => ['nullable', 'string', 'max:255'],
+            'nth_salary' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $employee->update($request->all());
+        $employee->update($validated);
 
         return redirect()->route('admin.employees.index')
             ->with('success', "Employee {$employee->employee_id} updated successfully.");
