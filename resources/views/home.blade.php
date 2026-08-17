@@ -681,7 +681,7 @@
                 </div>
             </div>
             <div class="p-6 pt-0">
-                <a href="{{ route('services') }}" class="text-xxs font-bold uppercase text-indigo-650 hover:underline">Read Article <i class="fa-solid fa-arrow-right ml-1"></i></a>
+                <a href="{{ route('services') }}" class="text-xxs font-bold uppercase text-indigo-600 hover:underline">Read Article <i class="fa-solid fa-arrow-right ml-1"></i></a>
             </div>
         </div>
 
@@ -701,7 +701,7 @@
                 </div>
             </div>
             <div class="p-6 pt-0">
-                <a href="{{ route('services') }}" class="text-xxs font-bold uppercase text-indigo-650 hover:underline">Read Feature <i class="fa-solid fa-arrow-right ml-1"></i></a>
+                <a href="{{ route('services') }}" class="text-xxs font-bold uppercase text-indigo-600 hover:underline">Read Feature <i class="fa-solid fa-arrow-right ml-1"></i></a>
             </div>
         </div>
 
@@ -718,7 +718,7 @@
                 </div>
             </div>
             <div class="p-6 pt-0">
-                <a href="{{ route('services') }}" class="text-xxs font-bold uppercase text-indigo-650 hover:underline">Read Article <i class="fa-solid fa-arrow-right ml-1"></i></a>
+                <a href="{{ route('services') }}" class="text-xxs font-bold uppercase text-indigo-600 hover:underline">Read Article <i class="fa-solid fa-arrow-right ml-1"></i></a>
             </div>
         </div>
     </div>

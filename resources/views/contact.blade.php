@@ -74,7 +74,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <!-- Name -->
                         <div>
-                            <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-655">Your Name</label>
+                            <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Your Name</label>
                             <input type="text" id="name" name="name" required value="{{ old('name') }}"
                                 class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm transition-all"
                                 placeholder="John Doe">
@@ -85,7 +85,7 @@
 
                         <!-- Email -->
                         <div>
-                            <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-655">Email Address</label>
+                            <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Email Address</label>
                             <input type="email" id="email" name="email" required value="{{ old('email') }}"
                                 class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm transition-all"
                                 placeholder="john@example.com">
@@ -98,7 +98,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         <!-- Phone -->
                         <div>
-                            <label for="phone" class="block text-xs font-bold uppercase tracking-wider text-slate-655">Phone (Optional)</label>
+                            <label for="phone" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Phone (Optional)</label>
                             <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
                                 class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm transition-all"
                                 placeholder="+91 98765 43210">
@@ -109,7 +109,7 @@
 
                         <!-- Subject -->
                         <div>
-                            <label for="subject" class="block text-xs font-bold uppercase tracking-wider text-slate-655">Subject</label>
+                            <label for="subject" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Subject</label>
                             <input type="text" id="subject" name="subject" required value="{{ old('subject') }}"
                                 class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm transition-all"
                                 placeholder="Hiring Requirement / Inquiry">
@@ -121,7 +121,7 @@
 
                     <!-- Message -->
                     <div>
-                        <label for="message" class="block text-xs font-bold uppercase tracking-wider text-slate-655">Your Message</label>
+                        <label for="message" class="block text-xs font-bold uppercase tracking-wider text-slate-600">Your Message</label>
                         <textarea id="message" name="message" rows="5" required
                             class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm transition-all"
                             placeholder="Write your message here..."></textarea>
@@ -133,7 +133,7 @@
                     <!-- Submit -->
                     <div>
                         <button type="submit"
-                            class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-650 to-blue-650 hover:from-indigo-600 hover:to-blue-600 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-indigo-600/10 transition-all duration-300">
+                            class="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 focus:outline-none focus:ring-1 focus:ring-indigo-500 shadow-indigo-600/20 transition-all duration-300">
                             <i class="fa-solid fa-paper-plane mr-2 mt-0.5"></i> Submit Inquiry
                         </button>
                     </div>
