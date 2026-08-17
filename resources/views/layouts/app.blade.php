@@ -137,15 +137,10 @@
                     <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('contact') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Contact Us</a>
                 </nav>
 
-                <!-- Action Button / Portals -->
                 <div class="hidden md:flex items-center space-x-3">
                     @auth('employee')
                         <a href="{{ route('employee.dashboard') }}" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
                             <i class="fa-solid fa-id-card mr-2"></i>Dashboard
-                        </a>
-                    @elseauth('admin')
-                        <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
-                            <i class="fa-solid fa-user-shield mr-2"></i>Admin Panel
                         </a>
                     @else
                         <a href="{{ route('login') }}" class="px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
@@ -173,8 +168,6 @@
             <div class="pt-4 border-t border-slate-800 flex flex-col space-y-2">
                 @auth('employee')
                     <a href="{{ route('employee.dashboard') }}" class="w-full text-center px-4 py-2 bg-purple-600 text-white rounded-lg text-base font-semibold">Dashboard</a>
-                @elseauth('admin')
-                    <a href="{{ route('admin.dashboard') }}" class="w-full text-center px-4 py-2 bg-purple-600 text-white rounded-lg text-base font-semibold">Admin Panel</a>
                 @else
                     <a href="{{ route('login') }}" class="w-full text-center px-4 py-2 bg-purple-600 text-white rounded-lg text-base font-semibold">Employee Login</a>
                 @endauth
