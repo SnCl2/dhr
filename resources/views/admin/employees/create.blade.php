@@ -153,8 +153,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     <!-- Prefix -->
                     <div>
-                        <label for="prefix" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Prefix</label>
-                        <select id="prefix" name="prefix" class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                        <label for="prefix" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Prefix <span class="text-rose-500">*</span></label>
+                        <select id="prefix" name="prefix" class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" required>
                             <option value="">Select</option>
                             <option value="Mr." {{ old('prefix') === 'Mr.' ? 'selected' : '' }}>Mr.</option>
                             <option value="Mrs." {{ old('prefix') === 'Mrs.' ? 'selected' : '' }}>Mrs.</option>
@@ -166,22 +166,22 @@
 
                     <!-- Aadhaar Full Name -->
                     <div>
-                        <label for="aadhaar_full_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Full Name as per Aadhaar</label>
-                        <input type="text" id="aadhaar_full_name" name="aadhaar_full_name" value="{{ old('aadhaar_full_name') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Full Name">
+                        <label for="aadhaar_full_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Full Name as per Aadhaar <span class="text-rose-500">*</span></label>
+                        <input type="text" id="aadhaar_full_name" name="aadhaar_full_name" value="{{ old('aadhaar_full_name') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Full Name" required>
                         @error('aadhaar_full_name') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Father's Name -->
                     <div>
-                        <label for="father_name_aadhaar" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Father's Name (as Aadhaar)</label>
-                        <input type="text" id="father_name_aadhaar" name="father_name_aadhaar" value="{{ old('father_name_aadhaar') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Father's Name">
+                        <label for="father_name_aadhaar" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Father's Name (as Aadhaar) <span class="text-rose-500">*</span></label>
+                        <input type="text" id="father_name_aadhaar" name="father_name_aadhaar" value="{{ old('father_name_aadhaar') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Father's Name" required>
                         @error('father_name_aadhaar') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Mother's Name -->
                     <div>
-                        <label for="mother_name_aadhaar" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Mother's Name (as Aadhaar)</label>
-                        <input type="text" id="mother_name_aadhaar" name="mother_name_aadhaar" value="{{ old('mother_name_aadhaar') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Mother's Name">
+                        <label for="mother_name_aadhaar" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Mother's Name (as Aadhaar) <span class="text-rose-500">*</span></label>
+                        <input type="text" id="mother_name_aadhaar" name="mother_name_aadhaar" value="{{ old('mother_name_aadhaar') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Mother's Name" required>
                         @error('mother_name_aadhaar') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -189,8 +189,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     <!-- Gender -->
                     <div>
-                        <label for="gender" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Gender</label>
-                        <select id="gender" name="gender" class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                        <label for="gender" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Gender <span class="text-rose-500">*</span></label>
+                        <select id="gender" name="gender" class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" required>
                             <option value="">Select</option>
                             <option value="Male" {{ old('gender') === 'Male' ? 'selected' : '' }}>Male</option>
                             <option value="Female" {{ old('gender') === 'Female' ? 'selected' : '' }}>Female</option>
@@ -201,22 +201,22 @@
 
                     <!-- DOB -->
                     <div>
-                        <label for="dob" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Date of Birth</label>
-                        <input type="date" id="dob" name="dob" value="{{ old('dob') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                        <label for="dob" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Date of Birth <span class="text-rose-500">*</span></label>
+                        <input type="date" id="dob" name="dob" value="{{ old('dob') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" required>
                         @error('dob') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Mother Tongue -->
                     <div>
-                        <label for="mother_tongue" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Mother Tongue</label>
-                        <input type="text" id="mother_tongue" name="mother_tongue" value="{{ old('mother_tongue') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Bengali, Hindi, etc.">
+                        <label for="mother_tongue" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Mother Tongue <span class="text-rose-500">*</span></label>
+                        <input type="text" id="mother_tongue" name="mother_tongue" value="{{ old('mother_tongue') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Bengali, Hindi, etc." required>
                         @error('mother_tongue') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Marital Status -->
                     <div>
-                        <label for="marital_status" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Marital Status</label>
-                        <select id="marital_status" name="marital_status" class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                        <label for="marital_status" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Marital Status <span class="text-rose-500">*</span></label>
+                        <select id="marital_status" name="marital_status" class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" required>
                             <option value="">Select</option>
                             <option value="Single" {{ old('marital_status') === 'Single' ? 'selected' : '' }}>Single</option>
                             <option value="Married" {{ old('marital_status') === 'Married' ? 'selected' : '' }}>Married</option>
@@ -234,21 +234,21 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     <!-- Aadhaar Number -->
                     <div>
-                        <label for="aadhaar_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Aadhaar Number</label>
-                        <input type="text" id="aadhaar_number" name="aadhaar_number" value="{{ old('aadhaar_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="12-digit Aadhaar">
+                        <label for="aadhaar_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Aadhaar Number <span class="text-rose-500">*</span></label>
+                        <input type="text" id="aadhaar_number" name="aadhaar_number" value="{{ old('aadhaar_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="12-digit Aadhaar" required>
                         @error('aadhaar_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- PAN Number -->
                     <div>
-                        <label for="pan_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">PAN Number</label>
+                        <label for="pan_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">PAN Number <span class="text-emerald-500 font-bold ml-1">•</span></label>
                         <input type="text" id="pan_number" name="pan_number" value="{{ old('pan_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="10-digit PAN">
                         @error('pan_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Voter ID Number -->
                     <div>
-                        <label for="voter_id_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Voter ID Number</label>
+                        <label for="voter_id_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Voter ID Number <span class="text-emerald-500 font-bold ml-1">•</span></label>
                         <input type="text" id="voter_id_number" name="voter_id_number" value="{{ old('voter_id_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Voter ID Card No.">
                         @error('voter_id_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
@@ -257,8 +257,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <!-- Old UAN Number -->
                     <div>
-                        <label for="old_uan_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Old UAN Number (PF)</label>
-                        <input type="text" id="old_uan_number" name="old_uan_number" value="{{ old('old_uan_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="UAN Number">
+                        <label for="old_uan_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Old UAN Number (PF) <span class="text-rose-500">*</span></label>
+                        <input type="text" id="old_uan_number" name="old_uan_number" value="{{ old('old_uan_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="UAN Number" required>
                         @error('old_uan_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
@@ -277,8 +277,8 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     <!-- Contact Number -->
                     <div>
-                        <label for="contact_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Secondary Contact Number</label>
-                        <input type="text" id="contact_number" name="contact_number" value="{{ old('contact_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Mobile Number">
+                        <label for="contact_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Secondary Contact Number <span class="text-rose-500">*</span></label>
+                        <input type="text" id="contact_number" name="contact_number" value="{{ old('contact_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Mobile Number" required>
                         @error('contact_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
@@ -291,45 +291,45 @@
 
                     <!-- Emergency Contact -->
                     <div>
-                        <label for="emergency_contact_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Emergency Contact Number</label>
-                        <input type="text" id="emergency_contact_number" name="emergency_contact_number" value="{{ old('emergency_contact_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Emergency Phone Number">
+                        <label for="emergency_contact_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Emergency Contact Number <span class="text-rose-500">*</span></label>
+                        <input type="text" id="emergency_contact_number" name="emergency_contact_number" value="{{ old('emergency_contact_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Emergency Phone Number" required>
                         @error('emergency_contact_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
                 <!-- Full Address -->
                 <div>
-                    <label for="aadhaar_address" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Full Address (as per Aadhaar)</label>
-                    <textarea id="aadhaar_address" name="aadhaar_address" rows="3" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="House No, Street, Locality...">{{ old('aadhaar_address') }}</textarea>
+                    <label for="aadhaar_address" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Full Address (as per Aadhaar) <span class="text-rose-500">*</span></label>
+                    <textarea id="aadhaar_address" name="aadhaar_address" rows="3" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="House No, Street, Locality..." required>{{ old('aadhaar_address') }}</textarea>
                     @error('aadhaar_address') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     <!-- Landmark -->
                     <div>
-                        <label for="landmark" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Landmark</label>
-                        <input type="text" id="landmark" name="landmark" value="{{ old('landmark') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Near Temple, etc.">
+                        <label for="landmark" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Landmark <span class="text-rose-500">*</span></label>
+                        <input type="text" id="landmark" name="landmark" value="{{ old('landmark') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Near Temple, etc." required>
                         @error('landmark') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- City -->
                     <div>
-                        <label for="city" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">City</label>
-                        <input type="text" id="city" name="city" value="{{ old('city') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Kolkata">
+                        <label for="city" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">City <span class="text-rose-500">*</span></label>
+                        <input type="text" id="city" name="city" value="{{ old('city') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Kolkata" required>
                         @error('city') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Pin Code -->
                     <div>
-                        <label for="pin_code" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Pin Code</label>
-                        <input type="text" id="pin_code" name="pin_code" value="{{ old('pin_code') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="700001">
+                        <label for="pin_code" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Pin Code <span class="text-rose-500">*</span></label>
+                        <input type="text" id="pin_code" name="pin_code" value="{{ old('pin_code') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="700001" required>
                         @error('pin_code') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- State -->
                     <div>
-                        <label for="state" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">State</label>
-                        <input type="text" id="state" name="state" value="{{ old('state') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="West Bengal">
+                        <label for="state" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">State <span class="text-rose-500">*</span></label>
+                        <input type="text" id="state" name="state" value="{{ old('state') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="West Bengal" required>
                         @error('state') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -341,22 +341,22 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <!-- Bank Account Number -->
                     <div>
-                        <label for="bank_account_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Bank Account Number</label>
-                        <input type="text" id="bank_account_number" name="bank_account_number" value="{{ old('bank_account_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Account Number">
+                        <label for="bank_account_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Bank Account Number <span class="text-rose-500">*</span></label>
+                        <input type="text" id="bank_account_number" name="bank_account_number" value="{{ old('bank_account_number') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Account Number" required>
                         @error('bank_account_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- IFSC Code -->
                     <div>
-                        <label for="ifsc_code" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">IFSC Code</label>
-                        <input type="text" id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="IFSC Code">
+                        <label for="ifsc_code" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">IFSC Code <span class="text-rose-500">*</span></label>
+                        <input type="text" id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="IFSC Code" required>
                         @error('ifsc_code') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Bank Name -->
                     <div>
-                        <label for="bank_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Bank Name</label>
-                        <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="e.g. State Bank of India">
+                        <label for="bank_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Bank Name <span class="text-rose-500">*</span></label>
+                        <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="e.g. State Bank of India" required>
                         @error('bank_name') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -368,29 +368,29 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                     <!-- Last Qualification -->
                     <div>
-                        <label for="last_qualification" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Last Qualification</label>
-                        <input type="text" id="last_qualification" name="last_qualification" value="{{ old('last_qualification') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="B.Tech, B.Sc, 12th, etc.">
+                        <label for="last_qualification" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Last Qualification <span class="text-rose-500">*</span></label>
+                        <input type="text" id="last_qualification" name="last_qualification" value="{{ old('last_qualification') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="B.Tech, B.Sc, 12th, etc." required>
                         @error('last_qualification') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Pass Out Year -->
                     <div>
-                        <label for="pass_out_year" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Pass Out Year</label>
-                        <input type="text" id="pass_out_year" name="pass_out_year" value="{{ old('pass_out_year') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="e.g. 2024">
+                        <label for="pass_out_year" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Pass Out Year <span class="text-rose-500">*</span></label>
+                        <input type="text" id="pass_out_year" name="pass_out_year" value="{{ old('pass_out_year') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="e.g. 2024" required>
                         @error('pass_out_year') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Client Name -->
                     <div>
-                        <label for="client_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Client Name</label>
-                        <input type="text" id="client_name" name="client_name" value="{{ old('client_name') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Assigned Client">
+                        <label for="client_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Client Name <span class="text-rose-500">*</span></label>
+                        <input type="text" id="client_name" name="client_name" value="{{ old('client_name') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Assigned Client" required>
                         @error('client_name') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Work Location -->
                     <div>
-                        <label for="work_location" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Work Location</label>
-                        <input type="text" id="work_location" name="work_location" value="{{ old('work_location') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Office Location">
+                        <label for="work_location" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Work Location <span class="text-rose-500">*</span></label>
+                        <input type="text" id="work_location" name="work_location" value="{{ old('work_location') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Office Location" required>
                         @error('work_location') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -398,15 +398,15 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <!-- Text Designation -->
                     <div>
-                        <label for="designation" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Job Title / Designation (Text)</label>
-                        <input type="text" id="designation" name="designation" value="{{ old('designation') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Official Designation">
+                        <label for="designation" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Job Title / Designation (Text) <span class="text-rose-500">*</span></label>
+                        <input type="text" id="designation" name="designation" value="{{ old('designation') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Official Designation" required>
                         @error('designation') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- NTH Salary -->
                     <div>
-                        <label for="nth_salary" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Net Take Home (NTH) Salary</label>
-                        <input type="number" step="0.01" id="nth_salary" name="nth_salary" value="{{ old('nth_salary') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="NTH Salary">
+                        <label for="nth_salary" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Net Take Home (NTH) Salary <span class="text-rose-500">*</span></label>
+                        <input type="number" step="0.01" id="nth_salary" name="nth_salary" value="{{ old('nth_salary') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="NTH Salary" required>
                         @error('nth_salary') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
