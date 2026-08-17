@@ -23,6 +23,38 @@ class Employee extends Authenticatable
         'salary',
         'company_id',
         'is_password_changed',
+
+        // Aadhaar and KYC Attributes
+        'aadhaar_full_name',
+        'aadhaar_number',
+        'pan_number',
+        'voter_id_number',
+        'prefix',
+        'father_name_aadhaar',
+        'mother_name_aadhaar',
+        'gender',
+        'dob',
+        'mother_tongue',
+        'aadhaar_address',
+        'landmark',
+        'contact_number',
+        'city',
+        'emergency_contact_number',
+        'pin_code',
+        'state',
+        'last_qualification',
+        'pass_out_year',
+        'marital_status',
+        'email_id',
+        'old_uan_number',
+        'old_esic_number',
+        'bank_account_number',
+        'ifsc_code',
+        'bank_name',
+        'client_name',
+        'work_location',
+        'designation',
+        'nth_salary',
     ];
 
     protected $hidden = [
@@ -35,6 +67,8 @@ class Employee extends Authenticatable
         'is_password_changed' => 'boolean',
         'salary' => 'decimal:2',
         'joining_date' => 'date',
+        'dob' => 'date',
+        'nth_salary' => 'decimal:2',
     ];
 
     public function getFullNameAttribute()

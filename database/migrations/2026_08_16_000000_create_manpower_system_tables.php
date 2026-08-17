@@ -48,6 +48,39 @@ return new class extends Migration
             $table->date('joining_date')->nullable();
             $table->decimal('salary', 10, 2)->nullable();
             $table->boolean('is_password_changed')->default(false);
+
+            // Aadhaar and KYC Attributes
+            $table->string('aadhaar_full_name')->nullable();
+            $table->string('aadhaar_number')->nullable();
+            $table->string('pan_number')->nullable();
+            $table->string('voter_id_number')->nullable();
+            $table->string('prefix')->nullable();
+            $table->string('father_name_aadhaar')->nullable();
+            $table->string('mother_name_aadhaar')->nullable();
+            $table->string('gender')->nullable();
+            $table->date('dob')->nullable();
+            $table->string('mother_tongue')->nullable();
+            $table->text('aadhaar_address')->nullable();
+            $table->string('landmark')->nullable();
+            $table->string('contact_number')->nullable();
+            $table->string('city')->nullable();
+            $table->string('emergency_contact_number')->nullable();
+            $table->string('pin_code')->nullable();
+            $table->string('state')->nullable();
+            $table->string('last_qualification')->nullable();
+            $table->string('pass_out_year')->nullable();
+            $table->string('marital_status')->nullable();
+            $table->string('email_id')->nullable();
+            $table->string('old_uan_number')->nullable();
+            $table->string('old_esic_number')->nullable();
+            $table->string('bank_account_number')->nullable();
+            $table->string('ifsc_code')->nullable();
+            $table->string('bank_name')->nullable();
+            $table->string('client_name')->nullable();
+            $table->string('work_location')->nullable();
+            $table->string('designation')->nullable();
+            $table->decimal('nth_salary', 10, 2)->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });
