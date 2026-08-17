@@ -84,7 +84,14 @@ class EmployeePortalController extends Controller
 
         $path = public_path($offerLetter->pdf_path);
         if (!file_exists($path)) {
-            abort(404, 'PDF file not found on disk.');
+            // Fallback: Check local storage directory directly (in case storage link is broken)
+            $relativePath = str_replace('storage/', '', $offerLetter->pdf_path);
+            $fallbackPath = storage_path('app/public/' . $relativePath);
+            if (file_exists($fallbackPath)) {
+                $path = $fallbackPath;
+            } else {
+                abort(404, 'PDF file not found on disk.');
+            }
         }
 
         return response()->download($path);
@@ -104,7 +111,14 @@ class EmployeePortalController extends Controller
 
         $path = public_path($payslip->pdf_path);
         if (!file_exists($path)) {
-            abort(404, 'PDF file not found on disk.');
+            // Fallback: Check local storage directory directly (in case storage link is broken)
+            $relativePath = str_replace('storage/', '', $payslip->pdf_path);
+            $fallbackPath = storage_path('app/public/' . $relativePath);
+            if (file_exists($fallbackPath)) {
+                $path = $fallbackPath;
+            } else {
+                abort(404, 'PDF file not found on disk.');
+            }
         }
 
         return response()->download($path);

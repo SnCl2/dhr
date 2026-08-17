@@ -127,7 +127,18 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex">
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    @if(Auth::guard('admin')->check())
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-semibold py-2 px-6 flex items-center justify-between shadow-md z-50 shrink-0">
+            <span><i class="fa-solid fa-user-shield mr-2"></i> You are logged in as admin and viewing candidate portal.</span>
+            <a href="{{ route('admin.dashboard') }}" class="bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg font-bold transition-all">
+                <i class="fa-solid fa-arrow-left-long mr-1"></i> Switch Back to Admin
+            </a>
+        </div>
+    @endif
+
+    <div class="flex-grow flex min-h-0">
 
     <!-- Sidebar (Desktop) -->
     <aside class="hidden lg:flex flex-col w-72 bg-white border-r border-slate-200 shrink-0">
@@ -237,6 +248,8 @@
 
             @yield('content')
         </main>
+    </div>
+
     </div>
 
     @yield('scripts')
