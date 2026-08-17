@@ -8,7 +8,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 items-end">
     <!-- Filters form -->
     <div class="lg:col-span-8">
-        <form action="{{ route('admin.employees.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <form action="{{ route('admin.employees.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <!-- Search -->
             <div>
                 <label for="search" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Search Records</label>
@@ -38,9 +38,20 @@
                 </select>
             </div>
 
+            <!-- Offer Letter Status Filter -->
+            <div>
+                <label for="offer_letter_status" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Offer Letter</label>
+                <select id="offer_letter_status" name="offer_letter_status" onchange="this.form.submit()"
+                    class="block w-full px-3 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                    <option value="">All Candidates</option>
+                    <option value="generated" {{ request('offer_letter_status') === 'generated' ? 'selected' : '' }}>Offer Letter Generated</option>
+                    <option value="not_generated" {{ request('offer_letter_status') === 'not_generated' ? 'selected' : '' }}>Offer Letter Not Generated</option>
+                </select>
+            </div>
+
             <!-- Filter submit button -->
-            <div class="flex items-center">
-                <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold border border-slate-750 transition-colors">
+            <div class="flex items-end">
+                <button type="submit" class="w-full px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold border border-slate-750 transition-colors">
                     <i class="fa-solid fa-filter mr-2"></i>Apply Filters
                 </button>
             </div>
@@ -58,96 +69,135 @@
     </div>
 </div>
 
-<!-- Employees Database Table -->
-<div class="glass-dark rounded-3xl overflow-hidden shadow-xl mb-8">
-    <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="border-b border-slate-850 bg-slate-900/40 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    <th class="p-6">Employee ID</th>
-                    <th class="p-6">Name</th>
-                    <th class="p-6">Contact Info</th>
-                    <th class="p-6">Department & Designation</th>
-                    <th class="p-6">Status</th>
-                    <th class="p-6 text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-850 text-sm">
-                @forelse($employees as $emp)
-                <tr class="text-slate-300 hover:bg-slate-900/20">
-                    <td class="p-6 font-semibold text-purple-400 select-all">{{ $emp->employee_id }}</td>
-                    <td class="p-6">
-                        <span class="block font-semibold text-white">{{ $emp->full_name }}</span>
-                        <span class="block text-xs text-slate-500 mt-0.5">Joined: {{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}</span>
-                    </td>
-                    <td class="p-6">
-                        <span class="block">{{ $emp->email }}</span>
-                        @if($emp->phone)
-                            <span class="block text-xs text-slate-500 mt-0.5">{{ $emp->phone }}</span>
-                        @endif
-                    </td>
-                    <td class="p-6">
-                        @if($emp->company)
-                            <span class="block font-bold text-purple-700 text-xs mb-1 select-all"><i class="fa-solid fa-building mr-1.5"></i>{{ $emp->company->name }}</span>
-                        @endif
-                        @if($emp->department || $emp->designation)
-                            <span class="block text-slate-700">{{ $emp->department ? $emp->department->name : 'N/A' }}</span>
-                            <span class="block text-xs text-slate-500 mt-0.5">{{ $emp->designation ? $emp->designation->name : 'N/A' }}</span>
-                        @else
-                            <span class="text-slate-500">Unassigned</span>
-                        @endif
-                    </td>
-                    <td class="p-6">
-                        <span class="px-2.5 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider 
-                            @if($emp->status === 'active') bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
-                            @elseif($emp->status === 'pending_review') bg-amber-500/10 text-amber-400 border border-amber-500/20
-                            @elseif($emp->status === 'on_leave') bg-indigo-500/10 text-indigo-400 border border-indigo-500/20
-                            @else bg-rose-500/10 text-rose-400 border border-rose-500/20
-                            @endif">
-                            {{ str_replace('_', ' ', $emp->status) }}
-                        </span>
-                    </td>
-                    <td class="p-6 text-right space-x-2">
-                        <!-- Secret Login / Switch Account -->
-                        <form action="{{ route('admin.employees.login-as', $emp) }}" method="POST" class="inline" target="_blank">
-                            @csrf
-                            <button type="submit" title="Login As Employee" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-purple-600 hover:border-purple-300 transition-colors">
-                                <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                            </button>
-                        </form>
+<!-- Bulk Actions Form -->
+<form id="bulk-generate-form" action="{{ route('admin.offer-letters.bulk-generate-selected') }}" method="POST">
+    @csrf
 
-                        <a href="{{ route('admin.employees.edit', $emp) }}" title="Edit Candidate" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-350 transition-colors">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </a>
-
-                        <form action="{{ route('admin.employees.destroy', $emp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this staff record?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" title="Delete Candidate" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-350 transition-colors">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" class="p-12 text-center text-slate-500 text-base">
-                        <i class="fa-solid fa-folder-open text-3xl mb-4 block"></i>
-                        No candidates or employees found in this view.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+    <!-- Bulk Actions Header Panel (hidden by default) -->
+    <div id="bulk-actions-panel" class="hidden mb-6 p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center justify-between text-sm shadow-xl">
+        <div class="flex items-center space-x-3 text-slate-300 mb-3 sm:mb-0">
+            <i class="fa-solid fa-square-check text-purple-400 text-lg"></i>
+            <span>Selected <strong id="selected-count" class="text-white">0</strong> candidates</span>
+        </div>
+        <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-2">
+                <label for="bulk_type" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Type:</label>
+                <select id="bulk_type" name="type" required
+                    class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-xs">
+                    <option value="external">External/Contractor Layout</option>
+                    <option value="internal">Internal Staff Layout</option>
+                </select>
+            </div>
+            <button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-purple-500/10">
+                <i class="fa-solid fa-bolt mr-1.5"></i> Bulk Generate
+            </button>
+        </div>
     </div>
 
-    <!-- Pagination -->
-    @if($employees->hasPages())
-    <div class="px-6 py-4 border-t border-slate-850">
-        {{ $employees->links() }}
+    <!-- Employees Database Table -->
+    <div class="glass-dark rounded-3xl overflow-hidden shadow-xl mb-8">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-slate-850 bg-slate-900/40 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                        <th class="p-6 w-12">
+                            <input type="checkbox" id="select-all-checkbox" class="rounded bg-slate-950 border border-slate-800 text-purple-600 focus:ring-0 cursor-pointer">
+                        </th>
+                        <th class="p-6">Employee ID</th>
+                        <th class="p-6">Name</th>
+                        <th class="p-6">Contact Info</th>
+                        <th class="p-6">Department & Designation</th>
+                        <th class="p-6">Status</th>
+                        <th class="p-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-850 text-sm">
+                    @forelse($employees as $emp)
+                    <tr class="text-slate-300 hover:bg-slate-900/20">
+                        <td class="p-6">
+                            <input type="checkbox" name="employee_ids[]" value="{{ $emp->id }}" class="employee-checkbox rounded bg-slate-950 border border-slate-800 text-purple-600 focus:ring-0 cursor-pointer">
+                        </td>
+                        <td class="p-6 font-semibold text-purple-400 select-all">{{ $emp->employee_id }}</td>
+                        <td class="p-6">
+                            <span class="block font-semibold text-white">{{ $emp->full_name }}</span>
+                            <span class="block text-xs text-slate-500 mt-0.5">Joined: {{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}</span>
+                        </td>
+                        <td class="p-6">
+                            <span class="block">{{ $emp->email }}</span>
+                            @if($emp->phone)
+                                <span class="block text-xs text-slate-500 mt-0.5">{{ $emp->phone }}</span>
+                            @endif
+                        </td>
+                        <td class="p-6">
+                            @if($emp->company)
+                                <span class="block font-bold text-purple-750 text-xs mb-1 select-all"><i class="fa-solid fa-building mr-1.5"></i>{{ $emp->company->name }}</span>
+                            @endif
+                            @if($emp->department || $emp->designation)
+                                <span class="block text-slate-700">{{ $emp->department ? $emp->department->name : 'N/A' }}</span>
+                                <span class="block text-xs text-slate-500 mt-0.5">{{ $emp->designation ? $emp->designation->name : 'N/A' }}</span>
+                            @else
+                                <span class="text-slate-500">Unassigned</span>
+                            @endif
+                        </td>
+                        <td class="p-6">
+                            <span class="px-2.5 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider 
+                                @if($emp->status === 'active') bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                                @elseif($emp->status === 'pending_review') bg-amber-500/10 text-amber-400 border border-amber-500/20
+                                @elseif($emp->status === 'on_leave') bg-indigo-500/10 text-indigo-400 border border-indigo-500/20
+                                @else bg-rose-500/10 text-rose-400 border border-rose-500/20
+                                @endif">
+                                {{ str_replace('_', ' ', $emp->status) }}
+                            </span>
+                        </td>
+                        <td class="p-6 text-right space-x-2">
+                            <!-- Generate Offer Letter (Only if they do not have one already) -->
+                            @if($emp->offerLetters->isEmpty() && $emp->status !== 'terminated')
+                                <a href="{{ route('admin.offer-letters.generate', ['employee_id' => $emp->id]) }}" title="Generate Offer Letter" class="inline-flex p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-colors">
+                                    <i class="fa-solid fa-file-signature"></i>
+                                </a>
+                            @endif
+
+                            <!-- Secret Login / Switch Account -->
+                            <form action="{{ route('admin.employees.login-as', $emp) }}" method="POST" class="inline" target="_blank">
+                                @csrf
+                                <button type="submit" title="Login As Employee" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-purple-600 hover:border-purple-300 transition-colors">
+                                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                                </button>
+                            </form>
+
+                            <a href="{{ route('admin.employees.edit', $emp) }}" title="Edit Candidate" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-350 transition-colors">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+
+                            <form action="{{ route('admin.employees.destroy', $emp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this staff record?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" title="Delete Candidate" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-350 transition-colors">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="p-12 text-center text-slate-550 text-base">
+                            <i class="fa-solid fa-folder-open text-3xl mb-4 block"></i>
+                            No candidates or employees found in this view.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        @if($employees->hasPages())
+        <div class="px-6 py-4 border-t border-slate-850">
+            {{ $employees->links() }}
+        </div>
+        @endif
     </div>
-    @endif
-</div>
+</form>
 
 <!-- CSV Bulk Import Modal (Popup) -->
 <div id="csv-import-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4">
@@ -186,4 +236,44 @@
         </form>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const selectAll = document.getElementById('select-all-checkbox');
+        const checkboxes = document.querySelectorAll('.employee-checkbox');
+        const bulkPanel = document.getElementById('bulk-actions-panel');
+        const selectedCount = document.getElementById('selected-count');
+
+        function updateBulkPanel() {
+            const checked = document.querySelectorAll('.employee-checkbox:checked');
+            selectedCount.textContent = checked.length;
+            if (checked.length > 0) {
+                bulkPanel.classList.remove('hidden');
+            } else {
+                bulkPanel.classList.add('hidden');
+            }
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => {
+                    cb.checked = selectAll.checked;
+                });
+                updateBulkPanel();
+            });
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', function () {
+                const checkedCount = document.querySelectorAll('.employee-checkbox:checked').length;
+                if (selectAll) {
+                    selectAll.checked = (checkedCount === checkboxes.length);
+                }
+                updateBulkPanel();
+            });
+        });
+    });
+</script>
 @endsection

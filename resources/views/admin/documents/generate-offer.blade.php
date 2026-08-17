@@ -24,7 +24,7 @@
                     class="mt-2 block w-full px-3 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
                     <option value="">-- Choose Candidate --</option>
                     @foreach($employees as $emp)
-                        <option value="{{ $emp->id }}" {{ old('employee_id') == $emp->id ? 'selected' : '' }}>
+                        <option value="{{ $emp->id }}" {{ old('employee_id', $selectedEmployeeId ?? '') == $emp->id ? 'selected' : '' }}>
                             {{ $emp->full_name }} ({{ $emp->employee_id }})
                         </option>
                     @endforeach

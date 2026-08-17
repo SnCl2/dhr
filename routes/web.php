@@ -75,6 +75,7 @@ Route::middleware(['auth.admin'])->prefix('admin')->name('admin.')->group(functi
     // Offer Letter Generation
     Route::get('/offer-letters/generate', [AdminDashboardController::class, 'showGenerateOfferLetter'])->name('offer-letters.generate');
     Route::post('/offer-letters/generate', [AdminDashboardController::class, 'generateOfferLetter'])->name('offer-letters.generate.submit');
+    Route::post('/offer-letters/bulk-generate-selected', [AdminDashboardController::class, 'bulkGenerateSelected'])->name('offer-letters.bulk-generate-selected');
     Route::post('/offer-letters/bulk', [AdminDashboardController::class, 'generateOfferLettersBulk'])->name('offer-letters.bulk');
 
     // Payslips Generation

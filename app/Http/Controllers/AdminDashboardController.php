@@ -52,7 +52,7 @@ class AdminDashboardController extends Controller
     */
     public function employeesIndex(Request $request)
     {
-        $query = Employee::with(['department', 'designation', 'company']);
+        $query = Employee::with(['department', 'designation', 'company', 'offerLetters']);
 
         // Search filter
         if ($request->filled('search')) {
@@ -68,6 +68,15 @@ class AdminDashboardController extends Controller
         // Status filter
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+
+        // Offer letter filter
+        if ($request->filled('offer_letter_status')) {
+            if ($request->offer_letter_status === 'generated') {
+                $query->has('offerLetters');
+            } elseif ($request->offer_letter_status === 'not_generated') {
+                $query->doesntHave('offerLetters');
+            }
         }
 
         $employees = $query->latest()->paginate(10)->withQueryString();
@@ -315,10 +324,11 @@ class AdminDashboardController extends Controller
     | Offer Letter Generation
     |--------------------------------------------------------------------------
     */
-    public function showGenerateOfferLetter()
+    public function showGenerateOfferLetter(Request $request)
     {
         $employees = Employee::where('status', '!=', 'terminated')->get();
-        return view('admin.documents.generate-offer', compact('employees'));
+        $selectedEmployeeId = $request->employee_id;
+        return view('admin.documents.generate-offer', compact('employees', 'selectedEmployeeId'));
     }
 
     public function generateOfferLetter(Request $request)
@@ -594,5 +604,44 @@ class AdminDashboardController extends Controller
         $inquiry->save();
 
         return back()->with('success', 'Marked inquiry as replied.');
+    }
+
+    public function bulkGenerateSelected(Request $request)
+    {
+        $request->validate([
+            'employee_ids' => ['required', 'array'],
+            'employee_ids.*' => ['exists:employees,id'],
+            'type' => ['required', 'in:internal,external'],
+        ]);
+
+        $type = $request->type;
+        $count = 0;
+
+        foreach ($request->employee_ids as $empId) {
+            $employee = Employee::find($empId);
+            if ($employee) {
+                // Ensure candidate only gets one offer letter
+                if ($employee->offerLetters()->exists()) {
+                    continue;
+                }
+
+                $customData = [
+                    'salary' => $employee->salary,
+                    'joining_date' => $employee->joining_date ? $employee->joining_date->format('d-M-Y') : null,
+                ];
+
+                $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $type, $customData);
+
+                OfferLetter::create([
+                    'employee_id' => $employee->id,
+                    'pdf_path' => $pdfPath,
+                ]);
+
+                $count++;
+            }
+        }
+
+        return redirect()->route('admin.employees.index')
+            ->with('success', "Bulk generated {$count} offer letters successfully.");
     }
 }
