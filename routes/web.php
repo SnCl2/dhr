@@ -71,6 +71,22 @@ Route::middleware(['auth.admin'])->prefix('admin')->name('admin.')->group(functi
     Route::put('/companies/{company}/update', [AdminDashboardController::class, 'companiesUpdate'])->name('companies.update');
     Route::delete('/companies/{company}/destroy', [AdminDashboardController::class, 'companiesDestroy'])->name('companies.destroy');
 
+    // Departments CRUD
+    Route::get('/departments', [AdminDashboardController::class, 'departmentsIndex'])->name('departments.index');
+    Route::get('/departments/create', [AdminDashboardController::class, 'departmentsCreate'])->name('departments.create');
+    Route::post('/departments/store', [AdminDashboardController::class, 'departmentsStore'])->name('departments.store');
+    Route::get('/departments/{department}/edit', [AdminDashboardController::class, 'departmentsEdit'])->name('departments.edit');
+    Route::put('/departments/{department}/update', [AdminDashboardController::class, 'departmentsUpdate'])->name('departments.update');
+    Route::delete('/departments/{department}/destroy', [AdminDashboardController::class, 'departmentsDestroy'])->name('departments.destroy');
+
+    // Designations CRUD
+    Route::get('/designations', [AdminDashboardController::class, 'designationsIndex'])->name('designations.index');
+    Route::get('/designations/create', [AdminDashboardController::class, 'designationsCreate'])->name('designations.create');
+    Route::post('/designations/store', [AdminDashboardController::class, 'designationsStore'])->name('designations.store');
+    Route::get('/designations/{designation}/edit', [AdminDashboardController::class, 'designationsEdit'])->name('designations.edit');
+    Route::put('/designations/{designation}/update', [AdminDashboardController::class, 'designationsUpdate'])->name('designations.update');
+    Route::delete('/designations/{designation}/destroy', [AdminDashboardController::class, 'designationsDestroy'])->name('designations.destroy');
+
     // Offer Letter Generation
     Route::get('/offer-letters/generate', [AdminDashboardController::class, 'showGenerateOfferLetter'])->name('offer-letters.generate');
     Route::post('/offer-letters/generate', [AdminDashboardController::class, 'generateOfferLetter'])->name('offer-letters.generate.submit');

@@ -418,6 +418,110 @@ class AdminDashboardController extends Controller
             ->with('success', 'Company deleted successfully.');
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Departments CRUD
+    |--------------------------------------------------------------------------
+    */
+    public function departmentsIndex()
+    {
+        $departments = Department::withCount('employees')->get();
+        return view('admin.departments.index', compact('departments'));
+    }
+
+    public function departmentsCreate()
+    {
+        return view('admin.departments.create');
+    }
+
+    public function departmentsStore(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:departments,name'],
+        ]);
+
+        Department::create($request->all());
+
+        return redirect()->route('admin.departments.index')
+            ->with('success', 'Department created successfully.');
+    }
+
+    public function departmentsEdit(Department $department)
+    {
+        return view('admin.departments.edit', compact('department'));
+    }
+
+    public function departmentsUpdate(Request $request, Department $department)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:departments,name,' . $department->id],
+        ]);
+
+        $department->update($request->all());
+
+        return redirect()->route('admin.departments.index')
+            ->with('success', 'Department updated successfully.');
+    }
+
+    public function departmentsDestroy(Department $department)
+    {
+        $department->delete();
+        return redirect()->route('admin.departments.index')
+            ->with('success', 'Department deleted successfully.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Designations CRUD
+    |--------------------------------------------------------------------------
+    */
+    public function designationsIndex()
+    {
+        $designations = Designation::withCount('employees')->get();
+        return view('admin.designations.index', compact('designations'));
+    }
+
+    public function designationsCreate()
+    {
+        return view('admin.designations.create');
+    }
+
+    public function designationsStore(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:designations,name'],
+        ]);
+
+        Designation::create($request->all());
+
+        return redirect()->route('admin.designations.index')
+            ->with('success', 'Designation created successfully.');
+    }
+
+    public function designationsEdit(Designation $designation)
+    {
+        return view('admin.designations.edit', compact('designation'));
+    }
+
+    public function designationsUpdate(Request $request, Designation $designation)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:designations,name,' . $designation->id],
+        ]);
+
+        $designation->update($request->all());
+
+        return redirect()->route('admin.designations.index')
+            ->with('success', 'Designation updated successfully.');
+    }
+
+    public function designationsDestroy(Designation $designation)
+    {
+        $designation->delete();
+        return redirect()->route('admin.designations.index')
+            ->with('success', 'Designation deleted successfully.');
+    }
+
 
 
     /*

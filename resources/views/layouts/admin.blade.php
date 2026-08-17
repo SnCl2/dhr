@@ -158,6 +158,16 @@
                 <span>Manage Companies</span>
             </a>
 
+            <a href="{{ route('admin.departments.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.departments.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
+                <i class="fa-solid fa-folder-tree w-5 text-center"></i>
+                <span>Manage Departments</span>
+            </a>
+
+            <a href="{{ route('admin.designations.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.designations.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
+                <i class="fa-solid fa-id-card w-5 text-center"></i>
+                <span>Manage Designations</span>
+            </a>
+
 
 
             <a href="{{ route('admin.payslips.generate') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.payslips.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
