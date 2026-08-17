@@ -7,9 +7,9 @@
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
 <!-- Section 1: Hero Slider Section -->
-<div class="relative overflow-hidden bg-slate-900 text-white" x-data="{ activeSlide: 1, timer: null }" x-init="timer = setInterval(() => { activeSlide = activeSlide === 3 ? 1 : activeSlide + 1 }, 5000)" @mouseenter="clearInterval(timer)" @mouseleave="timer = setInterval(() => { activeSlide = activeSlide === 3 ? 1 : activeSlide + 1 }, 5000)">
+<div class="relative overflow-hidden bg-slate-900 text-white" x-data="{ activeSlide: 1, timer: null }" x-init="timer = setInterval(() => { activeSlide = activeSlide === 6 ? 1 : activeSlide + 1 }, 5000)" @mouseenter="clearInterval(timer)" @mouseleave="timer = setInterval(() => { activeSlide = activeSlide === 6 ? 1 : activeSlide + 1 }, 5000)">
     <!-- Slide 1 -->
-    <div x-show="activeSlide === 1" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1600&q=80');">
+    <div x-show="activeSlide === 1" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/slider_1.png') }}');">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 py-20">
             <div class="max-w-3xl space-y-6">
                 <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest">
@@ -31,7 +31,7 @@
     </div>
 
     <!-- Slide 2 -->
-    <div x-show="activeSlide === 2" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80');">
+    <div x-show="activeSlide === 2" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/slider_2.png') }}');">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 py-20">
             <div class="max-w-3xl space-y-6">
                 <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest">
@@ -53,7 +53,7 @@
     </div>
 
     <!-- Slide 3 -->
-    <div x-show="activeSlide === 3" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1600&q=80');">
+    <div x-show="activeSlide === 3" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/slider_3.png') }}');">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 py-20">
             <div class="max-w-3xl space-y-6">
                 <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest">
@@ -74,11 +74,80 @@
         </div>
     </div>
 
+    <!-- Slide 4 -->
+    <div x-show="activeSlide === 4" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/slider_4.png') }}');">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 py-20">
+            <div class="max-w-3xl space-y-6">
+                <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest">
+                    Statutory Integrity
+                </span>
+                <h1 class="font-outfit font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white leading-tight">
+                    Statutory Compliance <br><span class="text-cyan-400">And HR Outsourcing</span>
+                </h1>
+                <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-sans max-w-xl">
+                    100% compliant calculations of PF, ESIC, and Professional Tax with absolute transparency.
+                </p>
+                <div class="pt-4">
+                    <a href="{{ route('about') }}" class="inline-flex items-center px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-full text-sm font-black uppercase tracking-wider transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20">
+                        Learn More <i class="fa-solid fa-arrow-right-long ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 5 -->
+    <div x-show="activeSlide === 5" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/slider_5.png') }}');">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 py-20">
+            <div class="max-w-3xl space-y-6">
+                <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest">
+                    Flexi Manpower
+                </span>
+                <h1 class="font-outfit font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white leading-tight">
+                    Contractual & Flexi <br><span class="text-cyan-400">Personnel Deployments</span>
+                </h1>
+                <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-sans max-w-xl">
+                    Scale your operating teams dynamically based on seasonal demands with flexible contractual staff.
+                </p>
+                <div class="pt-4">
+                    <a href="{{ route('about') }}" class="inline-flex items-center px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-full text-sm font-black uppercase tracking-wider transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20">
+                        Learn More <i class="fa-solid fa-arrow-right-long ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide 6 -->
+    <div x-show="activeSlide === 6" x-transition.opacity.duration.800ms class="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-cover bg-center" style="background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('{{ asset('images/slider_6.png') }}');">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 py-20">
+            <div class="max-w-3xl space-y-6">
+                <span class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest">
+                    HR Advisory
+                </span>
+                <h1 class="font-outfit font-black text-4xl sm:text-5xl lg:text-6xl tracking-tight text-white leading-tight">
+                    Tailored Multi-Sector <br><span class="text-cyan-400">HR Advisory Consulting</span>
+                </h1>
+                <p class="text-base sm:text-lg text-slate-300 leading-relaxed font-sans max-w-xl">
+                    Strategic consultation on policy design, job description mapping, and operational recruitment audits.
+                </p>
+                <div class="pt-4">
+                    <a href="{{ route('about') }}" class="inline-flex items-center px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-900 rounded-full text-sm font-black uppercase tracking-wider transition-all duration-300 transform hover:scale-105 shadow-lg shadow-cyan-500/20">
+                        Learn More <i class="fa-solid fa-arrow-right-long ml-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Slider Dots -->
     <div class="absolute bottom-6 left-0 right-0 flex justify-center space-x-3 z-20">
         <button @click="activeSlide = 1" :class="activeSlide === 1 ? 'bg-cyan-400 w-8' : 'bg-white/50 w-2.5'" class="h-2.5 rounded-full transition-all duration-300"></button>
         <button @click="activeSlide = 2" :class="activeSlide === 2 ? 'bg-cyan-400 w-8' : 'bg-white/50 w-2.5'" class="h-2.5 rounded-full transition-all duration-300"></button>
         <button @click="activeSlide = 3" :class="activeSlide === 3 ? 'bg-cyan-400 w-8' : 'bg-white/50 w-2.5'" class="h-2.5 rounded-full transition-all duration-300"></button>
+        <button @click="activeSlide = 4" :class="activeSlide === 4 ? 'bg-cyan-400 w-8' : 'bg-white/50 w-2.5'" class="h-2.5 rounded-full transition-all duration-300"></button>
+        <button @click="activeSlide = 5" :class="activeSlide === 5 ? 'bg-cyan-400 w-8' : 'bg-white/50 w-2.5'" class="h-2.5 rounded-full transition-all duration-300"></button>
+        <button @click="activeSlide = 6" :class="activeSlide === 6 ? 'bg-cyan-400 w-8' : 'bg-white/50 w-2.5'" class="h-2.5 rounded-full transition-all duration-300"></button>
     </div>
 </div>
 
