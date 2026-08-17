@@ -98,7 +98,7 @@
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white">
                     <i class="fa-solid fa-user-shield text-base"></i>
                 </div>
-                <span class="font-outfit font-extrabold text-lg tracking-wider text-slate-800">ADHIKSHITA ADMIN</span>
+                <span class="font-outfit font-extrabold text-lg tracking-wider text-slate-800">RMHRSOLUTIONS ADMIN</span>
             </a>
         </div>
 
@@ -191,7 +191,7 @@
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white mr-3">
                     <i class="fa-solid fa-user-shield text-sm"></i>
                 </div>
-                <span class="font-outfit font-extrabold text-sm text-slate-800">ADHIKSHITA ADMIN</span>
+                <span class="font-outfit font-extrabold text-sm text-slate-800">RMHRSOLUTIONS ADMIN</span>
             </div>
 
             <!-- Page Title -->

@@ -28,7 +28,7 @@ class DatabaseSeeder extends Seeder
 
         // 2. Seed Companies
         $companies = [
-            ['name' => 'Adhikshita Plotters Private Limited', 'address' => 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503'],
+            ['name' => 'RMHRSolutions Plotters Private Limited', 'address' => 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503'],
             ['name' => 'Propszy Staffing Solutions', 'address' => 'Salt Lake Sector V, Kolkata, West Bengal, 700091'],
             ['name' => 'Global Logistics Inc.', 'address' => 'Haldia Port Area, Purba Medinipur, West Bengal, 721606']
         ];
@@ -97,7 +97,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'active',
             'department_id' => 1, // IT & Development
             'designation_id' => 1, // Software Engineer
-            'company_id' => 1, // Adhikshita Plotters Private Limited
+            'company_id' => 1, // RMHRSolutions Plotters Private Limited
             'joining_date' => '2026-08-01',
             'salary' => 25000.00,
             'is_password_changed' => false, // Forces password change on first login to let you test it!

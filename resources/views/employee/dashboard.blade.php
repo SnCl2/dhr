@@ -1,6 +1,6 @@
 @extends('layouts.employee')
 
-@section('title', 'Employee Dashboard - Adhikshita Plotters')
+@section('title', 'Employee Dashboard - RMHRSolutions')
 @section('page_title', 'My Profile & Self-Service')
 
 @section('content')

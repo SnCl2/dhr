@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Company Management - Adhikshita Plotters')
+@section('title', 'Company Management - RMHRSolutions')
 @section('page_title', 'Associated Companies')
 
 @section('content')

@@ -98,7 +98,7 @@
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white">
                     <i class="fa-solid fa-id-card-clip text-base"></i>
                 </div>
-                <span class="font-outfit font-extrabold text-lg tracking-wider text-slate-800">ADHIKSHITA PORTAL</span>
+                <span class="font-outfit font-extrabold text-lg tracking-wider text-slate-800">RMHRSOLUTIONS PORTAL</span>
             </a>
         </div>
 
@@ -155,7 +155,7 @@
                 <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white mr-3">
                     <i class="fa-solid fa-id-card-clip text-sm"></i>
                 </div>
-                <span class="font-outfit font-extrabold text-sm text-slate-800">ADHIKSHITA PORTAL</span>
+                <span class="font-outfit font-extrabold text-sm text-slate-800">RMHRSOLUTIONS PORTAL</span>
             </div>
 
             <!-- Page Title -->

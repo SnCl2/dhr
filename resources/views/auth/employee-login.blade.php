@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Employee Self-Service Portal - Adhikshita Plotters')
+@section('title', 'Employee Self-Service Portal - RMHRSolutions')
 
 @section('content')
 <div class="min-h-[80vh] flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">

@@ -1,6 +1,6 @@
 @extends('layouts.employee')
 
-@section('title', 'Company Bulletins - Adhikshita Plotters')
+@section('title', 'Company Bulletins - RMHRSolutions')
 @section('page_title', 'Notices & Announcements')
 
 @section('content')

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Company - Adhikshita Plotters')
+@section('title', 'Edit Company - RMHRSolutions')
 @section('page_title', 'Update Company Profile')
 
 @section('content')

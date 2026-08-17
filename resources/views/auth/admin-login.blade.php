@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Admin Portal Login - Adhikshita Plotters')
+@section('title', 'Admin Portal Login - RMHRSolutions')
 
 @section('content')
 <div class="min-h-[80vh] flex flex-col justify-center items-center py-12 sm:px-6 lg:px-8">
