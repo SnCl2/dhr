@@ -56,6 +56,7 @@ Route::middleware(['auth.admin'])->prefix('admin')->name('admin.')->group(functi
     Route::get('/employees', [AdminDashboardController::class, 'employeesIndex'])->name('employees.index');
     Route::get('/employees/create', [AdminDashboardController::class, 'employeesCreate'])->name('employees.create');
     Route::post('/employees/store', [AdminDashboardController::class, 'employeesStore'])->name('employees.store');
+    Route::get('/employees/download-template', [AdminDashboardController::class, 'downloadEmployeeTemplate'])->name('employees.download-template');
     Route::get('/employees/{employee}/edit', [AdminDashboardController::class, 'employeesEdit'])->name('employees.edit');
     Route::put('/employees/{employee}/update', [AdminDashboardController::class, 'employeesUpdate'])->name('employees.update');
     Route::delete('/employees/{employee}/destroy', [AdminDashboardController::class, 'employeesDestroy'])->name('employees.destroy');

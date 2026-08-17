@@ -80,7 +80,10 @@ class AdminDashboardController extends Controller
         }
 
         $employees = $query->latest()->paginate(10)->withQueryString();
-        return view('admin.employees.index', compact('employees'));
+        $departments = Department::all();
+        $designations = Designation::all();
+        $companies = Company::all();
+        return view('admin.employees.index', compact('employees', 'departments', 'designations', 'companies'));
     }
 
     public function employeesCreate()
@@ -232,6 +235,50 @@ class AdminDashboardController extends Controller
         $employee->delete();
         return redirect()->route('admin.employees.index')
             ->with('success', "Employee deleted successfully.");
+    }
+
+    public function downloadEmployeeTemplate(Request $request)
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="employee_import_template.csv"',
+        ];
+
+        $callback = function() use ($request) {
+            $file = fopen('php://output', 'w');
+            
+            // CSV headers
+            fputcsv($file, [
+                'first_name',
+                'last_name',
+                'email',
+                'phone',
+                'status',
+                'salary',
+                'joining_date',
+                'company',
+                'department',
+                'designation'
+            ]);
+
+            // CSV row data prefilled with selected parameters
+            fputcsv($file, [
+                'John',
+                'Doe',
+                'john.doe@example.com',
+                '+91 99999 88888',
+                'active',
+                '25000',
+                date('Y-m-d'),
+                $request->query('company', ''),
+                $request->query('department', ''),
+                $request->query('designation', '')
+            ]);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function employeesImport(Request $request)

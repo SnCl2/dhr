@@ -214,6 +214,46 @@
             <code class="block mt-2 p-2 bg-slate-900 rounded border border-slate-800 text-purple-400 select-all overflow-x-auto whitespace-nowrap">first_name,last_name,email,phone,salary,joining_date,status,department,designation</code>
         </p>
 
+        <!-- Download Template Form -->
+        <div class="border-b border-slate-850 pb-5 mb-5">
+            <h4 class="text-xs font-semibold text-slate-350 uppercase tracking-wider mb-2">Prefilled CSV Template Downloader</h4>
+            <p class="text-[11px] text-slate-500 mb-3">Select options to pre-populate the CSV template cells, making it easier to fill in details without looking up names/IDs.</p>
+            <form action="{{ route('admin.employees.download-template') }}" method="GET" class="space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label for="template_company" class="block text-[10px] font-semibold text-slate-450 uppercase tracking-wider mb-1">Company</label>
+                        <select id="template_company" name="company" class="w-full px-2 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 text-xs">
+                            <option value="">None (Empty)</option>
+                            @foreach($companies as $company)
+                                <option value="{{ $company->name }}">{{ $company->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="template_department" class="block text-[10px] font-semibold text-slate-450 uppercase tracking-wider mb-1">Department</label>
+                        <select id="template_department" name="department" class="w-full px-2 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 text-xs">
+                            <option value="">None (Empty)</option>
+                            @foreach($departments as $dept)
+                                <option value="{{ $dept->name }}">{{ $dept->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label for="template_designation" class="block text-[10px] font-semibold text-slate-450 uppercase tracking-wider mb-1">Designation</label>
+                        <select id="template_designation" name="designation" class="w-full px-2 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 text-xs">
+                            <option value="">None (Empty)</option>
+                            @foreach($designations as $desig)
+                                <option value="{{ $desig->name }}">{{ $desig->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-slate-900 hover:bg-slate-850 text-purple-400 hover:text-white rounded-xl text-xs font-bold border border-slate-800 transition-colors">
+                    <i class="fa-solid fa-download mr-1.5"></i> Download CSV Template
+                </button>
+            </form>
+        </div>
+
         <form action="{{ route('admin.employees.import') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
 
