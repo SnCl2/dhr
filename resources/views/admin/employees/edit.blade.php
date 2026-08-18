@@ -180,21 +180,21 @@
                     <!-- Aadhaar Full Name -->
                     <div>
                         <label for="aadhaar_full_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Full Name as per Aadhaar <span class="text-rose-500">*</span></label>
-                        <input type="text" id="aadhaar_full_name" name="aadhaar_full_name" value="{{ old('aadhaar_full_name', $employee- required>aadhaar_full_name) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Full Name">
+                        <input type="text" id="aadhaar_full_name" name="aadhaar_full_name" value="{{ old('aadhaar_full_name', $employee->aadhaar_full_name) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Full Name" required>
                         @error('aadhaar_full_name') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Father's Name -->
                     <div>
                         <label for="father_name_aadhaar" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Father's Name (as Aadhaar) <span class="text-rose-500">*</span></label>
-                        <input type="text" id="father_name_aadhaar" name="father_name_aadhaar" value="{{ old('father_name_aadhaar', $employee- required>father_name_aadhaar) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Father's Name">
+                        <input type="text" id="father_name_aadhaar" name="father_name_aadhaar" value="{{ old('father_name_aadhaar', $employee->father_name_aadhaar) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Father's Name" required>
                         @error('father_name_aadhaar') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Mother's Name -->
                     <div>
                         <label for="mother_name_aadhaar" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Mother's Name (as Aadhaar) <span class="text-rose-500">*</span></label>
-                        <input type="text" id="mother_name_aadhaar" name="mother_name_aadhaar" value="{{ old('mother_name_aadhaar', $employee- required>mother_name_aadhaar) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Mother's Name">
+                        <input type="text" id="mother_name_aadhaar" name="mother_name_aadhaar" value="{{ old('mother_name_aadhaar', $employee->mother_name_aadhaar) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Mother's Name" required>
                         @error('mother_name_aadhaar') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -215,14 +215,14 @@
                     <!-- DOB -->
                     <div>
                         <label for="dob" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Date of Birth <span class="text-rose-500">*</span></label>
-                        <input type="date" id="dob" name="dob" value="{{ old('dob', $employee- required>dob ? $employee->dob->format('Y-m-d') : '') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                        <input type="date" id="dob" name="dob" value="{{ old('dob', $employee->dob ? $employee->dob->format('Y-m-d') : '') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" required>
                         @error('dob') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Mother Tongue -->
                     <div>
                         <label for="mother_tongue" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Mother Tongue <span class="text-rose-500">*</span></label>
-                        <input type="text" id="mother_tongue" name="mother_tongue" value="{{ old('mother_tongue', $employee- required>mother_tongue) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Bengali, Hindi, etc.">
+                        <input type="text" id="mother_tongue" name="mother_tongue" value="{{ old('mother_tongue', $employee->mother_tongue) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Bengali, Hindi, etc." required>
                         @error('mother_tongue') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
@@ -248,7 +248,7 @@
                     <!-- Aadhaar Number -->
                     <div>
                         <label for="aadhaar_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Aadhaar Number <span class="text-rose-500">*</span></label>
-                        <input type="text" id="aadhaar_number" name="aadhaar_number" value="{{ old('aadhaar_number', $employee- required>aadhaar_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="12-digit Aadhaar">
+                        <input type="text" id="aadhaar_number" name="aadhaar_number" value="{{ old('aadhaar_number', $employee->aadhaar_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="12-digit Aadhaar" required>
                         @error('aadhaar_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
@@ -271,7 +271,7 @@
                     <!-- Old UAN Number -->
                     <div>
                         <label for="old_uan_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Old UAN Number (PF) <span class="text-rose-500">*</span></label>
-                        <input type="text" id="old_uan_number" name="old_uan_number" value="{{ old('old_uan_number', $employee- required>old_uan_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="UAN Number">
+                        <input type="text" id="old_uan_number" name="old_uan_number" value="{{ old('old_uan_number', $employee->old_uan_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="UAN Number" required>
                         @error('old_uan_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
@@ -291,7 +291,7 @@
                     <!-- Contact Number -->
                     <div>
                         <label for="contact_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Secondary Contact Number <span class="text-rose-500">*</span></label>
-                        <input type="text" id="contact_number" name="contact_number" value="{{ old('contact_number', $employee- required>contact_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Mobile Number">
+                        <input type="text" id="contact_number" name="contact_number" value="{{ old('contact_number', $employee->contact_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Mobile Number" required>
                         @error('contact_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
@@ -305,7 +305,7 @@
                     <!-- Emergency Contact -->
                     <div>
                         <label for="emergency_contact_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Emergency Contact Number <span class="text-rose-500">*</span></label>
-                        <input type="text" id="emergency_contact_number" name="emergency_contact_number" value="{{ old('emergency_contact_number', $employee- required>emergency_contact_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Emergency Phone Number">
+                        <input type="text" id="emergency_contact_number" name="emergency_contact_number" value="{{ old('emergency_contact_number', $employee->emergency_contact_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Emergency Phone Number" required>
                         @error('emergency_contact_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -321,28 +321,28 @@
                     <!-- Landmark -->
                     <div>
                         <label for="landmark" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Landmark <span class="text-rose-500">*</span></label>
-                        <input type="text" id="landmark" name="landmark" value="{{ old('landmark', $employee- required>landmark) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Near Temple, etc.">
+                        <input type="text" id="landmark" name="landmark" value="{{ old('landmark', $employee->landmark) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Near Temple, etc." required>
                         @error('landmark') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- City -->
                     <div>
                         <label for="city" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">City <span class="text-rose-500">*</span></label>
-                        <input type="text" id="city" name="city" value="{{ old('city', $employee- required>city) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Kolkata">
+                        <input type="text" id="city" name="city" value="{{ old('city', $employee->city) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Kolkata" required>
                         @error('city') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Pin Code -->
                     <div>
                         <label for="pin_code" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Pin Code <span class="text-rose-500">*</span></label>
-                        <input type="text" id="pin_code" name="pin_code" value="{{ old('pin_code', $employee- required>pin_code) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="700001">
+                        <input type="text" id="pin_code" name="pin_code" value="{{ old('pin_code', $employee->pin_code) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="700001" required>
                         @error('pin_code') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- State -->
                     <div>
                         <label for="state" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">State <span class="text-rose-500">*</span></label>
-                        <input type="text" id="state" name="state" value="{{ old('state', $employee- required>state) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="West Bengal">
+                        <input type="text" id="state" name="state" value="{{ old('state', $employee->state) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="West Bengal" required>
                         @error('state') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -355,21 +355,21 @@
                     <!-- Bank Account Number -->
                     <div>
                         <label for="bank_account_number" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Bank Account Number <span class="text-rose-500">*</span></label>
-                        <input type="text" id="bank_account_number" name="bank_account_number" value="{{ old('bank_account_number', $employee- required>bank_account_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Account Number">
+                        <input type="text" id="bank_account_number" name="bank_account_number" value="{{ old('bank_account_number', $employee->bank_account_number) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Account Number" required>
                         @error('bank_account_number') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- IFSC Code -->
                     <div>
                         <label for="ifsc_code" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">IFSC Code <span class="text-rose-500">*</span></label>
-                        <input type="text" id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code', $employee- required>ifsc_code) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="IFSC Code">
+                        <input type="text" id="ifsc_code" name="ifsc_code" value="{{ old('ifsc_code', $employee->ifsc_code) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="IFSC Code" required>
                         @error('ifsc_code') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Bank Name -->
                     <div>
                         <label for="bank_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Bank Name <span class="text-rose-500">*</span></label>
-                        <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name', $employee- required>bank_name) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="e.g. State Bank of India">
+                        <input type="text" id="bank_name" name="bank_name" value="{{ old('bank_name', $employee->bank_name) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="e.g. State Bank of India" required>
                         @error('bank_name') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -382,28 +382,28 @@
                     <!-- Last Qualification -->
                     <div>
                         <label for="last_qualification" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Last Qualification <span class="text-rose-500">*</span></label>
-                        <input type="text" id="last_qualification" name="last_qualification" value="{{ old('last_qualification', $employee- required>last_qualification) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="B.Tech, B.Sc, 12th, etc.">
+                        <input type="text" id="last_qualification" name="last_qualification" value="{{ old('last_qualification', $employee->last_qualification) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="B.Tech, B.Sc, 12th, etc." required>
                         @error('last_qualification') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Pass Out Year -->
                     <div>
                         <label for="pass_out_year" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Pass Out Year <span class="text-rose-500">*</span></label>
-                        <input type="text" id="pass_out_year" name="pass_out_year" value="{{ old('pass_out_year', $employee- required>pass_out_year) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="e.g. 2024">
+                        <input type="text" id="pass_out_year" name="pass_out_year" value="{{ old('pass_out_year', $employee->pass_out_year) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="e.g. 2024" required>
                         @error('pass_out_year') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Client Name -->
                     <div>
                         <label for="client_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Client Name <span class="text-rose-500">*</span></label>
-                        <input type="text" id="client_name" name="client_name" value="{{ old('client_name', $employee- required>client_name) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Assigned Client">
+                        <input type="text" id="client_name" name="client_name" value="{{ old('client_name', $employee->client_name) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Assigned Client" required>
                         @error('client_name') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- Work Location -->
                     <div>
                         <label for="work_location" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Work Location <span class="text-rose-500">*</span></label>
-                        <input type="text" id="work_location" name="work_location" value="{{ old('work_location', $employee- required>work_location) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Office Location">
+                        <input type="text" id="work_location" name="work_location" value="{{ old('work_location', $employee->work_location) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Office Location" required>
                         @error('work_location') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
@@ -412,14 +412,14 @@
                     <!-- Text Designation -->
                     <div>
                         <label for="designation" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Job Title / Designation (Text) <span class="text-rose-500">*</span></label>
-                        <input type="text" id="designation" name="designation" value="{{ old('designation', $employee- required>designation) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Official Designation">
+                        <input type="text" id="designation" name="designation" value="{{ old('designation', $employee->designation) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Official Designation" required>
                         @error('designation') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- NTH Salary -->
                     <div>
                         <label for="nth_salary" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Net Take Home (NTH) Salary <span class="text-rose-500">*</span></label>
-                        <input type="number" step="0.01" id="nth_salary" name="nth_salary" value="{{ old('nth_salary', $employee- required>nth_salary) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="NTH Salary">
+                        <input type="number" step="0.01" id="nth_salary" name="nth_salary" value="{{ old('nth_salary', $employee->nth_salary) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="NTH Salary" required>
                         @error('nth_salary') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
                 </div>
