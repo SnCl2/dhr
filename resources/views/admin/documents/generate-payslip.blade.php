@@ -295,6 +295,18 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <!-- Assigned Company -->
+                    <div>
+                        <label class="block text-[10px] font-semibold uppercase tracking-wider text-slate-500">Assigned Company</label>
+                        <select id="filterCompany" onchange="filterEmployees()"
+                            class="mt-1.5 block w-full px-3 py-2 bg-white border border-slate-355 rounded-lg text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-xs">
+                            <option value="">All Companies</option>
+                            @foreach($companies as $company)
+                                <option value="{{ $company->id }}">{{ $company->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -337,6 +349,7 @@
                                     </th>
                                     <th class="py-2 px-3">Employee</th>
                                     <th class="py-2 px-3">Dept/Desg</th>
+                                    <th class="py-2 px-3">Company</th>
                                     <th class="py-2 px-3">Client/Loc</th>
                                     <th class="py-2 px-3 text-right">Base CTC</th>
                                 </tr>
@@ -349,6 +362,7 @@
                                         data-empid="{{ strtolower($emp->employee_id) }}"
                                         data-dept="{{ $emp->department_id }}"
                                         data-desg="{{ $emp->designation_id }}"
+                                        data-company="{{ $emp->company_id }}"
                                         data-status="{{ $emp->status }}"
                                         data-client="{{ strtolower($emp->client_name) }}"
                                         data-location="{{ strtolower($emp->work_location) }}">
@@ -365,6 +379,9 @@
                                             <span class="block text-[10px] text-slate-450">{{ $emp->designation->name ?? 'N/A' }}</span>
                                         </td>
                                         <td class="py-2 px-3">
+                                            <span class="block font-semibold text-slate-750">{{ $emp->company->name ?? 'N/A' }}</span>
+                                        </td>
+                                        <td class="py-2 px-3">
                                             <span class="block">{{ $emp->client_name ?? 'N/A' }}</span>
                                             <span class="block text-[10px] text-slate-450">{{ $emp->work_location ?? 'N/A' }}</span>
                                         </td>
@@ -374,7 +391,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="py-4 text-center text-slate-400">No staff found on database.</td>
+                                        <td colspan="6" class="py-4 text-center text-slate-400">No staff found on database.</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -553,6 +570,7 @@
         const statusVal = document.getElementById('filterStatus').value;
         const clientVal = document.getElementById('filterClient').value.toLowerCase();
         const locationVal = document.getElementById('filterLocation').value.toLowerCase();
+        const companyVal = document.getElementById('filterCompany').value;
 
         const rows = document.querySelectorAll('.employee-row');
         rows.forEach(row => {
@@ -563,6 +581,7 @@
             const status = row.getAttribute('data-status');
             const client = row.getAttribute('data-client');
             const location = row.getAttribute('data-location');
+            const company = row.getAttribute('data-company');
 
             const matchesSearch = !searchVal || name.includes(searchVal) || empid.includes(searchVal);
             const matchesDept = !deptVal || dept === deptVal;
@@ -570,8 +589,9 @@
             const matchesStatus = !statusVal || status === statusVal;
             const matchesClient = !clientVal || client.includes(clientVal);
             const matchesLocation = !locationVal || location.includes(locationVal);
+            const matchesCompany = !companyVal || company === companyVal;
 
-            if (matchesSearch && matchesDept && matchesDesg && matchesStatus && matchesClient && matchesLocation) {
+            if (matchesSearch && matchesDept && matchesDesg && matchesStatus && matchesClient && matchesLocation && matchesCompany) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';

@@ -683,9 +683,10 @@ class AdminDashboardController extends Controller
     */
     public function showGeneratePayslip()
     {
-        $employees = Employee::with(['department', 'designation'])->get();
+        $employees = Employee::with(['department', 'designation', 'company'])->get();
         $departments = Department::all();
         $designations = Designation::all();
+        $companies = Company::all();
         $clientNames = Employee::whereNotNull('client_name')->where('client_name', '!=', '')->distinct()->pluck('client_name');
         $workLocations = Employee::whereNotNull('work_location')->where('work_location', '!=', '')->distinct()->pluck('work_location');
         
@@ -693,6 +694,7 @@ class AdminDashboardController extends Controller
             'employees',
             'departments',
             'designations',
+            'companies',
             'clientNames',
             'workLocations'
         ));
@@ -711,7 +713,7 @@ class AdminDashboardController extends Controller
         $month = $request->input('month');
         $type = $request->input('type');
 
-        $employees = Employee::whereIn('id', $employeeIds)->get();
+        $employees = Employee::with('company')->whereIn('id', $employeeIds)->get();
 
         $headers = [
             'Content-Type' => 'text/csv',
@@ -741,7 +743,8 @@ class AdminDashboardController extends Controller
                 'ot_allowance',
                 'professional_tax',
                 'provident_fund',
-                'esic'
+                'esic',
+                'company_name'
             ]);
 
             foreach ($employees as $employee) {
@@ -789,7 +792,8 @@ class AdminDashboardController extends Controller
                     0.00, // ot_allowance
                     round($ptax, 2),
                     round($pf, 2),
-                    round($esic, 2)
+                    round($esic, 2),
+                    $employee->company->name ?? 'N/A'
                 ]);
             }
 
