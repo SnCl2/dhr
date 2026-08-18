@@ -423,20 +423,31 @@ class DocumentGeneratorService
         $pdf->SetXY(50, 29);
         $pdf->Cell(145, 5, 'Panchla, Panchla, Howrah, 711322 West Bengal, India', 0, 0, 'C');
 
+        // Parse month to Aug'2026 format matching the screenshot
+        $formattedMonth = $month;
+        try {
+            $time = strtotime($month);
+            if ($time) {
+                $formattedMonth = date("M'Y", $time);
+            }
+        } catch (\Throwable $e) {}
+
         // Month Bar Row
         $pdf->Rect(15, 45, 180, 6);
         $pdf->SetFont('Arial', 'B', 8.5);
         $pdf->SetXY(15, 45);
-        $pdf->Cell(180, 6, 'PAY SLIP For the Month of - ' . $month, 0, 0, 'C');
+        $pdf->Cell(180, 6, 'PAY SLIP For the Month of -' . $formattedMonth, 0, 0, 'C');
 
         // --- 2. Employee Details Section ---
         // Draw grid outline
         $pdf->Rect(15, 51, 180, 36);
 
-        // Draw vertical division lines
+        // Draw vertical division lines matching the colon columns
         $pdf->Line(55, 51, 55, 87);
+        $pdf->Line(63, 51, 63, 87);
         $pdf->Line(105, 51, 105, 87);
         $pdf->Line(145, 51, 145, 87);
+        $pdf->Line(153, 51, 153, 87);
 
         // Draw horizontal division lines
         for ($y = 57; $y <= 81; $y += 6) {
@@ -446,61 +457,72 @@ class DocumentGeneratorService
         $pdf->SetFont('Arial', '', 8.5);
         // Row 1
         $pdf->SetXY(15, 51); $pdf->Cell(40, 6, '  Working Days', 0, 0, 'L');
-        $pdf->SetXY(55, 51); $pdf->Cell(50, 6, ': ' . $workingDays, 0, 0, 'L');
+        $pdf->SetXY(55, 51); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(63, 51); $pdf->Cell(42, 6, ' ' . $workingDays, 0, 0, 'L');
         $pdf->SetXY(105, 51); $pdf->Cell(40, 6, '  Net Payable Days', 0, 0, 'L');
-        $pdf->SetXY(145, 51); $pdf->Cell(50, 6, ': ' . $netPayableDays, 0, 0, 'L');
+        $pdf->SetXY(145, 51); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(153, 51); $pdf->Cell(42, 6, ' ' . $netPayableDays, 0, 0, 'L');
 
         // Row 2
         $pdf->SetXY(15, 57); $pdf->Cell(40, 6, '  Employee ID', 0, 0, 'L');
-        $pdf->SetXY(55, 57); $pdf->Cell(50, 6, ': ' . $employee->employee_id, 0, 0, 'L');
+        $pdf->SetXY(55, 57); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(63, 57); $pdf->Cell(42, 6, ' ' . $employee->employee_id, 0, 0, 'L');
         $pdf->SetXY(105, 57); $pdf->Cell(40, 6, '  OT Days', 0, 0, 'L');
-        $pdf->SetXY(145, 57); $pdf->Cell(50, 6, ': ' . $otDays, 0, 0, 'L');
+        $pdf->SetXY(145, 57); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(153, 57); $pdf->Cell(42, 6, ' ' . $otDays, 0, 0, 'L');
 
         // Row 3
         $pdf->SetXY(15, 63); $pdf->Cell(40, 6, '  Employee Name', 0, 0, 'L');
-        $pdf->SetXY(55, 63); $pdf->Cell(50, 6, ': ' . $employee->full_name, 0, 0, 'L');
+        $pdf->SetXY(55, 63); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(63, 63); $pdf->Cell(42, 6, ' ' . $employee->full_name, 0, 0, 'L');
         $pdf->SetXY(105, 63); $pdf->Cell(40, 6, '  Pay Mode', 0, 0, 'L');
-        $pdf->SetXY(145, 63); $pdf->Cell(50, 6, ': ' . $payMode, 0, 0, 'L');
+        $pdf->SetXY(145, 63); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(153, 63); $pdf->Cell(42, 6, ' ' . $payMode, 0, 0, 'L');
 
         // Row 4
         $pdf->SetXY(15, 69); $pdf->Cell(40, 6, '  Joining Date', 0, 0, 'L');
-        $pdf->SetXY(55, 69); $pdf->Cell(50, 6, ': ' . ($employee->joining_date ? $employee->joining_date->format('d-M-Y') : 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(55, 69); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(63, 69); $pdf->Cell(42, 6, ' ' . ($employee->joining_date ? $employee->joining_date->format('d-M-Y') : 'N/A'), 0, 0, 'L');
         $pdf->SetXY(105, 69); $pdf->Cell(40, 6, '  Bank Name', 0, 0, 'L');
-        $pdf->SetXY(145, 69); $pdf->Cell(50, 6, ': ' . ($employee->bank_name ?? 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(145, 69); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(153, 69); $pdf->Cell(42, 6, ' ' . ($employee->bank_name ?? 'N/A'), 0, 0, 'L');
 
         // Row 5
         $pdf->SetXY(15, 75); $pdf->Cell(40, 6, '  UAN', 0, 0, 'L');
-        $pdf->SetXY(55, 75); $pdf->Cell(50, 6, ': ' . ($employee->old_uan_number ?? 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(55, 75); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(63, 75); $pdf->Cell(42, 6, ' ' . ($employee->old_uan_number ?? 'N/A'), 0, 0, 'L');
         $pdf->SetXY(105, 75); $pdf->Cell(40, 6, '  Account No.', 0, 0, 'L');
-        $pdf->SetXY(145, 75); $pdf->Cell(50, 6, ': ' . ($employee->bank_account_number ?? 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(145, 75); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(153, 75); $pdf->Cell(42, 6, ' ' . ($employee->bank_account_number ?? 'N/A'), 0, 0, 'L');
 
         // Row 6
         $pdf->SetXY(15, 81); $pdf->Cell(40, 6, '  ESI No', 0, 0, 'L');
-        $pdf->SetXY(55, 81); $pdf->Cell(50, 6, ': ' . ($employee->old_esic_number ?? 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(55, 81); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(63, 81); $pdf->Cell(42, 6, ' ' . ($employee->old_esic_number ?? 'N/A'), 0, 0, 'L');
         $pdf->SetXY(105, 81); $pdf->Cell(40, 6, '  IFSC Code', 0, 0, 'L');
-        $pdf->SetXY(145, 81); $pdf->Cell(50, 6, ': ' . ($employee->ifsc_code ?? 'N/A'), 0, 0, 'L');
+        $pdf->SetXY(145, 81); $pdf->Cell(8, 6, ':', 0, 0, 'C');
+        $pdf->SetXY(153, 81); $pdf->Cell(42, 6, ' ' . ($employee->ifsc_code ?? 'N/A'), 0, 0, 'L');
 
         // --- 3. Earnings & Deductions Section ---
-        // Header Row (Earnings | Amount | Deductions | Amount)
-        $pdf->Rect(15, 92, 180, 6);
+        // Draw outline enclosing header, details, and totals
+        $pdf->Rect(15, 92, 180, 48);
+
+        // Draw vertical division lines from Y=92 (header start) to Y=140 (totals end)
+        $pdf->Line(75, 92, 75, 140);
+        $pdf->Line(105, 92, 105, 140);
+        $pdf->Line(165, 92, 165, 140);
+
+        // Draw horizontal division lines
+        for ($y = 98; $y <= 134; $y += 6) {
+            $pdf->Line(15, $y, 195, $y);
+        }
+
+        // Header Row text
         $pdf->SetFont('Arial', 'B', 8.5);
         $pdf->SetXY(15, 92); $pdf->Cell(60, 6, '  Earnings', 0, 0, 'L');
         $pdf->SetXY(75, 92); $pdf->Cell(30, 6, 'Amount', 0, 0, 'C');
         $pdf->SetXY(105, 92); $pdf->Cell(60, 6, '  Deductions', 0, 0, 'L');
         $pdf->SetXY(165, 92); $pdf->Cell(30, 6, 'Amount', 0, 0, 'C');
-
-        // Draw detail grid outline
-        $pdf->Rect(15, 98, 180, 36);
-
-        // Draw vertical division lines
-        $pdf->Line(75, 98, 75, 134);
-        $pdf->Line(105, 98, 105, 134);
-        $pdf->Line(165, 98, 165, 134);
-
-        // Draw horizontal division lines
-        for ($y = 104; $y <= 128; $y += 6) {
-            $pdf->Line(15, $y, 195, $y);
-        }
 
         $pdf->SetFont('Arial', '', 8.5);
         // Row 1
@@ -524,17 +546,22 @@ class DocumentGeneratorService
         // Row 4
         $pdf->SetXY(15, 116); $pdf->Cell(60, 6, '  SPECIAL ALLOWANCE', 0, 0, 'L');
         $pdf->SetXY(75, 116); $pdf->Cell(30, 6, number_format($special, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY(105, 116); $pdf->Cell(60, 6, '', 0, 0, 'L');
+        $pdf->SetXY(165, 116); $pdf->Cell(30, 6, '', 0, 0, 'R');
 
         // Row 5
         $pdf->SetXY(15, 122); $pdf->Cell(60, 6, '  LEAVE ENCASHMENT', 0, 0, 'L');
         $pdf->SetXY(75, 122); $pdf->Cell(30, 6, number_format($leave, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY(105, 122); $pdf->Cell(60, 6, '', 0, 0, 'L');
+        $pdf->SetXY(165, 122); $pdf->Cell(30, 6, '', 0, 0, 'R');
 
         // Row 6
         $pdf->SetXY(15, 128); $pdf->Cell(60, 6, '  OT ALLOWANCE', 0, 0, 'L');
         $pdf->SetXY(75, 128); $pdf->Cell(30, 6, number_format($otAllow, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY(105, 128); $pdf->Cell(60, 6, '', 0, 0, 'L');
+        $pdf->SetXY(165, 128); $pdf->Cell(30, 6, '', 0, 0, 'R');
 
         // --- 4. Totals Row ---
-        $pdf->Rect(15, 134, 180, 6);
         $pdf->SetFont('Arial', 'B', 8.5);
         $pdf->SetXY(15, 134); $pdf->Cell(60, 6, '  Total', 0, 0, 'L');
         $pdf->SetXY(75, 134); $pdf->Cell(30, 6, number_format($totalEarnings, 2) . '  ', 0, 0, 'R');
@@ -544,8 +571,10 @@ class DocumentGeneratorService
         // --- 5. Net Pay & Words Block ---
         // Net Pay Bar
         $pdf->Rect(15, 140, 180, 6);
-        $pdf->SetXY(15, 140); $pdf->Cell(30, 6, '  *Net Pay', 0, 0, 'L');
-        $pdf->SetXY(45, 140); $pdf->Cell(150, 6, 'Rs. ' . number_format($net, 2), 0, 0, 'L');
+        $pdf->Line(55, 140, 55, 146);
+        $pdf->SetFont('Arial', 'B', 8.5);
+        $pdf->SetXY(15, 140); $pdf->Cell(40, 6, '  *Net Pay', 0, 0, 'L');
+        $pdf->SetXY(55, 140); $pdf->Cell(140, 6, ' Rs. ' . number_format($net, 2), 0, 0, 'L');
 
         // Rupees in Word Bar
         $netInWords = $this->convertNumberToWords($net);
