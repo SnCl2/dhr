@@ -39,7 +39,7 @@
                     </div>
                     <div>
                         <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Designation</span>
-                        <span class="block font-medium text-slate-700 mt-1">{{ $employee->designation ? $employee->designation->name : 'Unassigned' }}</span>
+                        <span class="block font-medium text-slate-700 mt-1">{{ $employee->designationRelation ? $employee->designationRelation->name : 'Unassigned' }}</span>
                     </div>
                     <div>
                         <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Date of Onboarding</span>

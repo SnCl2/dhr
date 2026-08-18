@@ -90,9 +90,9 @@ class Employee extends Authenticatable
         return $this->belongsTo(Department::class);
     }
 
-    public function designation()
+    public function designationRelation()
     {
-        return $this->belongsTo(Designation::class);
+        return $this->belongsTo(Designation::class, 'designation_id');
     }
 
     public function company()

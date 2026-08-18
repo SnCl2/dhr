@@ -52,7 +52,7 @@ class AdminDashboardController extends Controller
     */
     public function employeesIndex(Request $request)
     {
-        $query = Employee::with(['department', 'designation', 'company', 'offerLetters']);
+        $query = Employee::with(['department', 'designationRelation', 'company', 'offerLetters']);
 
         // Search filter
         if ($request->filled('search')) {
@@ -683,7 +683,7 @@ class AdminDashboardController extends Controller
     */
     public function showGeneratePayslip()
     {
-        $employees = Employee::with(['department', 'designation', 'company'])->get();
+        $employees = Employee::with(['department', 'designationRelation', 'company'])->get();
         $departments = Department::all();
         $designations = Designation::all();
         $companies = Company::all();

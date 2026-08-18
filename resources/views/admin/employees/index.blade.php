@@ -132,9 +132,9 @@
                             @if($emp->company)
                                 <span class="block font-bold text-purple-750 text-xs mb-1 select-all"><i class="fa-solid fa-building mr-1.5"></i>{{ $emp->company->name }}</span>
                             @endif
-                            @if($emp->department || $emp->designation)
+                            @if($emp->department || $emp->designationRelation)
                                 <span class="block text-slate-700">{{ $emp->department ? $emp->department->name : 'N/A' }}</span>
-                                <span class="block text-xs text-slate-500 mt-0.5">{{ $emp->designation ? $emp->designation->name : 'N/A' }}</span>
+                                <span class="block text-xs text-slate-500 mt-0.5">{{ $emp->designationRelation ? $emp->designationRelation->name : 'N/A' }}</span>
                             @else
                                 <span class="text-slate-500">Unassigned</span>
                             @endif

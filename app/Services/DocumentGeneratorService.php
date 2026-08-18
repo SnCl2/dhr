@@ -58,7 +58,7 @@ class DocumentGeneratorService
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, 'Designation:', 0, 0);
         $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 5, $employee->designation ? $employee->designation->name : 'N/A', 0, 1);
+        $pdf->Cell(0, 5, $employee->designationRelation ? $employee->designationRelation->name : 'N/A', 0, 1);
         
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, 'Mobile no.:', 0, 0);
@@ -85,7 +85,7 @@ class DocumentGeneratorService
 
         $startDate = $customData['joining_date'] ?? ($employee->joining_date ? $employee->joining_date->format('d-m-Y') : date('d-m-Y'));
         $endDate = date('d-m-Y', strtotime($startDate . ' + 1 year'));
-        $designationName = $employee->designation ? $employee->designation->name : 'Senior Assistant';
+        $designationName = $employee->designationRelation ? $employee->designationRelation->name : 'Senior Assistant';
         
         $introText = "Further to your application and subsequent discussion for employment with us, we are pleased to appoint you as {$designationName} effective from {$startDate} to {$endDate} on the following terms & conditions.";
         $pdf->MultiCell(0, 5, iconv('UTF-8', 'windows-1252//TRANSLIT', $introText));
@@ -196,7 +196,7 @@ class DocumentGeneratorService
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, 'Designation:', 0, 0);
         $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 5, $employee->designation ? $employee->designation->name : 'N/A', 0, 1);
+        $pdf->Cell(0, 5, $employee->designationRelation ? $employee->designationRelation->name : 'N/A', 0, 1);
         
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, 'Mobile no.:', 0, 0);

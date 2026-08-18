@@ -376,7 +376,7 @@
                                         </td>
                                         <td class="py-2 px-3">
                                             <span class="block">{{ $emp->department->name ?? 'N/A' }}</span>
-                                            <span class="block text-[10px] text-slate-450">{{ $emp->designation->name ?? 'N/A' }}</span>
+                                            <span class="block text-[10px] text-slate-450">{{ $emp->designationRelation->name ?? 'N/A' }}</span>
                                         </td>
                                         <td class="py-2 px-3">
                                             <span class="block font-semibold text-slate-750">{{ $emp->company->name ?? 'N/A' }}</span>
