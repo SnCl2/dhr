@@ -683,8 +683,120 @@ class AdminDashboardController extends Controller
     */
     public function showGeneratePayslip()
     {
-        $employees = Employee::where('status', 'active')->get();
-        return view('admin.documents.generate-payslip', compact('employees'));
+        $employees = Employee::with(['department', 'designation'])->get();
+        $departments = Department::all();
+        $designations = Designation::all();
+        $clientNames = Employee::whereNotNull('client_name')->where('client_name', '!=', '')->distinct()->pluck('client_name');
+        $workLocations = Employee::whereNotNull('work_location')->where('work_location', '!=', '')->distinct()->pluck('work_location');
+        
+        return view('admin.documents.generate-payslip', compact(
+            'employees',
+            'departments',
+            'designations',
+            'clientNames',
+            'workLocations'
+        ));
+    }
+
+    public function downloadPrefilledPayslipTemplate(Request $request)
+    {
+        $request->validate([
+            'employee_ids' => ['required', 'array'],
+            'employee_ids.*' => ['exists:employees,id'],
+            'month' => ['required', 'string'],
+            'type' => ['required', 'string', 'in:internal,external'],
+        ]);
+
+        $employeeIds = $request->input('employee_ids');
+        $month = $request->input('month');
+        $type = $request->input('type');
+
+        $employees = Employee::whereIn('id', $employeeIds)->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="payslips_prefilled_' . str_replace(' ', '_', strtolower($month)) . '.csv"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0'
+        ];
+
+        $callback = function() use ($employees, $month, $type) {
+            $file = fopen('php://output', 'w');
+            
+            // Header columns matching the remote's expected structure
+            fputcsv($file, [
+                'employee_id',
+                'month',
+                'type',
+                'working_days',
+                'net_payable_days',
+                'ot_days',
+                'pay_mode',
+                'basic_salary',
+                'hra',
+                'medical_allowance',
+                'special_allowance',
+                'leave_encashment',
+                'ot_allowance',
+                'professional_tax',
+                'provident_fund',
+                'esic'
+            ]);
+
+            foreach ($employees as $employee) {
+                // CTC reverse calculation
+                $ctc = (float) ($employee->salary ?? 0);
+                $workingDays = 31;
+                $netPayableDays = 31;
+                $proRatedCTC = $ctc * ($netPayableDays / $workingDays);
+
+                $basic = max(0.0, ($proRatedCTC - 500.0) / 1.215721);
+                $hra = $basic * 0.05;
+                $gross = $basic + $hra;
+                
+                // PF (12% of basic)
+                $pf = $basic * 0.12;
+                
+                // ESIC (0.75% of gross)
+                $esic = $gross * 0.0075;
+                
+                // West Bengal Professional Tax Slab
+                $ptax = 0.0;
+                if ($gross > 40000) {
+                    $ptax = 200.0;
+                } else if ($gross > 25000) {
+                    $ptax = 150.0;
+                } else if ($gross > 15000) {
+                    $ptax = 130.0;
+                } else if ($gross > 10000) {
+                    $ptax = 110.0;
+                }
+
+                fputcsv($file, [
+                    $employee->employee_id,
+                    $month,
+                    $type,
+                    $workingDays,
+                    $netPayableDays,
+                    0, // ot_days
+                    'Bank Transfer', // pay_mode
+                    round($basic, 2),
+                    round($hra, 2),
+                    0.00, // medical
+                    0.00, // special
+                    0.00, // leave
+                    0.00, // ot_allowance
+                    round($ptax, 2),
+                    round($pf, 2),
+                    round($esic, 2)
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function generatePayslip(Request $request)
