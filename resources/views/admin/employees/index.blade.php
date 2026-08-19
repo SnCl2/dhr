@@ -211,77 +211,92 @@
 </form>
 
 <!-- CSV Bulk Import Modal (Popup) -->
-<div id="csv-import-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 flex items-center justify-center p-4">
-    <div class="glass-dark p-6 sm:p-8 rounded-3xl max-w-lg w-full border border-slate-850 shadow-2xl">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="font-outfit font-bold text-lg text-white">Import Candidates / Employees via CSV</h3>
-            <button onclick="document.getElementById('csv-import-modal').classList.add('hidden')" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-800">
+<div id="csv-import-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white p-6 sm:p-8 rounded-3xl max-w-xl w-full border border-slate-200 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-file-csv"></i>
+                </div>
+                <div>
+                    <h3 class="font-outfit font-bold text-base text-slate-800">Bulk Import Candidates / Employees</h3>
+                    <p class="text-xs text-slate-500">Upload CSV matching the master KYC spreadsheet template</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('csv-import-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors">
                 <i class="fa-solid fa-xmark text-lg"></i>
             </button>
         </div>
 
-        <p class="text-xs text-slate-400 leading-relaxed mb-6">
-            Upload a CSV file containing employee credentials. CSV headers must exactly match:
-            <code class="block mt-2 p-2 bg-slate-900 rounded border border-slate-800 text-purple-400 select-all overflow-x-auto whitespace-nowrap">first_name,last_name,email,phone,salary,joining_date,status,department,designation</code>
-        </p>
-
         <!-- Download Template Form -->
-        <div class="border-b border-slate-850 pb-5 mb-5">
-            <h4 class="text-xs font-semibold text-slate-350 uppercase tracking-wider mb-2">Prefilled CSV Template Downloader</h4>
-            <p class="text-[11px] text-slate-500 mb-3">Select options to pre-populate the CSV template cells, making it easier to fill in details without looking up names/IDs.</p>
+        <div class="p-5 rounded-2xl bg-gradient-to-r from-slate-50 to-blue-50/40 border border-slate-200/80 space-y-3">
+            <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center">
+                    <i class="fa-solid fa-cloud-arrow-down text-blue-600 mr-2"></i> 1. Download Master CSV Template
+                </h4>
+                <span class="text-xxs font-semibold bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-full">30 Columns</span>
+            </div>
+            <p class="text-xs text-slate-500">Pre-select Client and Designation to download an Excel/CSV ready template:</p>
+            
             <form action="{{ route('admin.employees.download-template') }}" method="GET" class="space-y-3">
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                        <label for="template_company" class="block text-[10px] font-semibold text-slate-450 uppercase tracking-wider mb-1">Company</label>
-                        <select id="template_company" name="company" class="w-full px-2 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 text-xs">
-                            <option value="">None (Empty)</option>
+                        <label for="template_company" class="block text-xxs font-bold text-slate-600 uppercase tracking-wider mb-1">Assigned Client / Company</label>
+                        <select id="template_company" name="company" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                            <option value="">Default (Acme Corp)</option>
                             @foreach($companies as $company)
                                 <option value="{{ $company->name }}">{{ $company->name }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div>
-                        <label for="template_department" class="block text-[10px] font-semibold text-slate-450 uppercase tracking-wider mb-1">Department</label>
-                        <select id="template_department" name="department" class="w-full px-2 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 text-xs">
-                            <option value="">None (Empty)</option>
-                            @foreach($departments as $dept)
-                                <option value="{{ $dept->name }}">{{ $dept->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label for="template_designation" class="block text-[10px] font-semibold text-slate-450 uppercase tracking-wider mb-1">Designation</label>
-                        <select id="template_designation" name="designation" class="w-full px-2 py-2 bg-slate-950 border border-slate-800 rounded-xl text-slate-300 focus:outline-none focus:ring-1 focus:ring-purple-500 text-xs">
-                            <option value="">None (Empty)</option>
+                        <label for="template_designation" class="block text-xxs font-bold text-slate-600 uppercase tracking-wider mb-1">Default Designation</label>
+                        <select id="template_designation" name="designation" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                            <option value="">Default (Office Assistant)</option>
                             @foreach($designations as $desig)
                                 <option value="{{ $desig->name }}">{{ $desig->name }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-                <button type="submit" class="w-full py-2.5 bg-slate-900 hover:bg-slate-850 text-purple-400 hover:text-white rounded-xl text-xs font-bold border border-slate-800 transition-colors">
-                    <i class="fa-solid fa-download mr-1.5"></i> Download CSV Template
+                <button type="submit" class="w-full py-2.5 bg-white hover:bg-blue-50 text-blue-600 hover:text-blue-700 rounded-xl text-xs font-bold border border-blue-200 hover:border-blue-300 transition-all shadow-2xs flex items-center justify-center">
+                    <i class="fa-solid fa-download mr-2"></i> Download Master CSV Template (.csv)
                 </button>
             </form>
         </div>
 
-        <form action="{{ route('admin.employees.import') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+        <!-- Upload CSV Form -->
+        <form action="{{ route('admin.employees.import') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
 
             <div>
-                <label for="csv_file" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Select CSV File</label>
-                <input type="file" id="csv_file" name="csv_file" accept=".csv" required
-                    class="block w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500 cursor-pointer">
+                <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center">
+                    <i class="fa-solid fa-file-arrow-up text-blue-600 mr-2"></i> 2. Upload Filled CSV Spreadsheet
+                </h4>
+                
+                <label for="csv_file" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 hover:border-blue-500 bg-slate-50/60 hover:bg-blue-50/20 rounded-2xl cursor-pointer transition-all text-center group">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl mb-2 group-hover:scale-105 transition-all">
+                        <i class="fa-solid fa-file-csv"></i>
+                    </div>
+                    <span class="text-xs font-bold text-slate-800 group-hover:text-blue-600">Choose completed CSV file</span>
+                    <span class="text-xxs text-slate-500 mt-0.5">Click to browse or drag & drop</span>
+                    
+                    <div id="modal_csv_file_info" class="hidden mt-3 p-2 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xxs font-medium flex items-center space-x-1.5">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span id="modal_csv_file_name">Selected file</span>
+                    </div>
+                </label>
+                <input type="file" id="csv_file" name="csv_file" accept=".csv" required class="hidden" onchange="const f = this.files[0]; if(f){ const b = document.getElementById('modal_csv_file_info'); b.classList.remove('hidden'); document.getElementById('modal_csv_file_name').textContent = f.name; }">
             </div>
 
-            <div class="flex justify-end space-x-3 pt-4 border-t border-slate-850">
+            <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
                 <button type="button" onclick="document.getElementById('csv-import-modal').classList.add('hidden')"
-                    class="px-5 py-2.5 bg-slate-850 hover:bg-slate-800 text-slate-400 hover:text-white rounded-xl text-sm font-semibold transition-all">
+                    class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
                     Cancel
                 </button>
                 <button type="submit"
-                    class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold transition-all shadow-lg shadow-purple-500/10">
-                    <i class="fa-solid fa-file-import mr-2"></i> Onboard Employees
+                    class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20 transition-all flex items-center">
+                    <i class="fa-solid fa-file-import mr-2"></i> Start Bulk Import
                 </button>
             </div>
         </form>

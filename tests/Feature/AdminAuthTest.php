@@ -260,4 +260,100 @@ class AdminAuthTest extends TestCase
         $this->assertNotNull($employee->employee_document);
         $this->assertNotNull($employee->profile_image);
     }
+
+    /**
+     * Test admin can download prefilled template and import employees matching Book 9 schema.
+     */
+    public function test_admin_can_download_csv_template_and_import_employees_matching_master_schema(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        // 1. Download template
+        $response = $this->actingAs($admin, 'admin')->get(route('admin.employees.download-template', ['company' => 'Acme Corp', 'designation' => 'Support Staff']));
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+
+        // 2. Upload and Import CSV
+        $csvContent = implode(',', [
+            'Full Name as per Aadhaar',
+            'Aadhaar Number',
+            'PAN Number',
+            'Voter ID Number',
+            'Prefix',
+            "Father's Name as per Aadhaar",
+            "Mother's Name as per Aadhaar",
+            'Gender',
+            'Date of Birth',
+            'Mother Tongue',
+            'Full Address as per Aadhaar',
+            'Landmark',
+            'Contact Number',
+            'City',
+            'Emargency Contact Number',
+            'Pin Code',
+            'State',
+            'Last Qualification',
+            'Pass out Year',
+            'Marital Status',
+            'Email ID',
+            'Old UAN Number',
+            'Old ESIC Number',
+            'Bank Account Number',
+            'IFSC Code Number',
+            'Bank Name',
+            'Client Name',
+            'Work Location',
+            'Designation',
+            'NTH Salary'
+        ]) . "\n" . implode(',', [
+            'Vikram Malhotra',
+            '112233445566',
+            'ABCDE5678G',
+            'VOTER123',
+            'Mr.',
+            'Raj Malhotra',
+            'Sunita Malhotra',
+            'Male',
+            '1992-08-20',
+            'Hindi',
+            '78 Sector 18',
+            'Near Mall',
+            '9811122233',
+            'Noida',
+            '9811122234',
+            '201301',
+            'Uttar Pradesh',
+            'B.Sc',
+            '2014',
+            'Married',
+            'vikram.malhotra@example.com',
+            '100777888999',
+            '99887766554433221',
+            '554433221100',
+            'HDFC0000123',
+            'HDFC Bank',
+            'Client Alpha',
+            'Noida Branch',
+            'Field Executive',
+            '17500'
+        ]);
+
+        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('import.csv', $csvContent);
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.import'), [
+            'csv_file' => $file,
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+
+        $this->assertDatabaseHas('employees', [
+            'email' => 'vikram.malhotra@example.com',
+            'aadhaar_full_name' => 'Vikram Malhotra',
+            'aadhaar_number' => '112233445566',
+            'pan_number' => 'ABCDE5678G',
+            'city' => 'Noida',
+            'nth_salary' => 17500.00,
+        ]);
+    }
 }

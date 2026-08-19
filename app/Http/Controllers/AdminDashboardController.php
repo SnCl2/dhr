@@ -292,32 +292,72 @@ class AdminDashboardController extends Controller
         $callback = function() use ($request) {
             $file = fopen('php://output', 'w');
             
-            // CSV headers
+            // CSV headers matching Book 9.xlsx
             fputcsv($file, [
-                'first_name',
-                'last_name',
-                'email',
-                'phone',
-                'status',
-                'salary',
-                'joining_date',
-                'company',
-                'department',
-                'designation'
+                'Full Name as per Aadhaar',
+                'Aadhaar Number',
+                'PAN Number',
+                'Voter ID Number',
+                'Prefix',
+                "Father's Name as per Aadhaar",
+                "Mother's Name as per Aadhaar",
+                'Gender',
+                'Date of Birth',
+                'Mother Tongue',
+                'Full Address as per Aadhaar',
+                'Landmark',
+                'Contact Number',
+                'City',
+                'Emargency Contact Number',
+                'Pin Code',
+                'State',
+                'Last Qualification',
+                'Pass out Year',
+                'Marital Status',
+                'Email ID',
+                'Old UAN Number',
+                'Old ESIC Number',
+                'Bank Account Number',
+                'IFSC Code Number',
+                'Bank Name',
+                'Client Name',
+                'Work Location',
+                'Designation',
+                'NTH Salary'
             ]);
 
-            // CSV row data prefilled with selected parameters
+            // Sample prefilled row
             fputcsv($file, [
-                'John',
-                'Doe',
-                'john.doe@example.com',
-                '+91 99999 88888',
-                'active',
-                '25000',
-                date('Y-m-d'),
-                $request->query('company', ''),
-                $request->query('department', ''),
-                $request->query('designation', '')
+                'Rahul Sharma',
+                '987654321012',
+                'ABCDE1234F',
+                'WBF1234567',
+                'Mr.',
+                'Suresh Sharma',
+                'Anita Sharma',
+                'Male',
+                '1995-06-15',
+                'Bengali',
+                '12/A Park Street, Flat 4B',
+                'Near Metro Station',
+                '9876543210',
+                'Kolkata',
+                '9876543211',
+                '700016',
+                'West Bengal',
+                'B.Tech',
+                '2018',
+                'Single',
+                'rahul.sharma@example.com',
+                '100888999123',
+                '12345678901234567',
+                '987654321000',
+                'SBIN0000123',
+                'State Bank of India',
+                $request->query('company', 'Acme Corp'),
+                'Kolkata Hub',
+                $request->query('designation', 'Office Assistant'),
+                '18000'
             ]);
 
             fclose($file);
@@ -335,24 +375,81 @@ class AdminDashboardController extends Controller
         $path = $request->file('csv_file')->getRealPath();
         $file = fopen($path, 'r');
 
-        // Parse header
-        $header = fgetcsv($file);
+        // Parse header and normalize keys
+        $rawHeader = fgetcsv($file);
+        if (!$rawHeader) {
+            return redirect()->route('admin.employees.index')->with('error', 'Empty CSV file uploaded.');
+        }
+
+        // Helper to normalize column names
+        $normalizeKey = function($k) {
+            $k = trim(strtolower($k));
+            $k = str_replace([' ', "'", '"', '-', '_', '/', '\\', '(', ')', '.'], '', $k);
+            return $k;
+        };
+
+        $normalizedHeaders = array_map($normalizeKey, $rawHeader);
         
         $importedCount = 0;
         $year = date('Y');
         $prefix = "EMP-{$year}-";
 
         while (($row = fgetcsv($file)) !== FALSE) {
-            if (count($row) < 3) continue;
+            if (empty(array_filter($row))) continue;
 
-            $data = array_combine($header, $row);
+            $data = [];
+            foreach ($row as $index => $value) {
+                if (isset($normalizedHeaders[$index])) {
+                    $data[$normalizedHeaders[$index]] = trim($value);
+                }
+            }
 
-            // Validate duplicate emails
-            if (Employee::where('email', $data['email'])->exists()) {
+            // Extract fields with multiple header alias support
+            $fullName = $data['fullnameasperaadhaar'] ?? $data['fullname'] ?? $data['name'] ?? $data['aadhaarfullname'] ?? '';
+            $email = $data['emailid'] ?? $data['email'] ?? '';
+            
+            if (empty($fullName) && empty($email)) {
                 continue;
             }
 
-            // Get next ID
+            // Default email if missing
+            if (empty($email)) {
+                $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($fullName)) ?: 'emp';
+                $email = $cleanName . rand(100, 9999) . '@rmhrsolutions.in';
+            }
+
+            // Skip existing emails
+            if (Employee::where('email', $email)->exists()) {
+                continue;
+            }
+
+            // Date of birth parser
+            $dob = null;
+            $rawDob = $data['dateofbirth'] ?? $data['dob'] ?? null;
+            if (!empty($rawDob)) {
+                try {
+                    $dob = \Carbon\Carbon::parse($rawDob)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $dob = '1995-01-01';
+                }
+            }
+
+            // Company
+            $companyName = $data['clientname'] ?? $data['company'] ?? $data['companyname'] ?? null;
+            $companyId = null;
+            if (!empty($companyName)) {
+                $comp = Company::firstOrCreate(['name' => trim($companyName)]);
+                $companyId = $comp->id;
+            }
+
+            // Designation
+            $desigName = $data['designation'] ?? $data['jobtitle'] ?? 'Staff Member';
+            $desig = Designation::firstOrCreate(['name' => trim($desigName)]);
+
+            // Department (default or matched)
+            $dept = Department::firstOrCreate(['name' => 'Operations & Logistics']);
+
+            // Get next Employee ID
             $lastEmployee = Employee::where('employee_id', 'like', $prefix . '%')
                 ->orderBy('employee_id', 'desc')
                 ->first();
@@ -365,33 +462,56 @@ class AdminDashboardController extends Controller
             }
             $employeeId = $prefix . $nextNum;
 
-            // Generate password
-            $plainPassword = strtolower($data['first_name']) . rand(100, 999);
+            // Generate temporary password
+            $namePart = $fullName ? explode(' ', trim($fullName))[0] : 'emp';
+            $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($namePart)) ?: 'emp';
+            $plainPassword = $cleanName . rand(1000, 9999);
 
-            // Match department / designation / company or keep null
-            $dept = Department::firstOrCreate(['name' => trim($data['department'] ?? 'Operations & Logistics')]);
-            $desig = Designation::firstOrCreate(['name' => trim($data['designation'] ?? 'Office Assistant')]);
-            
-            $companyId = null;
-            if (!empty($data['company'])) {
-                $comp = Company::firstOrCreate(['name' => trim($data['company'])]);
-                $companyId = $comp->id;
-            }
+            $nthSalary = (float) ($data['nthsalary'] ?? $data['salary'] ?? 15000.00);
+            $grossSalary = $nthSalary > 0 ? round($nthSalary * 1.15, 2) : 15000.00;
 
             Employee::create([
                 'employee_id' => $employeeId,
-                'first_name' => $data['first_name'],
-                'last_name' => $data['last_name'],
-                'email' => $data['email'],
-                'phone' => $data['phone'] ?? null,
+                'email' => $email,
+                'phone' => $data['contactnumber'] ?? $data['phone'] ?? null,
                 'password' => Hash::make($plainPassword),
-                'status' => $data['status'] ?? 'active',
+                'status' => 'active',
                 'department_id' => $dept->id,
                 'designation_id' => $desig->id,
                 'company_id' => $companyId,
-                'joining_date' => $data['joining_date'] ?? date('Y-m-d'),
-                'salary' => $data['salary'] ?? 15000.00,
+                'joining_date' => date('Y-m-d'),
+                'salary' => $grossSalary,
                 'is_password_changed' => false,
+
+                // KYC & Personal
+                'aadhaar_full_name' => $fullName,
+                'aadhaar_number' => $data['aadhaarnumber'] ?? 'NA',
+                'pan_number' => $data['pannumber'] ?? null,
+                'voter_id_number' => $data['voteridnumber'] ?? null,
+                'prefix' => $data['prefix'] ?? 'Mr.',
+                'father_name_aadhaar' => $data['fathersnameasperaadhaar'] ?? $data['fathername'] ?? 'NA',
+                'mother_name_aadhaar' => $data['mothersnameasperaadhaar'] ?? $data['mothername'] ?? 'NA',
+                'gender' => $data['gender'] ?? 'Male',
+                'dob' => $dob ?? '1995-01-01',
+                'mother_tongue' => $data['mothertongue'] ?? 'Bengali',
+                'aadhaar_address' => $data['fulladdressasperaadhaar'] ?? $data['address'] ?? 'NA',
+                'landmark' => $data['landmark'] ?? 'NA',
+                'contact_number' => $data['contactnumber'] ?? $data['phone'] ?? 'NA',
+                'city' => $data['city'] ?? 'NA',
+                'emergency_contact_number' => $data['emargencycontactnumber'] ?? $data['emergencycontactnumber'] ?? ($data['contactnumber'] ?? 'NA'),
+                'pin_code' => $data['pincode'] ?? 'NA',
+                'state' => $data['state'] ?? 'West Bengal',
+                'last_qualification' => $data['lastqualification'] ?? 'Graduate',
+                'pass_out_year' => $data['passoutyear'] ?? '2020',
+                'marital_status' => $data['maritalstatus'] ?? 'Single',
+                'email_id' => $email,
+                'old_uan_number' => $data['olduannumber'] ?? $data['uannumber'] ?? 'NA',
+                'old_esic_number' => $data['oldesicnumber'] ?? $data['esicnumber'] ?? null,
+                'bank_account_number' => $data['bankaccountnumber'] ?? 'NA',
+                'ifsc_code' => $data['ifsccodenumber'] ?? $data['ifsccode'] ?? 'NA',
+                'bank_name' => $data['bankname'] ?? 'NA',
+                'work_location' => $data['worklocation'] ?? 'Office Location',
+                'nth_salary' => $nthSalary,
             ]);
 
             $importedCount++;
@@ -400,7 +520,7 @@ class AdminDashboardController extends Controller
         fclose($file);
 
         return redirect()->route('admin.employees.index')
-            ->with('success', "Successfully imported {$importedCount} employees from CSV.");
+            ->with('success', "Successfully imported {$importedCount} candidates/employees from CSV.");
     }
 
     public function loginAsEmployee(Employee $employee)
