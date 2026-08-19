@@ -337,6 +337,19 @@
             }
         }
     </script>
+    <!-- Floating WhatsApp Button -->
+    @if(!empty($contactPhone))
+        <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $contactPhone) }}" 
+           target="_blank" 
+           rel="noopener noreferrer"
+           class="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-emerald-500 hover:bg-emerald-400 text-white rounded-full shadow-2xl hover:shadow-emerald-500/20 transition-all duration-300 transform hover:scale-110 group"
+           title="Chat with us on WhatsApp">
+            <!-- Subtle ring waves for premium feel -->
+            <span class="absolute inset-0 rounded-full bg-emerald-500 opacity-75 animate-ping group-hover:hidden"></span>
+            <i class="fa-brands fa-whatsapp text-3xl relative z-10"></i>
+        </a>
+    @endif
+
     @yield('scripts')
 </body>
 </html>
