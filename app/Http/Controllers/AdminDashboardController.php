@@ -140,39 +140,17 @@ class AdminDashboardController extends Controller
             'designation' => ['required', 'string', 'max:255'],
             'nth_salary' => ['required', 'numeric', 'min:0'],
 
-            // Documents
-            'doc_aadhaar_front' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_aadhaar_back' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_pan' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_voter_front' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_voter_back' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_qualification_marksheet' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_qualification_certificate' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:5120'],
-            'doc_bank_passbook' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            // Documents (Single File, Max 20MB)
+            'employee_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf,zip,rar,doc,docx', 'max:20480'],
         ]);
 
-        $documentFields = [
-            'doc_aadhaar_front',
-            'doc_aadhaar_back',
-            'doc_pan',
-            'doc_voter_front',
-            'doc_voter_back',
-            'doc_qualification_marksheet',
-            'doc_qualification_certificate',
-            'doc_photo',
-            'doc_bank_passbook',
-        ];
-
-        foreach ($documentFields as $field) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
-                $fileName = time() . '_' . $field . '_' . $file->getClientOriginalName();
-                $file->move(public_path('storage/documents'), $fileName);
-                $validated[$field] = 'storage/documents/' . $fileName;
-            } else {
-                $validated[$field] = null;
-            }
+        if ($request->hasFile('employee_document')) {
+            $file = $request->file('employee_document');
+            $fileName = time() . '_doc_' . $file->getClientOriginalName();
+            $file->move(public_path('storage/documents'), $fileName);
+            $validated['employee_document'] = 'storage/documents/' . $fileName;
+        } else {
+            $validated['employee_document'] = null;
         }
 
         // Auto-generate Employee ID: EMP-YYYY-XXXX
@@ -257,39 +235,20 @@ class AdminDashboardController extends Controller
             'designation' => ['required', 'string', 'max:255'],
             'nth_salary' => ['required', 'numeric', 'min:0'],
 
-            // Documents
-            'doc_aadhaar_front' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_aadhaar_back' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_pan' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_voter_front' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_voter_back' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_qualification_marksheet' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_qualification_certificate' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
-            'doc_photo' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:5120'],
-            'doc_bank_passbook' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf', 'max:5120'],
+            // Documents (Single File, Max 20MB)
+            'employee_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf,zip,rar,doc,docx', 'max:20480'],
         ]);
 
-        $documentFields = [
-            'doc_aadhaar_front',
-            'doc_aadhaar_back',
-            'doc_pan',
-            'doc_voter_front',
-            'doc_voter_back',
-            'doc_qualification_marksheet',
-            'doc_qualification_certificate',
-            'doc_photo',
-            'doc_bank_passbook',
-        ];
-
-        foreach ($documentFields as $field) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
-                $fileName = time() . '_' . $field . '_' . $file->getClientOriginalName();
-                $file->move(public_path('storage/documents'), $fileName);
-                $validated[$field] = 'storage/documents/' . $fileName;
-            } else {
-                unset($validated[$field]);
+        if ($request->hasFile('employee_document')) {
+            if ($employee->employee_document && file_exists(public_path($employee->employee_document))) {
+                @unlink(public_path($employee->employee_document));
             }
+            $file = $request->file('employee_document');
+            $fileName = time() . '_doc_' . $file->getClientOriginalName();
+            $file->move(public_path('storage/documents'), $fileName);
+            $validated['employee_document'] = 'storage/documents/' . $fileName;
+        } else {
+            unset($validated['employee_document']);
         }
 
         $employee->update($validated);

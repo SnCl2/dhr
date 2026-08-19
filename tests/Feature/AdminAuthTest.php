@@ -168,8 +168,7 @@ class AdminAuthTest extends TestCase
 
         // 1. Create Employee with simulated documents
         \Illuminate\Support\Facades\Storage::fake('public');
-        $aadhaarFront = \Illuminate\Http\UploadedFile::fake()->create('aadhaar_front.jpg', 200);
-        $aadhaarBack = \Illuminate\Http\UploadedFile::fake()->create('aadhaar_back.jpg', 200);
+        $employeeDocument = \Illuminate\Http\UploadedFile::fake()->create('employee_doc.pdf', 500);
 
         $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.store'), [
             'first_name' => 'John',
@@ -207,19 +206,17 @@ class AdminAuthTest extends TestCase
             'work_location' => 'Delhi Hub',
             'designation' => 'Lead Engineer',
             'nth_salary' => 13000.00,
-            'doc_aadhaar_front' => $aadhaarFront,
-            'doc_aadhaar_back' => $aadhaarBack,
+            'employee_document' => $employeeDocument,
         ]);
 
         $response->assertRedirect(route('admin.employees.index'));
         
         $employee = \App\Models\Employee::where('email', 'unique.test.employee@example.com')->first();
         $this->assertNotNull($employee);
-        $this->assertNotNull($employee->doc_aadhaar_front);
-        $this->assertNotNull($employee->doc_aadhaar_back);
+        $this->assertNotNull($employee->employee_document);
 
-        // 2. Update Employee details and upload a new voter document
-        $voterFront = \Illuminate\Http\UploadedFile::fake()->create('voter_front.pdf', 300);
+        // 2. Update Employee details and upload a new document
+        $employeeDocumentUpdated = \Illuminate\Http\UploadedFile::fake()->create('employee_doc_updated.pdf', 600);
 
         $response = $this->actingAs($admin, 'admin')->put(route('admin.employees.update', $employee), [
             'first_name' => 'John Updated',
@@ -257,7 +254,7 @@ class AdminAuthTest extends TestCase
             'work_location' => 'Delhi Hub',
             'designation' => 'Lead Engineer',
             'nth_salary' => 14000.00,
-            'doc_voter_front' => $voterFront,
+            'employee_document' => $employeeDocumentUpdated,
         ]);
 
         $response->assertRedirect(route('admin.employees.index'));
@@ -266,8 +263,6 @@ class AdminAuthTest extends TestCase
         $this->assertEquals('John Updated', $employee->first_name);
         $this->assertEquals('inactive', $employee->status);
         $this->assertEquals(16000.00, $employee->salary);
-        $this->assertNotNull($employee->doc_voter_front);
-        // Assert previous documents are preserved
-        $this->assertNotNull($employee->doc_aadhaar_front);
+        $this->assertNotNull($employee->employee_document);
     }
 }

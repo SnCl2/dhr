@@ -416,78 +416,12 @@
             <div class="border-t border-slate-850 pt-6 space-y-6">
                 <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider"><i class="fa-solid fa-file-arrow-up mr-2"></i>Onboarding Documents Upload</h3>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                    <!-- Aadhaar Card Front -->
-                    <div>
-                        <label for="doc_aadhaar_front" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Aadhaar Card (Front) <span class="text-slate-500">(Jpg/Jpeg/PDF)</span></label>
-                        <input type="file" id="doc_aadhaar_front" name="doc_aadhaar_front" accept=".jpg,.jpeg,.png,.pdf"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_aadhaar_front') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Aadhaar Card Back -->
-                    <div>
-                        <label for="doc_aadhaar_back" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Aadhaar Card (Back) <span class="text-slate-500">(Jpg/Jpeg/PDF)</span></label>
-                        <input type="file" id="doc_aadhaar_back" name="doc_aadhaar_back" accept=".jpg,.jpeg,.png,.pdf"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_aadhaar_back') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- PAN Card Front -->
-                    <div>
-                        <label for="doc_pan" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">PAN Card (Front) <span class="text-slate-500">(Jpg/Jpeg/PDF)</span></label>
-                        <input type="file" id="doc_pan" name="doc_pan" accept=".jpg,.jpeg,.png,.pdf"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_pan') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Voter ID Card Front -->
-                    <div>
-                        <label for="doc_voter_front" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Voter ID Card (Front) <span class="text-slate-500">(Jpg/Jpeg/PDF)</span></label>
-                        <input type="file" id="doc_voter_front" name="doc_voter_front" accept=".jpg,.jpeg,.png,.pdf"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_voter_front') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Voter ID Card Back -->
-                    <div>
-                        <label for="doc_voter_back" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Voter ID Card (Back) <span class="text-slate-500">(Jpg/Jpeg/PDF)</span></label>
-                        <input type="file" id="doc_voter_back" name="doc_voter_back" accept=".jpg,.jpeg,.png,.pdf"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_voter_back') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Last Qualification Marksheet -->
-                    <div>
-                        <label for="doc_qualification_marksheet" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Qualification Marksheet <span class="text-slate-500">(Jpg/Jpeg/PDF)</span></label>
-                        <input type="file" id="doc_qualification_marksheet" name="doc_qualification_marksheet" accept=".jpg,.jpeg,.png,.pdf"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_qualification_marksheet') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Last Qualification Certificate -->
-                    <div>
-                        <label for="doc_qualification_certificate" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Qualification Certificate <span class="text-slate-500">(Jpg/Jpeg/PDF)</span></label>
-                        <input type="file" id="doc_qualification_certificate" name="doc_qualification_certificate" accept=".jpg,.jpeg,.png,.pdf"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_qualification_certificate') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Photo / Selfie -->
-                    <div>
-                        <label for="doc_photo" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Photo / Selfie <span class="text-slate-500">(Jpg/Jpeg)</span></label>
-                        <input type="file" id="doc_photo" name="doc_photo" accept=".jpg,.jpeg,.png"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_photo') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
-                    <!-- Bank Passbook 1st Page -->
-                    <div>
-                        <label for="doc_bank_passbook" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Bank Passbook (1st Page) <span class="text-slate-500">(Jpg/Jpeg/PDF)</span></label>
-                        <input type="file" id="doc_bank_passbook" name="doc_bank_passbook" accept=".jpg,.jpeg,.png,.pdf"
-                            class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
-                        @error('doc_bank_passbook') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
+                <div class="max-w-xl">
+                    <label for="employee_document" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Employee Onboarding Document <span class="text-slate-500">(PDF, ZIP, RAR, or Images, max 20MB)</span></label>
+                    <input type="file" id="employee_document" name="employee_document" accept=".jpg,.jpeg,.png,.pdf,.zip,.rar,.doc,.docx"
+                        class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
+                    <p class="mt-2 text-xxs text-slate-500">Please upload all document attachments (Aadhaar, PAN, Voter ID, Qualification Marksheets, etc.) consolidated into a single PDF, ZIP, or doc/docx file.</p>
+                    @error('employee_document') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                 </div>
             </div>
 
