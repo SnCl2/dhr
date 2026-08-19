@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Designation Management - RMHRSolutions')
+@section('title', 'Designation Management - RM HR Solutions')
 @section('page_title', 'Manage Designations')
 
 @section('content')

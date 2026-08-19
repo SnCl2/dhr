@@ -79,21 +79,21 @@ class AdminAuthTest extends TestCase
 
         // 1. Create a Company
         $response = $this->actingAs($admin, 'admin')->post(route('admin.companies.store'), [
-            'name' => 'RMHRSolutions Plotters 2',
+            'name' => 'RM HR Solutions Plotters 2',
             'address' => 'Test Address 2',
         ]);
         $response->assertRedirect(route('admin.companies.index'));
-        $this->assertDatabaseHas('companies', ['name' => 'RMHRSolutions Plotters 2']);
+        $this->assertDatabaseHas('companies', ['name' => 'RM HR Solutions Plotters 2']);
 
-        $company = Company::where('name', 'RMHRSolutions Plotters 2')->first();
+        $company = Company::where('name', 'RM HR Solutions Plotters 2')->first();
 
         // 2. Edit the Company
         $response = $this->actingAs($admin, 'admin')->put(route('admin.companies.update', $company), [
-            'name' => 'RMHRSolutions Plotters Updated',
+            'name' => 'RM HR Solutions Plotters Updated',
             'address' => 'Updated Address',
         ]);
         $response->assertRedirect(route('admin.companies.index'));
-        $this->assertDatabaseHas('companies', ['name' => 'RMHRSolutions Plotters Updated']);
+        $this->assertDatabaseHas('companies', ['name' => 'RM HR Solutions Plotters Updated']);
 
         // 3. Create an Employee assigned to that Company
         $dept = Department::first();

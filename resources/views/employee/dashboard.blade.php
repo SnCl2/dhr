@@ -1,6 +1,6 @@
 @extends('layouts.employee')
 
-@section('title', 'Employee Dashboard - RMHRSolutions')
+@section('title', 'Employee Dashboard - RM HR Solutions')
 @section('page_title', 'My Profile & Self-Service')
 
 @section('content')

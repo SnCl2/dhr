@@ -1,6 +1,6 @@
 @extends('layouts.employee')
 
-@section('title', 'My Documents - RMHRSolutions')
+@section('title', 'My Documents - RM HR Solutions')
 @section('page_title', 'Document Download Center')
 
 @section('content')

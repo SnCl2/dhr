@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Company Management - RMHRSolutions')
+@section('title', 'Company Management - RM HR Solutions')
 @section('page_title', 'Associated Companies')
 
 @section('content')

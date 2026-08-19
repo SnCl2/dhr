@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Create Company - RMHRSolutions')
+@section('title', 'Create Company - RM HR Solutions')
 @section('page_title', 'Register New Company')
 
 @section('content')
@@ -18,7 +18,7 @@
                 <label for="name" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Company Name *</label>
                 <input type="text" id="name" name="name" required value="{{ old('name') }}"
                     class="mt-2 block w-full px-4 py-3 bg-white border border-slate-350 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm @error('name') border-rose-500 @enderror"
-                    placeholder="e.g. RMHRSolutions Plotters Private Limited">
+                    placeholder="e.g. RM HR Solutions Plotters Private Limited">
                 @error('name')
                     <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span>
                 @enderror

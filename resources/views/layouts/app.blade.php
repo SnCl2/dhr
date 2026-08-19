@@ -124,7 +124,7 @@
                         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
                             <i class="fa-solid fa-people-carry-box text-xl animate-pulse"></i>
                         </div>
-                        <span class="font-outfit font-extrabold text-2xl tracking-wider bg-gradient-to-r from-purple-800 via-purple-600 to-indigo-500 bg-clip-text text-transparent group-hover:text-purple-600 transition-colors duration-300">RMHRSOLUTIONS</span>
+                        <span class="font-outfit font-extrabold text-2xl tracking-wider bg-gradient-to-r from-purple-800 via-purple-600 to-indigo-500 bg-clip-text text-transparent group-hover:text-purple-600 transition-colors duration-300">RM HR SOLUTIONS</span>
                     </a>
                 </div>
 
@@ -201,7 +201,7 @@
                         <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white">
                             <i class="fa-solid fa-people-carry-box"></i>
                         </div>
-                        <span class="font-outfit font-extrabold text-xl tracking-wider text-white">RMHRSOLUTIONS PLOTTERS</span>
+                        <span class="font-outfit font-extrabold text-xl tracking-wider text-white">RM HR SOLUTIONS PLOTTERS</span>
                     </div>
                     <p class="text-slate-400 text-sm leading-relaxed">
                         Leading manpower supplier, recruitment consulting firm, and corporate staffing partner. Connecting organizations with professional talent.
