@@ -264,7 +264,7 @@
     </div>
 
     <!-- Bulk Actions Form -->
-    <form id="bulk-generate-form" action="{{ route('admin.offer-letters.bulk-generate-selected') }}" method="POST">
+    <form id="bulk-generate-form" action="{{ route('admin.offer-letters.bulk-generate-selected') }}" method="POST" onsubmit="return handleBulkGenerateSubmit(event)">
         @csrf
 
         <!-- Bulk Actions Header Panel (hidden by default) -->
@@ -282,14 +282,16 @@
                         <option value="internal">Internal Staff Layout</option>
                     </select>
                 </div>
+                <div id="bulk-hidden-inputs"></div>
                 <button type="submit" class="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/10">
                     <i class="fa-solid fa-bolt mr-1.5"></i> Bulk Generate Offer Letters
                 </button>
             </div>
         </div>
+    </form>
 
-        <!-- Employees Database Table -->
-        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm mb-8">
+    <!-- Employees Database Table -->
+    <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm mb-8">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
@@ -410,8 +412,7 @@
             </div>
             @endif
         </div>
-    </form>
-</div>
+    </div>
 
 <!-- CSV Bulk Import Modal (Popup) -->
 <div id="csv-import-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -598,6 +599,25 @@
                 updateBulkPanel();
             });
         });
+
+        window.handleBulkGenerateSubmit = function(e) {
+            const checked = document.querySelectorAll('.employee-checkbox:checked');
+            if (checked.length === 0) {
+                alert('Please select at least one candidate first.');
+                e.preventDefault();
+                return false;
+            }
+            const container = document.getElementById('bulk-hidden-inputs');
+            container.innerHTML = '';
+            checked.forEach(cb => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'employee_ids[]';
+                input.value = cb.value;
+                container.appendChild(input);
+            });
+            return true;
+        };
     });
 </script>
 @endsection

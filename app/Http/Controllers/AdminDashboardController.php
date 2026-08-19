@@ -684,7 +684,8 @@ class AdminDashboardController extends Controller
     public function loginAsEmployee(Employee $employee)
     {
         \Illuminate\Support\Facades\Auth::guard('employee')->login($employee);
-        return redirect()->route('employee.dashboard')->with('success', 'Logged in as candidate: ' . $employee->full_name);
+        session(['admin_impersonating' => true]);
+        return redirect()->route('employee.dashboard')->with('success', 'Logged in as candidate: ' . ($employee->aadhaar_full_name ?? $employee->full_name));
     }
 
     /*

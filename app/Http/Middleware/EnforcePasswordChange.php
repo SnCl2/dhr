@@ -16,7 +16,7 @@ class EnforcePasswordChange
     {
         $employee = Auth::guard('employee')->user();
 
-        if ($employee && !$employee->is_password_changed) {
+        if ($employee && !$employee->is_password_changed && !session('admin_impersonating')) {
             if (!$request->routeIs('employee.password.change') && !$request->routeIs('employee.password.change.update') && !$request->routeIs('employee.logout')) {
                 return redirect()->route('employee.password.change')->with('warning', 'You must change your password on your first login before you can proceed.');
             }
