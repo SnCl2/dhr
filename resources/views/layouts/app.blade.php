@@ -114,10 +114,24 @@
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-800 flex flex-col selection:bg-purple-500 selection:text-white">
 
+    <!-- Top Blue Contact Section -->
+    <div class="bg-sky-500 text-white py-2.5 text-xs font-semibold shadow-inner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end space-x-6">
+            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $contactPhone) }}" target="_blank" class="flex items-center space-x-1.5 hover:text-sky-100 transition-colors">
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+                <span>{{ $contactPhone }}</span>
+            </a>
+            <a href="mailto:{{ $contactEmail }}" class="flex items-center space-x-1.5 hover:text-sky-100 transition-colors">
+                <i class="fa-solid fa-envelope text-xs"></i>
+                <span>{{ $contactEmail }}</span>
+            </a>
+        </div>
+    </div>
+
     <!-- Header Navigation -->
     <header class="sticky top-0 z-50 glass-dark border-b border-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
+            <div class="flex items-center justify-between h-24">
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
@@ -142,6 +156,16 @@
                     <a href="{{ route('gallery') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('gallery') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Gallery</a>
                     <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('contact') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Contact Us</a>
                 </nav>
+
+                <!-- Partner Group Brands (Cyan Pills) -->
+                <div class="hidden lg:flex items-center space-x-3">
+                    <a href="https://swagatham.co.in/" target="_blank" class="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-full text-xs font-black uppercase tracking-wider flex items-center transition-all duration-300 transform hover:scale-105 shadow-md shadow-sky-500/10">
+                        SWAGATHAM <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+                    </a>
+                    <a href="https://flickjobs.in/" target="_blank" class="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-full text-xs font-black uppercase tracking-wider flex items-center transition-all duration-300 transform hover:scale-105 shadow-md shadow-sky-500/10">
+                        FLICKJOBS <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+                    </a>
+                </div>
 
 
 
