@@ -19,6 +19,7 @@
                     <th class="p-6">ID</th>
                     <th class="p-6">Company Name</th>
                     <th class="p-6">Address</th>
+                    <th class="p-6">Annexure CTC / Net</th>
                     <th class="p-6">Staff Count</th>
                     <th class="p-6 text-right">Actions</th>
                 </tr>
@@ -29,6 +30,16 @@
                     <td class="p-6 font-semibold text-slate-500">{{ $company->id }}</td>
                     <td class="p-6 font-bold text-slate-900">{{ $company->name }}</td>
                     <td class="p-6 text-slate-500">{{ $company->address ?? 'No address provided' }}</td>
+                    <td class="p-6">
+                        @if($company->ctc > 0)
+                            <div class="space-y-1 text-xs">
+                                <span class="font-bold text-blue-700 block">CTC: ₹{{ number_format($company->ctc, 2) }}</span>
+                                <span class="text-purple-700 font-semibold block">Net: ₹{{ number_format($company->net_salary, 2) }}</span>
+                            </div>
+                        @else
+                            <span class="text-xs text-slate-400 italic">Not configured</span>
+                        @endif
+                    </td>
                     <td class="p-6">
                         <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
                             {{ $company->employees_count ?? $company->employees()->count() }} Active Staff
@@ -49,7 +60,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="p-12 text-center text-slate-500 text-base">
+                    <td colspan="6" class="p-12 text-center text-slate-500 text-base">
                         <i class="fa-solid fa-building text-3xl mb-4 block"></i>
                         No companies registered yet. Get started by creating your first company.
                     </td>

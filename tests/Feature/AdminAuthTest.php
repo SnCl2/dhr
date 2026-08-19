@@ -404,4 +404,58 @@ class AdminAuthTest extends TestCase
         $exportResponse->assertStatus(200);
         $exportResponse->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
     }
+
+    public function test_company_annexure_salary_structure_and_offer_letter_generation(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        // 1. Create company with Annexure values
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.companies.store'), [
+            'name' => 'Apex Logistics Corp',
+            'address' => 'Salt Lake Sector V, Kolkata',
+            'basic' => 11927.00,
+            'hra' => 596.00,
+            'conveyance' => 0.00,
+            'medical_allowance' => 0.00,
+            'sp_allowance' => 0.00,
+            'bonus' => 500.00,
+            'employer_pf' => 1551.00,
+            'employer_esic' => 426.00,
+            'employer_lwf' => 0.00,
+            'employee_pf' => 1431.00,
+            'employee_esic' => 99.00,
+            'employee_lwf' => 0.00,
+            'professional_tax' => 110.00,
+        ]);
+
+        $response->assertRedirect(route('admin.companies.index'));
+        
+        $company = \App\Models\Company::where('name', 'Apex Logistics Corp')->first();
+        $this->assertNotNull($company);
+        $this->assertEquals(12523.00, (float)$company->gross_earning);
+        $this->assertEquals(15000.00, (float)$company->ctc);
+        $this->assertEquals(1640.00, (float)$company->total_deductions);
+        $this->assertEquals(11383.00, (float)$company->net_salary);
+
+        // 2. Assign employee to this company and generate offer letter
+        $employee = \App\Models\Employee::create([
+            'employee_id' => 'EMP-TEST-ANNEXURE',
+            'aadhaar_full_name' => 'John Doe Annexure',
+            'email' => 'annexure@test.com',
+            'password' => bcrypt('password'),
+            'company_id' => $company->id,
+            'status' => 'active',
+        ]);
+
+        $genResponse = $this->actingAs($admin, 'admin')->post(route('admin.offer-letters.generate.submit'), [
+            'employee_id' => $employee->id,
+            'type' => 'internal',
+        ]);
+
+        $genResponse->assertRedirect(route('admin.employees.index'));
+        $this->assertDatabaseHas('offer_letters', [
+            'employee_id' => $employee->id,
+        ]);
+    }
 }

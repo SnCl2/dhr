@@ -706,15 +706,28 @@ class AdminDashboardController extends Controller
 
     public function companiesStore(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:companies,name'],
             'address' => ['nullable', 'string', 'max:500'],
+            'basic' => ['nullable', 'numeric', 'min:0'],
+            'hra' => ['nullable', 'numeric', 'min:0'],
+            'conveyance' => ['nullable', 'numeric', 'min:0'],
+            'medical_allowance' => ['nullable', 'numeric', 'min:0'],
+            'sp_allowance' => ['nullable', 'numeric', 'min:0'],
+            'bonus' => ['nullable', 'numeric', 'min:0'],
+            'employer_pf' => ['nullable', 'numeric', 'min:0'],
+            'employer_esic' => ['nullable', 'numeric', 'min:0'],
+            'employer_lwf' => ['nullable', 'numeric', 'min:0'],
+            'employee_pf' => ['nullable', 'numeric', 'min:0'],
+            'employee_esic' => ['nullable', 'numeric', 'min:0'],
+            'employee_lwf' => ['nullable', 'numeric', 'min:0'],
+            'professional_tax' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        Company::create($request->all());
+        Company::create($data);
 
         return redirect()->route('admin.companies.index')
-            ->with('success', 'Company registered successfully.');
+            ->with('success', 'Company registered successfully with salary structure.');
     }
 
     public function companiesEdit(Company $company)
@@ -724,15 +737,28 @@ class AdminDashboardController extends Controller
 
     public function companiesUpdate(Request $request, Company $company)
     {
-        $request->validate([
+        $data = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:companies,name,' . $company->id],
             'address' => ['nullable', 'string', 'max:500'],
+            'basic' => ['nullable', 'numeric', 'min:0'],
+            'hra' => ['nullable', 'numeric', 'min:0'],
+            'conveyance' => ['nullable', 'numeric', 'min:0'],
+            'medical_allowance' => ['nullable', 'numeric', 'min:0'],
+            'sp_allowance' => ['nullable', 'numeric', 'min:0'],
+            'bonus' => ['nullable', 'numeric', 'min:0'],
+            'employer_pf' => ['nullable', 'numeric', 'min:0'],
+            'employer_esic' => ['nullable', 'numeric', 'min:0'],
+            'employer_lwf' => ['nullable', 'numeric', 'min:0'],
+            'employee_pf' => ['nullable', 'numeric', 'min:0'],
+            'employee_esic' => ['nullable', 'numeric', 'min:0'],
+            'employee_lwf' => ['nullable', 'numeric', 'min:0'],
+            'professional_tax' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $company->update($request->all());
+        $company->update($data);
 
         return redirect()->route('admin.companies.index')
-            ->with('success', 'Company details updated successfully.');
+            ->with('success', 'Company details and salary structure updated successfully.');
     }
 
     public function companiesDestroy(Company $company)
@@ -855,9 +881,10 @@ class AdminDashboardController extends Controller
     */
     public function showGenerateOfferLetter(Request $request)
     {
-        $employees = Employee::where('status', '!=', 'terminated')->get();
+        $employees = Employee::with('company')->where('status', '!=', 'terminated')->get();
         $selectedEmployeeId = $request->employee_id;
-        return view('admin.documents.generate-offer', compact('employees', 'selectedEmployeeId'));
+        $companies = Company::all();
+        return view('admin.documents.generate-offer', compact('employees', 'selectedEmployeeId', 'companies'));
     }
 
     public function generateOfferLetter(Request $request)
@@ -867,14 +894,43 @@ class AdminDashboardController extends Controller
             'type' => ['required', 'in:internal,external'],
             'salary' => ['nullable', 'numeric'],
             'joining_date' => ['nullable', 'date'],
+            'basic' => ['nullable', 'numeric', 'min:0'],
+            'hra' => ['nullable', 'numeric', 'min:0'],
+            'conveyance' => ['nullable', 'numeric', 'min:0'],
+            'medical_allowance' => ['nullable', 'numeric', 'min:0'],
+            'sp_allowance' => ['nullable', 'numeric', 'min:0'],
+            'bonus' => ['nullable', 'numeric', 'min:0'],
+            'employer_pf' => ['nullable', 'numeric', 'min:0'],
+            'employer_esic' => ['nullable', 'numeric', 'min:0'],
+            'employer_lwf' => ['nullable', 'numeric', 'min:0'],
+            'employee_pf' => ['nullable', 'numeric', 'min:0'],
+            'employee_esic' => ['nullable', 'numeric', 'min:0'],
+            'employee_lwf' => ['nullable', 'numeric', 'min:0'],
+            'professional_tax' => ['nullable', 'numeric', 'min:0'],
         ]);
 
-        $employee = Employee::findOrFail($request->employee_id);
+        $employee = Employee::with('company')->findOrFail($request->employee_id);
 
         $customData = [
             'salary' => $request->salary ?? $employee->salary,
             'joining_date' => $request->joining_date ? date('d-M-Y', strtotime($request->joining_date)) : null,
+            'basic' => $request->filled('basic') ? $request->basic : null,
+            'hra' => $request->filled('hra') ? $request->hra : null,
+            'conveyance' => $request->filled('conveyance') ? $request->conveyance : null,
+            'medical_allowance' => $request->filled('medical_allowance') ? $request->medical_allowance : null,
+            'sp_allowance' => $request->filled('sp_allowance') ? $request->sp_allowance : null,
+            'bonus' => $request->filled('bonus') ? $request->bonus : null,
+            'employer_pf' => $request->filled('employer_pf') ? $request->employer_pf : null,
+            'employer_esic' => $request->filled('employer_esic') ? $request->employer_esic : null,
+            'employer_lwf' => $request->filled('employer_lwf') ? $request->employer_lwf : null,
+            'employee_pf' => $request->filled('employee_pf') ? $request->employee_pf : null,
+            'employee_esic' => $request->filled('employee_esic') ? $request->employee_esic : null,
+            'employee_lwf' => $request->filled('employee_lwf') ? $request->employee_lwf : null,
+            'professional_tax' => $request->filled('professional_tax') ? $request->professional_tax : null,
         ];
+
+        // Filter out nulls so service falls back to company defaults when not customized
+        $customData = array_filter($customData, fn($v) => !is_null($v));
 
         // Generate PDF path using service
         $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $request->type, $customData);
@@ -887,6 +943,37 @@ class AdminDashboardController extends Controller
 
         return redirect()->route('admin.employees.index')
             ->with('success', "Offer letter generated successfully for {$employee->full_name}.");
+    }
+
+    public function bulkGenerateSelected(Request $request)
+    {
+        $request->validate([
+            'employee_ids' => ['required', 'array'],
+            'employee_ids.*' => ['exists:employees,id'],
+            'type' => ['required', 'in:internal,external'],
+        ]);
+
+        $employees = Employee::with('company')->whereIn('id', $request->employee_ids)->get();
+        $count = 0;
+
+        foreach ($employees as $employee) {
+            $customData = [
+                'salary' => $employee->salary,
+                'joining_date' => $employee->joining_date ? $employee->joining_date->format('d-M-Y') : null,
+            ];
+
+            $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $request->type, $customData);
+
+            OfferLetter::create([
+                'employee_id' => $employee->id,
+                'pdf_path' => $pdfPath,
+            ]);
+
+            $count++;
+        }
+
+        return redirect()->route('admin.employees.index')
+            ->with('success', "Bulk generated {$count} offer letters successfully.");
     }
 
     public function generateOfferLettersBulk(Request $request)
@@ -908,7 +995,7 @@ class AdminDashboardController extends Controller
             if (count($row) < 1) continue;
 
             $data = array_combine($header, $row);
-            $employee = Employee::where('employee_id', trim($data['employee_id']))->first();
+            $employee = Employee::with('company')->where('employee_id', trim($data['employee_id']))->first();
 
             if ($employee) {
                 $customData = [
@@ -1357,44 +1444,5 @@ class AdminDashboardController extends Controller
         $inquiry->save();
 
         return back()->with('success', 'Marked inquiry as replied.');
-    }
-
-    public function bulkGenerateSelected(Request $request)
-    {
-        $request->validate([
-            'employee_ids' => ['required', 'array'],
-            'employee_ids.*' => ['exists:employees,id'],
-            'type' => ['required', 'in:internal,external'],
-        ]);
-
-        $type = $request->type;
-        $count = 0;
-
-        foreach ($request->employee_ids as $empId) {
-            $employee = Employee::find($empId);
-            if ($employee) {
-                // Ensure candidate only gets one offer letter
-                if ($employee->offerLetters()->exists()) {
-                    continue;
-                }
-
-                $customData = [
-                    'salary' => $employee->salary,
-                    'joining_date' => $employee->joining_date ? $employee->joining_date->format('d-M-Y') : null,
-                ];
-
-                $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $type, $customData);
-
-                OfferLetter::create([
-                    'employee_id' => $employee->id,
-                    'pdf_path' => $pdfPath,
-                ]);
-
-                $count++;
-            }
-        }
-
-        return redirect()->route('admin.employees.index')
-            ->with('success', "Bulk generated {$count} offer letters successfully.");
     }
 }

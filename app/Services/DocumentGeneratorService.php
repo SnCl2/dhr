@@ -20,6 +20,7 @@ class DocumentGeneratorService
 
         // 2. Initialize FPDF
         $pdf = new \FPDF('P', 'mm', 'A4');
+        $pdf->SetAutoPageBreak(false);
         
         // ------------------ PAGE 1 ------------------
         $pdf->AddPage();
@@ -209,144 +210,151 @@ class DocumentGeneratorService
         $pdf->MultiCell(0, 5, $address);
         $pdf->Ln(8);
 
-        // Annexure Title
         $pdf->SetFont('Arial', 'BU', 12);
         $pdf->Cell(0, 6, 'Annexure', 0, 1, 'C');
         $pdf->Ln(6);
 
-        // Table calculations
-        $ctc = floatval($customData['salary'] ?? $employee->salary ?? 0);
-        $bonus = ($ctc > 5000) ? 500.00 : 0.00;
-        
-        if ($ctc > 0) {
-            $basic = round(($ctc - $bonus) / 1.215721);
-            $hra = round($basic * 0.05);
+        // Resolve company and salary structure
+        $company = $employee->company;
+
+        $basic = floatval($customData['basic'] ?? ($company ? $company->basic : 0));
+        $hra = floatval($customData['hra'] ?? ($company ? $company->hra : 0));
+        $conveyance = floatval($customData['conveyance'] ?? ($company ? $company->conveyance : 0));
+        $medical = floatval($customData['medical_allowance'] ?? ($company ? $company->medical_allowance : 0));
+        $spAllowance = floatval($customData['sp_allowance'] ?? ($company ? $company->sp_allowance : 0));
+
+        $gross = $basic + $hra + $conveyance + $medical + $spAllowance;
+
+        $bonus = floatval($customData['bonus'] ?? ($company ? $company->bonus : 0));
+        $employerPf = floatval($customData['employer_pf'] ?? ($company ? $company->employer_pf : 0));
+        $employerEsic = floatval($customData['employer_esic'] ?? ($company ? $company->employer_esic : 0));
+        $employerLwf = floatval($customData['employer_lwf'] ?? ($company ? $company->employer_lwf : 0));
+
+        $ctc = $gross + $bonus + $employerPf + $employerEsic + $employerLwf;
+
+        $employeePf = floatval($customData['employee_pf'] ?? ($company ? $company->employee_pf : 0));
+        $employeeEsic = floatval($customData['employee_esic'] ?? ($company ? $company->employee_esic : 0));
+        $employeeLwf = floatval($customData['employee_lwf'] ?? ($company ? $company->employee_lwf : 0));
+        $pTax = floatval($customData['professional_tax'] ?? ($company ? $company->professional_tax : 0));
+
+        $totalDeductions = $employeePf + $employeeEsic + $employeeLwf + $pTax;
+        $netSalary = $gross - $totalDeductions + $bonus;
+
+        // Fallback for employee records when company salary is 0 but employee has salary
+        if ($ctc == 0 && !empty($customData['salary'] ?? $employee->salary)) {
+            $salaryVal = floatval($customData['salary'] ?? $employee->salary);
+            $bonus = ($salaryVal > 5000) ? 500.00 : 0.00;
+            $basic = round(($salaryVal - $bonus) / 1.215721, 2);
+            $hra = round($basic * 0.05, 2);
             $gross = $basic + $hra;
-            $employerPf = round($basic * 0.13);
-            $employerEsic = round($gross * 0.03402);
-            $lwf = 0;
-            // recalculate ctc to match exactly
+            $employerPf = round($basic * 0.13, 2);
+            $employerEsic = round($gross * 0.03402, 2);
+            $employerLwf = 0;
             $ctc = $gross + $bonus + $employerPf + $employerEsic;
-            
-            // Deductions
-            $employeePf = round($basic * 0.12);
-            $employeeEsic = round($gross * 0.00793);
+            $employeePf = round($basic * 0.12, 2);
+            $employeeEsic = round($gross * 0.00793, 2);
+            $employeeLwf = 0;
             $pTax = ($gross > 15000) ? 150 : (($gross > 10000) ? 110 : 0);
-            $totalDeductions = $employeePf + $employeeEsic + $lwf + $pTax;
+            $totalDeductions = $employeePf + $employeeEsic + $pTax;
             $netSalary = $gross - $totalDeductions + $bonus;
-        } else {
-            $basic = 0;
-            $hra = 0;
-            $gross = 0;
-            $employerPf = 0;
-            $employerEsic = 0;
-            $lwf = 0;
-            $employeePf = 0;
-            $employeeEsic = 0;
-            $pTax = 0;
-            $totalDeductions = 0;
-            $netSalary = 0;
         }
 
-        // Output table
-        $pdf->SetFont('Arial', 'B', 10);
-        
-        $w1 = 110;
-        $w2 = 60;
-        
-        // Draw Header
-        $pdf->Cell($w1, 7, 'EARNING', 1, 0, 'L');
-        $pdf->Cell($w2, 7, '', 1, 1);
-        
-        // BASIC
-        $pdf->SetFont('Arial', '', 9.5);
-        $pdf->Cell($w1, 6, '  BASIC', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($basic, 2), 1, 1, 'R');
-        
-        // HRA
-        $pdf->Cell($w1, 6, '  HRA', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($hra, 2), 1, 1, 'R');
-        
-        // CONVEYANCE
-        $pdf->Cell($w1, 6, '  CONVEYANCE', 1, 0, 'L');
-        $pdf->Cell($w2, 6, '0.00', 1, 1, 'R');
-        
-        // MEDICAL ALLOWANCE
-        $pdf->Cell($w1, 6, '  MEDICAL ALLOWANCE', 1, 0, 'L');
-        $pdf->Cell($w2, 6, '0.00', 1, 1, 'R');
-        
-        // SP ALLOWANCE
-        $pdf->Cell($w1, 6, '  SP ALLOWANCE', 1, 0, 'L');
-        $pdf->Cell($w2, 6, '0.00', 1, 1, 'R');
-        
+        // Output Annexure Table (matching reference image)
+        $w1 = 115;
+        $w2 = 55;
+        $rowH = 5.8;
+
+        $pdf->SetDrawColor(0, 0, 0);
+        $pdf->SetLineWidth(0.25);
+
+        // 1. EARNING Header
+        $pdf->SetFont('Arial', 'B', 9.5);
+        $pdf->Cell($w1, $rowH, ' EARNING', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, '', 1, 1, 'R');
+
+        // Items
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell($w1, $rowH, '  BASIC', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($basic, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  HRA', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($hra, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  CONVEYANCE', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($conveyance, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  MEDICAL ALLOWANCE', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($medical, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  SP ALLOWANCE', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($spAllowance, 2) . ' ', 1, 1, 'R');
+
         // GROSS EARNING (A)
         $pdf->SetFont('Arial', 'B', 9.5);
-        $pdf->Cell($w1, 6, '  GROSS EARNING (A)', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($gross, 2), 1, 1, 'R');
-        
-        // Empty row
-        $pdf->Cell($w1, 4, '', 1, 0);
-        $pdf->Cell($w2, 4, '', 1, 1);
-        
+        $pdf->Cell($w1, $rowH, '  GROSS EARNING (A)', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($gross, 2) . ' ', 1, 1, 'R');
+
+        // Empty Separator
+        $pdf->Cell($w1, 3, '', 1, 0, 'L');
+        $pdf->Cell($w2, 3, '', 1, 1, 'R');
+
         // BONUS (C)
-        $pdf->Cell($w1, 6, '  BONUS (C)', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($bonus, 2), 1, 1, 'R');
-        
-        // EMPLOYER PF CONTRIBUTION
-        $pdf->SetFont('Arial', '', 9.5);
-        $pdf->Cell($w1, 6, '    EMPLOYER PF CONTRIBUTION', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($employerPf, 2), 1, 1, 'R');
-        
-        // EMPLOYER ESIC CONTRIBUTION
-        $pdf->Cell($w1, 6, '    EMPLOYER ESIC CONTRIBUTION', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($employerEsic, 2), 1, 1, 'R');
-        
-        // LWF
-        $pdf->Cell($w1, 6, '  LWF', 1, 0, 'L');
-        $pdf->Cell($w2, 6, '0.00', 1, 1, 'R');
-        
+        $pdf->SetFont('Arial', 'B', 9.5);
+        $pdf->Cell($w1, $rowH, '  BONUS (C)', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($bonus, 2) . ' ', 1, 1, 'R');
+
+        // EMPLOYER CONTRIBUTIONS
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell($w1, $rowH, '  EMPLOYER PF CONTRIBUTION', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($employerPf, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  EMPLOYER ESIC CONTRIBUTION', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($employerEsic, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  LWF', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($employerLwf, 2) . ' ', 1, 1, 'R');
+
         // CTC (COST TO COMPANY)
         $pdf->SetFont('Arial', 'B', 9.5);
-        $pdf->Cell($w1, 6, '  CTC (COST TO COMPANY)', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($ctc, 2), 1, 1, 'R');
-        
-        // Empty row
-        $pdf->Cell($w1, 4, '', 1, 0);
-        $pdf->Cell($w2, 4, '', 1, 1);
-        
-        // DEDUCTION Header
-        $pdf->Cell($w1, 6, 'DEDUCTION', 1, 0, 'L');
-        $pdf->Cell($w2, 6, '', 1, 1);
-        
-        // EMPLOYEE PF CONTRIBUTION
-        $pdf->SetFont('Arial', '', 9.5);
-        $pdf->Cell($w1, 6, '    EMPLOYEE PF CONTRIBUTION', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($employeePf, 2), 1, 1, 'R');
-        
-        // EMPLOYEE ESIC CONTRIBUTION
-        $pdf->Cell($w1, 6, '    EMPLOYEE ESIC CONTRIBUTION', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($employeeEsic, 2), 1, 1, 'R');
-        
-        // LWF
-        $pdf->Cell($w1, 6, '  LWF', 1, 0, 'L');
-        $pdf->Cell($w2, 6, '0.00', 1, 1, 'R');
-        
-        // PROFESSIONAL TAX
-        $pdf->Cell($w1, 6, '  PROFESSIONAL TAX', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($pTax, 2), 1, 1, 'R');
-        
+        $pdf->Cell($w1, $rowH, '  CTC (COST TO COMPANY)', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($ctc, 2) . ' ', 1, 1, 'R');
+
+        // Empty Separator
+        $pdf->Cell($w1, 3, '', 1, 0, 'L');
+        $pdf->Cell($w2, 3, '', 1, 1, 'R');
+
+        // 2. DEDUCTION Header
+        $pdf->SetFont('Arial', 'B', 9.5);
+        $pdf->Cell($w1, $rowH, ' DEDUCTION', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, '', 1, 1, 'R');
+
+        // Deduction Items
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell($w1, $rowH, '  EMPLOYEE PF CONTRIBUTION', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($employeePf, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  EMPLOYEE ESIC CONTRIBUTION', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($employeeEsic, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  LWF', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($employeeLwf, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, '  PROFESSIONAL TAX', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($pTax, 2) . ' ', 1, 1, 'R');
+
         // TOTAL DEDUCTIONS (B)
         $pdf->SetFont('Arial', 'B', 9.5);
-        $pdf->Cell($w1, 6, '  TOTAL DEDUCTIONS (B)', 1, 0, 'L');
-        $pdf->Cell($w2, 6, number_format($totalDeductions, 2), 1, 1, 'R');
-        
-        // Empty row
-        $pdf->Cell($w1, 4, '', 1, 0);
-        $pdf->Cell($w2, 4, '', 1, 1);
-        
-        // NET SALARY (A - B + C)
-        $pdf->Cell($w1, 7, '  NET SALARY (A - B + C)', 1, 0, 'L');
-        $pdf->Cell($w2, 7, number_format($netSalary, 2), 1, 1, 'R');
+        $pdf->Cell($w1, $rowH, '  TOTAL DEDUCTIONS (B)', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($totalDeductions, 2) . ' ', 1, 1, 'R');
+
+        // Empty Separator
+        $pdf->Cell($w1, 3, '', 1, 0, 'L');
+        $pdf->Cell($w2, 3, '', 1, 1, 'R');
+
+        // 3. NET SALARY (A - B + C)
+        $pdf->SetFont('Arial', 'B', 9.5);
+        $pdf->Cell($w1, $rowH, '  NET SALARY (A - B + C)', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($netSalary, 2) . ' ', 1, 1, 'R');
 
         // 7. Output to file
         $pdf->Output('F', $filePath);
