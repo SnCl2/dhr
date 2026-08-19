@@ -143,9 +143,9 @@
     <!-- Sidebar (Desktop) -->
     <aside class="hidden lg:flex flex-col w-72 bg-white border-r border-slate-200 shrink-0">
         <!-- Logo -->
-        <div class="h-20 flex items-center px-6 border-b border-slate-200">
+        <div class="h-24 flex items-center px-6 border-b border-slate-200">
             <a href="{{ route('employee.dashboard') }}" class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center">
+                <div class="w-20 h-20 rounded-xl overflow-hidden flex items-center justify-center">
                     @if(file_exists(public_path('images/logo.png')))
                         <img src="{{ asset('images/logo.png') }}" class="w-full h-full object-contain bg-white" alt="RM HR SOLUTIONS Logo">
                     @else

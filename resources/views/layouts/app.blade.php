@@ -121,7 +121,7 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
-                        <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
+                        <div class="w-20 h-20 rounded-xl overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
                             @if(file_exists(public_path('images/logo.png')))
                                 <img src="{{ asset('images/logo.png') }}" class="w-full h-full object-contain bg-white" alt="RM HR SOLUTIONS Logo">
                             @else
