@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Models\Department;
 use App\Models\Designation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AdminAuthTest extends TestCase
@@ -457,5 +458,45 @@ class AdminAuthTest extends TestCase
         $this->assertDatabaseHas('offer_letters', [
             'employee_id' => $employee->id,
         ]);
+    }
+
+    public function test_admin_can_update_profile_identity_and_password(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        // 1. View profile page
+        $viewResponse = $this->actingAs($admin, 'admin')->get(route('admin.profile'));
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee($admin->name);
+        $viewResponse->assertSee($admin->email);
+
+        // 2. Update Name & Email (Admin ID)
+        $updateResponse = $this->actingAs($admin, 'admin')->put(route('admin.profile.update'), [
+            'name' => 'Super Administrator Updated',
+            'email' => 'superadmin.new@propszy.com',
+        ]);
+        $updateResponse->assertRedirect(route('admin.profile'));
+        $admin->refresh();
+        $this->assertEquals('Super Administrator Updated', $admin->name);
+        $this->assertEquals('superadmin.new@propszy.com', $admin->email);
+
+        // 3. Fail update password with incorrect current password
+        $failPassResponse = $this->actingAs($admin, 'admin')->put(route('admin.profile.password'), [
+            'current_password' => 'wrongpassword123',
+            'new_password' => 'BrandNewPassword!2026',
+            'new_password_confirmation' => 'BrandNewPassword!2026',
+        ]);
+        $failPassResponse->assertSessionHasErrors(['current_password']);
+
+        // 4. Successfully update password with correct current password ('password123')
+        $passResponse = $this->actingAs($admin, 'admin')->put(route('admin.profile.password'), [
+            'current_password' => 'password123',
+            'new_password' => 'BrandNewPassword!2026',
+            'new_password_confirmation' => 'BrandNewPassword!2026',
+        ]);
+        $passResponse->assertRedirect(route('admin.profile'));
+        $admin->refresh();
+        $this->assertTrue(Hash::check('BrandNewPassword!2026', $admin->password));
     }
 }

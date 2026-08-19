@@ -114,6 +114,11 @@ Route::middleware(['auth.admin'])->prefix('admin')->name('admin.')->group(functi
     
     Route::get('/cms', [AdminDashboardController::class, 'cmsIndex'])->name('cms.index');
     Route::post('/cms/update', [AdminDashboardController::class, 'cmsUpdate'])->name('cms.update');
+
+    // Admin Profile & Password Security
+    Route::get('/profile', [AdminDashboardController::class, 'profileShow'])->name('profile');
+    Route::put('/profile/update', [AdminDashboardController::class, 'profileUpdate'])->name('profile.update');
+    Route::put('/profile/password', [AdminDashboardController::class, 'passwordUpdate'])->name('profile.password');
 });
 
 /*

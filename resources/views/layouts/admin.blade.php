@@ -201,19 +201,25 @@
                 <i class="fa-solid fa-window-restore w-5 text-center"></i>
                 <span>CMS Content Manage</span>
             </a>
+
+            <a href="{{ route('admin.profile') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.profile') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
+                <i class="fa-solid fa-shield-halved w-5 text-center"></i>
+                <span>Admin ID & Security</span>
+            </a>
         </nav>
 
         <!-- Admin Info & Logout -->
         <div class="p-6 border-t border-slate-200 bg-slate-50">
-            <div class="flex items-center space-x-3 mb-4">
-                <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-purple-600 font-bold border border-slate-300">
+            <a href="{{ route('admin.profile') }}" title="Click to edit profile and password" class="flex items-center space-x-3 mb-3 p-2 -m-2 rounded-xl hover:bg-slate-200/50 transition-colors group">
+                <div class="w-10 h-10 rounded-full bg-slate-200 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 font-bold border border-slate-300 transition-colors">
                     {{ substr(Auth::guard('admin')->user()->name, 0, 1) }}
                 </div>
-                <div class="overflow-hidden">
-                    <span class="block text-sm font-semibold text-slate-800 truncate">{{ Auth::guard('admin')->user()->name }}</span>
+                <div class="overflow-hidden flex-grow">
+                    <span class="block text-sm font-semibold text-slate-800 group-hover:text-purple-700 truncate transition-colors">{{ Auth::guard('admin')->user()->name }}</span>
                     <span class="block text-xs text-slate-500 truncate">{{ Auth::guard('admin')->user()->email }}</span>
                 </div>
-            </div>
+                <i class="fa-solid fa-gear text-slate-400 group-hover:text-purple-600 text-xs"></i>
+            </a>
             
             <a href="{{ route('home') }}" target="_blank" class="w-full mb-2 flex items-center justify-center space-x-2 py-2 px-4 border border-slate-200 hover:border-purple-500 rounded-lg text-xs font-semibold text-slate-650 hover:text-slate-900 transition-colors duration-200">
                 <i class="fa-solid fa-globe"></i>
@@ -248,10 +254,13 @@
 
             <!-- Quick Stats/Profile -->
             <div class="flex items-center space-x-4">
-                <div class="hidden sm:flex text-right flex-col justify-center">
+                <a href="{{ route('admin.profile') }}" class="hidden sm:flex text-right flex-col justify-center hover:opacity-80 transition-opacity">
                     <span class="block text-xs font-semibold uppercase tracking-wider text-purple-600">Security Clearance</span>
-                    <span class="block text-xs text-slate-500">System Admin Mode</span>
-                </div>
+                    <span class="block text-xs text-slate-500">{{ Auth::guard('admin')->user()->name }} (Admin Mode)</span>
+                </a>
+                <a href="{{ route('admin.profile') }}" title="Admin Account Settings" class="w-9 h-9 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-600 flex items-center justify-center text-sm transition-colors">
+                    <i class="fa-solid fa-user-gear"></i>
+                </a>
                 <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></div>
                 <!-- Mobile logout form trigger -->
                 <form action="{{ route('admin.logout') }}" method="POST" class="lg:hidden">

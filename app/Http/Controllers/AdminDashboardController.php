@@ -1445,4 +1445,55 @@ class AdminDashboardController extends Controller
 
         return back()->with('success', 'Marked inquiry as replied.');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Profile & Password Security
+    |--------------------------------------------------------------------------
+    */
+    public function profileShow()
+    {
+        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+        return view('admin.profile', compact('admin'));
+    }
+
+    public function profileUpdate(Request $request)
+    {
+        /** @var \App\Models\Admin $admin */
+        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $admin->id],
+        ]);
+
+        $admin->name = $request->name;
+        $admin->email = $request->email;
+        $admin->save();
+
+        return redirect()->route('admin.profile')
+            ->with('success', 'Admin ID (Name & Email) updated successfully.');
+    }
+
+    public function passwordUpdate(Request $request)
+    {
+        /** @var \App\Models\Admin $admin */
+        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        if (!Hash::check($request->current_password, $admin->password)) {
+            return back()->withErrors(['current_password' => 'The current password provided is incorrect.'])
+                ->with('error', 'Current password verification failed.');
+        }
+
+        $admin->password = Hash::make($request->new_password);
+        $admin->save();
+
+        return redirect()->route('admin.profile')
+            ->with('success', 'Admin security password changed successfully.');
+    }
 }
