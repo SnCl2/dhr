@@ -6,49 +6,53 @@
 @section('content')
 <!-- Dashboard Stats Cards -->
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-    <!-- Card 1 -->
-    <div class="glass-dark p-6 rounded-2xl flex items-center justify-between">
+    <!-- Card 1 (Total Employees) -->
+    <a href="{{ route('admin.employees.index') }}" 
+       class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-purple-500/20 shadow-lg hover:shadow-purple-500/5 group">
         <div>
-            <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Candidates / Employees</span>
+            <span class="block text-xs font-semibold text-slate-400 group-hover:text-purple-400 transition-colors uppercase tracking-wider">Total Candidates / Employees</span>
             <span class="block font-outfit font-extrabold text-3xl text-white mt-1">{{ $stats['total_employees'] }}</span>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-purple-500/20 transition-all">
             <i class="fa-solid fa-users"></i>
         </div>
-    </div>
+    </a>
 
-    <!-- Card 2 -->
-    <div class="glass-dark p-6 rounded-2xl flex items-center justify-between">
+    <!-- Card 2 (Active Employees) -->
+    <a href="{{ route('admin.employees.index', ['status' => 'active']) }}" 
+       class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-emerald-500/20 shadow-lg hover:shadow-emerald-500/5 group">
         <div>
-            <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Staff Placements</span>
+            <span class="block text-xs font-semibold text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-wider">Active Staff Placements</span>
             <span class="block font-outfit font-extrabold text-3xl text-emerald-400 mt-1">{{ $stats['active_employees'] }}</span>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-emerald-500/20 transition-all">
             <i class="fa-solid fa-user-check"></i>
         </div>
-    </div>
+    </a>
 
-    <!-- Card 3 -->
-    <div class="glass-dark p-6 rounded-2xl flex items-center justify-between">
+    <!-- Card 3 (Pending Reviews) -->
+    <a href="{{ route('admin.employees.index', ['status' => 'pending_review']) }}" 
+       class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-amber-500/20 shadow-lg hover:shadow-amber-500/5 group">
         <div>
-            <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Pending Review Approvals</span>
+            <span class="block text-xs font-semibold text-slate-400 group-hover:text-amber-400 transition-colors uppercase tracking-wider">Pending Review Approvals</span>
             <span class="block font-outfit font-extrabold text-3xl text-amber-400 mt-1">{{ $stats['pending_reviews'] }}</span>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-amber-500/20 transition-all">
             <i class="fa-solid fa-user-clock"></i>
         </div>
-    </div>
+    </a>
 
-    <!-- Card 4 -->
-    <div class="glass-dark p-6 rounded-2xl flex items-center justify-between">
+    <!-- Card 4 (Unread Inquiries) -->
+    <a href="{{ route('admin.inquiries.index') }}" 
+       class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-pink-500/20 shadow-lg hover:shadow-pink-500/5 group">
         <div>
-            <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Unread Inbox Inquiries</span>
+            <span class="block text-xs font-semibold text-slate-400 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Unread Inbox Inquiries</span>
             <span class="block font-outfit font-extrabold text-3xl text-pink-400 mt-1">{{ $stats['unread_inquiries'] }}</span>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-pink-500/10 text-pink-400 flex items-center justify-center text-xl shrink-0">
+        <div class="w-12 h-12 rounded-xl bg-pink-500/10 text-pink-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-pink-500/20 transition-all">
             <i class="fa-solid fa-envelope-open-text"></i>
         </div>
-    </div>
+    </a>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
