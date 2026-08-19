@@ -151,8 +151,25 @@
                 <!-- Navigation Links (Desktop) -->
                 <nav class="hidden md:flex items-center space-x-1">
                     <a href="{{ route('home') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('home') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Home</a>
-                    <a href="{{ route('about') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('about') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">About Us</a>
-                    <a href="{{ route('directors-desk') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('directors-desk') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Directors Desk</a>
+                    
+                    <!-- About Us Dropdown Trigger Container -->
+                    <div class="relative group flex items-center">
+                        <button class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center space-x-1 {{ (request()->routeIs('about') || request()->routeIs('directors-desk')) ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">
+                            <span>About Us</span>
+                            <span class="text-xs font-bold text-slate-400 group-hover:text-purple-600 transition-colors ml-0.5">+</span>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="absolute left-0 top-full mt-0 w-48 rounded-xl bg-white border border-slate-200 shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-1.5">
+                            <a href="{{ route('about') }}" class="block px-4 py-2 text-xs font-semibold text-slate-650 hover:text-purple-700 hover:bg-purple-50/50 transition-colors {{ request()->routeIs('about') ? 'text-purple-700 bg-purple-50/30' : '' }}">
+                                About Company
+                            </a>
+                            <a href="{{ route('directors-desk') }}" class="block px-4 py-2 text-xs font-semibold text-slate-650 hover:text-purple-700 hover:bg-purple-50/50 transition-colors {{ request()->routeIs('directors-desk') ? 'text-purple-700 bg-purple-50/30' : '' }}">
+                                Director's Desk
+                            </a>
+                        </div>
+                    </div>
+
                     <a href="{{ route('services') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('services') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Services</a>
                     <a href="{{ route('gallery') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('gallery') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Gallery</a>
                     <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('contact') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Contact Us</a>
@@ -169,8 +186,19 @@
         <!-- Mobile Navigation Menu -->
         <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800 bg-slate-950/95 px-4 py-4 space-y-2">
             <a href="{{ route('home') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Home</a>
-            <a href="{{ route('about') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">About Us</a>
-            <a href="{{ route('directors-desk') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Directors Desk</a>
+            
+            <!-- Collapsible About Us Section in Mobile -->
+            <div class="space-y-1">
+                <button onclick="toggleMobileAboutDropdown()" class="w-full flex items-center justify-between px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">
+                    <span>About Us</span>
+                    <span id="mobile-about-plus-icon" class="font-bold text-slate-400">+</span>
+                </button>
+                <div id="mobile-about-dropdown" class="hidden pl-4 space-y-1 mt-1">
+                    <a href="{{ route('about') }}" class="block px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800 {{ request()->routeIs('about') ? 'text-purple-400 bg-slate-900' : '' }}">About Company</a>
+                    <a href="{{ route('directors-desk') }}" class="block px-4 py-2 rounded-lg text-sm text-slate-400 hover:text-white hover:bg-slate-800 {{ request()->routeIs('directors-desk') ? 'text-purple-400 bg-slate-900' : '' }}">Director's Desk</a>
+                </div>
+            </div>
+
             <a href="{{ route('services') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Services</a>
             <a href="{{ route('gallery') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Gallery</a>
             <a href="{{ route('contact') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Contact Us</a>
@@ -296,6 +324,18 @@
                 menuIcon.classList.add('fa-bars');
             }
         });
+
+        function toggleMobileAboutDropdown() {
+            const dropdown = document.getElementById('mobile-about-dropdown');
+            const plusIcon = document.getElementById('mobile-about-plus-icon');
+            if (dropdown.classList.contains('hidden')) {
+                dropdown.classList.remove('hidden');
+                plusIcon.textContent = '-';
+            } else {
+                dropdown.classList.add('hidden');
+                plusIcon.textContent = '+';
+            }
+        }
     </script>
     @yield('scripts')
 </body>
