@@ -156,19 +156,6 @@
                     <a href="{{ route('gallery') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('gallery') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Gallery</a>
                     <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('contact') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Contact Us</a>
                 </nav>
-
-                <!-- Partner Group Brands (Cyan Pills) -->
-                <div class="hidden lg:flex items-center space-x-3">
-                    <a href="https://swagatham.co.in/" target="_blank" class="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-full text-xs font-black uppercase tracking-wider flex items-center transition-all duration-300 transform hover:scale-105 shadow-md shadow-sky-500/10">
-                        SWAGATHAM <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
-                    </a>
-                    <a href="https://flickjobs.in/" target="_blank" class="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-full text-xs font-black uppercase tracking-wider flex items-center transition-all duration-300 transform hover:scale-105 shadow-md shadow-sky-500/10">
-                        FLICKJOBS <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
-                    </a>
-                </div>
-
-
-
                 <!-- Mobile Menu Button -->
                 <div class="md:hidden">
                     <button id="mobile-menu-btn" class="text-slate-400 hover:text-white focus:outline-none p-2 rounded-lg hover:bg-slate-800/50">
