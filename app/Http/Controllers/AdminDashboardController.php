@@ -145,8 +145,8 @@ class AdminDashboardController extends Controller
         if ($request->hasFile('profile_image')) {
             $image = $request->file('profile_image');
             $imageName = time() . '_avatar_' . $image->getClientOriginalName();
-            $image->move(public_path('storage/avatars'), $imageName);
-            $validated['profile_image'] = 'storage/avatars/' . $imageName;
+            $path = $image->storeAs('avatars', $imageName, 'public');
+            $validated['profile_image'] = 'storage/' . $path;
         } else {
             $validated['profile_image'] = null;
         }
@@ -154,8 +154,8 @@ class AdminDashboardController extends Controller
         if ($request->hasFile('employee_document')) {
             $file = $request->file('employee_document');
             $fileName = time() . '_doc_' . $file->getClientOriginalName();
-            $file->move(public_path('storage/documents'), $fileName);
-            $validated['employee_document'] = 'storage/documents/' . $fileName;
+            $path = $file->storeAs('documents', $fileName, 'public');
+            $validated['employee_document'] = 'storage/' . $path;
         } else {
             $validated['employee_document'] = null;
         }
@@ -246,25 +246,27 @@ class AdminDashboardController extends Controller
         ]);
 
         if ($request->hasFile('profile_image')) {
-            if ($employee->profile_image && file_exists(public_path($employee->profile_image))) {
-                @unlink(public_path($employee->profile_image));
+            if ($employee->profile_image) {
+                $rel = str_replace('storage/', '', $employee->profile_image);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($rel);
             }
             $image = $request->file('profile_image');
             $imageName = time() . '_avatar_' . $image->getClientOriginalName();
-            $image->move(public_path('storage/avatars'), $imageName);
-            $validated['profile_image'] = 'storage/avatars/' . $imageName;
+            $path = $image->storeAs('avatars', $imageName, 'public');
+            $validated['profile_image'] = 'storage/' . $path;
         } else {
             unset($validated['profile_image']);
         }
 
         if ($request->hasFile('employee_document')) {
-            if ($employee->employee_document && file_exists(public_path($employee->employee_document))) {
-                @unlink(public_path($employee->employee_document));
+            if ($employee->employee_document) {
+                $rel = str_replace('storage/', '', $employee->employee_document);
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($rel);
             }
             $file = $request->file('employee_document');
             $fileName = time() . '_doc_' . $file->getClientOriginalName();
-            $file->move(public_path('storage/documents'), $fileName);
-            $validated['employee_document'] = 'storage/documents/' . $fileName;
+            $path = $file->storeAs('documents', $fileName, 'public');
+            $validated['employee_document'] = 'storage/' . $path;
         } else {
             unset($validated['employee_document']);
         }
