@@ -142,6 +142,8 @@ class AdminDashboardController extends Controller
 
             // Documents (Single File, Max 20MB)
             'employee_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf,zip,rar,doc,docx', 'max:20480'],
+            // Profile Image (Max 2MB)
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
         ]);
 
         if ($request->hasFile('employee_document')) {
@@ -151,6 +153,15 @@ class AdminDashboardController extends Controller
             $validated['employee_document'] = 'storage/documents/' . $fileName;
         } else {
             $validated['employee_document'] = null;
+        }
+
+        if ($request->hasFile('profile_image')) {
+            $file = $request->file('profile_image');
+            $fileName = time() . '_profile_' . $file->getClientOriginalName();
+            $file->move(public_path('storage/profiles'), $fileName);
+            $validated['profile_image'] = 'storage/profiles/' . $fileName;
+        } else {
+            $validated['profile_image'] = null;
         }
 
         // Auto-generate Employee ID: EMP-YYYY-XXXX
@@ -237,6 +248,8 @@ class AdminDashboardController extends Controller
 
             // Documents (Single File, Max 20MB)
             'employee_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf,zip,rar,doc,docx', 'max:20480'],
+            // Profile Image (Max 2MB)
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
         ]);
 
         if ($request->hasFile('employee_document')) {
@@ -249,6 +262,18 @@ class AdminDashboardController extends Controller
             $validated['employee_document'] = 'storage/documents/' . $fileName;
         } else {
             unset($validated['employee_document']);
+        }
+
+        if ($request->hasFile('profile_image')) {
+            if ($employee->profile_image && file_exists(public_path($employee->profile_image))) {
+                @unlink(public_path($employee->profile_image));
+            }
+            $file = $request->file('profile_image');
+            $fileName = time() . '_profile_' . $file->getClientOriginalName();
+            $file->move(public_path('storage/profiles'), $fileName);
+            $validated['profile_image'] = 'storage/profiles/' . $fileName;
+        } else {
+            unset($validated['profile_image']);
         }
 
         $employee->update($validated);

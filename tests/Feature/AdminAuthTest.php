@@ -169,6 +169,7 @@ class AdminAuthTest extends TestCase
         // 1. Create Employee with simulated documents
         \Illuminate\Support\Facades\Storage::fake('public');
         $employeeDocument = \Illuminate\Http\UploadedFile::fake()->create('employee_doc.pdf', 500);
+        $profileImage = \Illuminate\Http\UploadedFile::fake()->create('profile.jpg', 200, 'image/jpeg');
 
         $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.store'), [
             'first_name' => 'John',
@@ -207,6 +208,7 @@ class AdminAuthTest extends TestCase
             'designation' => 'Lead Engineer',
             'nth_salary' => 13000.00,
             'employee_document' => $employeeDocument,
+            'profile_image' => $profileImage,
         ]);
 
         $response->assertRedirect(route('admin.employees.index'));
@@ -214,9 +216,11 @@ class AdminAuthTest extends TestCase
         $employee = \App\Models\Employee::where('email', 'unique.test.employee@example.com')->first();
         $this->assertNotNull($employee);
         $this->assertNotNull($employee->employee_document);
+        $this->assertNotNull($employee->profile_image);
 
         // 2. Update Employee details and upload a new document
         $employeeDocumentUpdated = \Illuminate\Http\UploadedFile::fake()->create('employee_doc_updated.pdf', 600);
+        $profileImageUpdated = \Illuminate\Http\UploadedFile::fake()->create('profile_updated.jpg', 200, 'image/jpeg');
 
         $response = $this->actingAs($admin, 'admin')->put(route('admin.employees.update', $employee), [
             'first_name' => 'John Updated',
@@ -255,6 +259,7 @@ class AdminAuthTest extends TestCase
             'designation' => 'Lead Engineer',
             'nth_salary' => 14000.00,
             'employee_document' => $employeeDocumentUpdated,
+            'profile_image' => $profileImageUpdated,
         ]);
 
         $response->assertRedirect(route('admin.employees.index'));
@@ -264,5 +269,6 @@ class AdminAuthTest extends TestCase
         $this->assertEquals('inactive', $employee->status);
         $this->assertEquals(16000.00, $employee->salary);
         $this->assertNotNull($employee->employee_document);
+        $this->assertNotNull($employee->profile_image);
     }
 }

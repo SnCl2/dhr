@@ -34,7 +34,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <!-- First Name -->
                 <div>
-                    <label for="first_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">First Name</label>
+                    <label for="first_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">First Name <span class="text-rose-500">*</span></label>
                     <input type="text" id="first_name" name="first_name" required value="{{ old('first_name', $employee->first_name) }}"
                         class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
                     @error('first_name')
@@ -44,13 +44,55 @@
 
                 <!-- Last Name -->
                 <div>
-                    <label for="last_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Last Name</label>
+                    <label for="last_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Last Name <span class="text-rose-500">*</span></label>
                     <input type="text" id="last_name" name="last_name" required value="{{ old('last_name', $employee->last_name) }}"
                         class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
                     @error('last_name')
                         <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
                     @enderror
                 </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Client Name -->
+                <div>
+                    <label for="client_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Client Name <span class="text-rose-500">*</span></label>
+                    <input type="text" id="client_name" name="client_name" required value="{{ old('client_name', $employee->client_name) }}"
+                        class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                    @error('client_name')
+                        <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Text Designation -->
+                <div>
+                    <label for="designation" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Job Title / Designation (Text) <span class="text-rose-500">*</span></label>
+                    <input type="text" id="designation" name="designation" required value="{{ old('designation', $employee->designation) }}"
+                        class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                    @error('designation')
+                        <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Profile Image Upload -->
+            <div>
+                <label for="profile_image" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Profile Image <span class="text-slate-500">(Jpg/Jpeg/Png, max 2MB)</span></label>
+                <input type="file" id="profile_image" name="profile_image" accept=".jpg,.jpeg,.png"
+                    class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
+                
+                @if($employee->profile_image)
+                    <div class="mt-3 flex items-center space-x-3">
+                        <img src="{{ asset($employee->profile_image) }}" alt="Profile preview" class="w-16 h-16 rounded-full object-cover border border-slate-850">
+                        <a href="{{ asset($employee->profile_image) }}" target="_blank" class="text-xs text-purple-300 hover:underline">
+                            <i class="fa-solid fa-eye mr-1"></i> View Current Photo
+                        </a>
+                    </div>
+                @endif
+                
+                @error('profile_image')
+                    <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -393,27 +435,11 @@
                         @error('pass_out_year') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- Client Name -->
-                    <div>
-                        <label for="client_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Client Name <span class="text-rose-500">*</span></label>
-                        <input type="text" id="client_name" name="client_name" value="{{ old('client_name', $employee->client_name) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Assigned Client" required>
-                        @error('client_name') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
                     <!-- Work Location -->
                     <div>
                         <label for="work_location" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Work Location <span class="text-rose-500">*</span></label>
                         <input type="text" id="work_location" name="work_location" value="{{ old('work_location', $employee->work_location) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Office Location" required>
                         @error('work_location') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <!-- Text Designation -->
-                    <div>
-                        <label for="designation" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Job Title / Designation (Text) <span class="text-rose-500">*</span></label>
-                        <input type="text" id="designation" name="designation" value="{{ old('designation', $employee->designation) }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Official Designation" required>
-                        @error('designation') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- NTH Salary -->

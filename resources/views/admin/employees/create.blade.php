@@ -18,7 +18,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <!-- First Name -->
                 <div>
-                    <label for="first_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">First Name</label>
+                    <label for="first_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">First Name <span class="text-rose-500">*</span></label>
                     <input type="text" id="first_name" name="first_name" required value="{{ old('first_name') }}"
                         class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm"
                         placeholder="John">
@@ -29,7 +29,7 @@
 
                 <!-- Last Name -->
                 <div>
-                    <label for="last_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Last Name</label>
+                    <label for="last_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Last Name <span class="text-rose-500">*</span></label>
                     <input type="text" id="last_name" name="last_name" required value="{{ old('last_name') }}"
                         class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm"
                         placeholder="Doe">
@@ -37,6 +37,40 @@
                         <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
                     @enderror
                 </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Client Name -->
+                <div>
+                    <label for="client_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Client Name <span class="text-rose-500">*</span></label>
+                    <input type="text" id="client_name" name="client_name" required value="{{ old('client_name') }}"
+                        class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm"
+                        placeholder="Assigned Client">
+                    @error('client_name')
+                        <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Text Designation -->
+                <div>
+                    <label for="designation" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Job Title / Designation (Text) <span class="text-rose-500">*</span></label>
+                    <input type="text" id="designation" name="designation" required value="{{ old('designation') }}"
+                        class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm"
+                        placeholder="Official Designation">
+                    @error('designation')
+                        <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Profile Image Upload -->
+            <div>
+                <label for="profile_image" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Profile Image <span class="text-slate-500">(Jpg/Jpeg/Png, max 2MB)</span></label>
+                <input type="file" id="profile_image" name="profile_image" accept=".jpg,.jpeg,.png"
+                    class="mt-2 block w-full text-xs text-slate-400 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-800 file:text-purple-300 hover:file:bg-slate-700 cursor-pointer">
+                @error('profile_image')
+                    <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p>
+                @enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -380,27 +414,11 @@
                         @error('pass_out_year') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
-                    <!-- Client Name -->
-                    <div>
-                        <label for="client_name" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Client Name <span class="text-rose-500">*</span></label>
-                        <input type="text" id="client_name" name="client_name" value="{{ old('client_name') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Assigned Client" required>
-                        @error('client_name') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-
                     <!-- Work Location -->
                     <div>
                         <label for="work_location" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Work Location <span class="text-rose-500">*</span></label>
                         <input type="text" id="work_location" name="work_location" value="{{ old('work_location') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Office Location" required>
                         @error('work_location') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <!-- Text Designation -->
-                    <div>
-                        <label for="designation" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Job Title / Designation (Text) <span class="text-rose-500">*</span></label>
-                        <input type="text" id="designation" name="designation" value="{{ old('designation') }}" class="mt-2 block w-full px-4 py-3 bg-slate-950/60 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm" placeholder="Official Designation" required>
-                        @error('designation') <p class="mt-1.5 text-xs text-rose-400">{{ $message }}</p> @enderror
                     </div>
 
                     <!-- NTH Salary -->

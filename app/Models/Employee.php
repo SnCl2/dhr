@@ -56,6 +56,7 @@ class Employee extends Authenticatable
         'designation',
         'nth_salary',
         'employee_document',
+        'profile_image',
     ];
 
     protected $hidden = [
