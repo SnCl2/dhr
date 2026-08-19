@@ -47,15 +47,15 @@
         </div>
     </div>
 
-    <!-- Comprehensive Search & Filter Card -->
-    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+    <!-- Comprehensive Search & Multi-Filters Card -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-5">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center">
                 <i class="fa-solid fa-filter text-blue-600 mr-2"></i> Comprehensive Search & Multi-Filters
             </h3>
             @if(request()->hasAny(['search', 'company_id', 'designation_id', 'department_id', 'status', 'work_location', 'from_date', 'to_date', 'offer_letter_status']))
                 <a href="{{ route('admin.employees.index') }}" class="text-xs font-semibold text-rose-600 hover:underline flex items-center">
-                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset Filters
+                    <i class="fa-solid fa-rotate-left mr-1.5"></i> Reset All Filters
                 </a>
             @endif
         </div>
@@ -63,46 +63,48 @@
         <form action="{{ route('admin.employees.index') }}" method="GET" class="space-y-4" id="filters-form">
             <!-- Row 1: Keyword Search Bar -->
             <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
                 <input type="text" id="search" name="search" value="{{ request('search') }}"
-                    class="block w-full pl-10 pr-10 py-3 bg-slate-50/50 border border-slate-300 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-2xs"
+                    class="block w-full pl-11 pr-10 py-3 bg-slate-50/50 border border-slate-300 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-2xs transition-all"
                     placeholder="Search by Full Name, Aadhaar Number, PAN, Email, Phone, Employee ID, UAN, Location, City...">
                 @if(request('search'))
-                    <a href="{{ route('admin.employees.index', request()->except('search')) }}" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                    <a href="{{ route('admin.employees.index', request()->except('search')) }}" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </a>
                 @endif
             </div>
 
-            <!-- Row 2: Detailed Multi-Select Filters Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+            <!-- Row 2: Multi-Select Filter Row (4 Balanced Columns) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 
                 <!-- 1. Company / Client Multi-Select -->
                 <div class="relative custom-multiselect">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Company / Client</label>
-                    <button type="button" class="multiselect-toggle w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left">
-                        <span class="truncate multiselect-label">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Company / Client</label>
+                    <button type="button" class="multiselect-toggle w-full px-3.5 py-2.5 bg-white border border-slate-300 hover:border-slate-400 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left transition-all">
+                        <span class="truncate multiselect-label font-medium">
                             @if(count($selectedCompanies) > 0)
                                 {{ count($selectedCompanies) }} Selected
                             @else
                                 All Companies
                             @endif
                         </span>
-                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-1"></i>
+                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-2 shrink-0"></i>
                     </button>
-                    <div class="multiselect-menu hidden absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 max-h-56 overflow-y-auto space-y-1.5">
-                        <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100 text-xxs text-slate-400">
-                            <span>Select Companies</span>
-                            <button type="button" class="text-blue-600 hover:underline clear-multiselect">Clear</button>
+                    
+                    <!-- Dropdown Popup -->
+                    <div class="multiselect-menu hidden absolute left-0 z-50 mt-1.5 w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl p-3.5 max-h-64 overflow-y-auto space-y-1 ring-1 ring-black/5">
+                        <div class="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-100 text-xs">
+                            <span class="font-bold text-slate-700">Select Companies</span>
+                            <button type="button" class="font-semibold text-blue-600 hover:text-blue-800 clear-multiselect">Clear</button>
                         </div>
                         @foreach($companies as $comp)
-                            <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs text-slate-700">
+                            <label class="flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-blue-50/50 cursor-pointer text-xs text-slate-700 transition-colors">
                                 <input type="checkbox" name="company_id[]" value="{{ $comp->id }}" 
                                     {{ in_array($comp->id, $selectedCompanies) ? 'checked' : '' }}
-                                    class="rounded border-slate-300 text-blue-600 focus:ring-0">
-                                <span class="truncate">{{ $comp->name }}</span>
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer">
+                                <span class="truncate font-medium">{{ $comp->name }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -110,28 +112,30 @@
 
                 <!-- 2. Designation Multi-Select -->
                 <div class="relative custom-multiselect">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Designation</label>
-                    <button type="button" class="multiselect-toggle w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left">
-                        <span class="truncate multiselect-label">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Designation</label>
+                    <button type="button" class="multiselect-toggle w-full px-3.5 py-2.5 bg-white border border-slate-300 hover:border-slate-400 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left transition-all">
+                        <span class="truncate multiselect-label font-medium">
                             @if(count($selectedDesignations) > 0)
                                 {{ count($selectedDesignations) }} Selected
                             @else
                                 All Designations
                             @endif
                         </span>
-                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-1"></i>
+                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-2 shrink-0"></i>
                     </button>
-                    <div class="multiselect-menu hidden absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 max-h-56 overflow-y-auto space-y-1.5">
-                        <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100 text-xxs text-slate-400">
-                            <span>Select Designations</span>
-                            <button type="button" class="text-blue-600 hover:underline clear-multiselect">Clear</button>
+                    
+                    <!-- Dropdown Popup -->
+                    <div class="multiselect-menu hidden absolute left-0 z-50 mt-1.5 w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl p-3.5 max-h-64 overflow-y-auto space-y-1 ring-1 ring-black/5">
+                        <div class="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-100 text-xs">
+                            <span class="font-bold text-slate-700">Select Designations</span>
+                            <button type="button" class="font-semibold text-blue-600 hover:text-blue-800 clear-multiselect">Clear</button>
                         </div>
                         @foreach($designations as $desig)
-                            <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs text-slate-700">
+                            <label class="flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-blue-50/50 cursor-pointer text-xs text-slate-700 transition-colors">
                                 <input type="checkbox" name="designation_id[]" value="{{ $desig->id }}" 
                                     {{ in_array($desig->id, $selectedDesignations) ? 'checked' : '' }}
-                                    class="rounded border-slate-300 text-blue-600 focus:ring-0">
-                                <span class="truncate">{{ $desig->name }}</span>
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer">
+                                <span class="truncate font-medium">{{ $desig->name }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -139,28 +143,30 @@
 
                 <!-- 3. Department Multi-Select -->
                 <div class="relative custom-multiselect">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Department</label>
-                    <button type="button" class="multiselect-toggle w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left">
-                        <span class="truncate multiselect-label">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Department</label>
+                    <button type="button" class="multiselect-toggle w-full px-3.5 py-2.5 bg-white border border-slate-300 hover:border-slate-400 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left transition-all">
+                        <span class="truncate multiselect-label font-medium">
                             @if(count($selectedDepartments) > 0)
                                 {{ count($selectedDepartments) }} Selected
                             @else
                                 All Departments
                             @endif
                         </span>
-                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-1"></i>
+                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-2 shrink-0"></i>
                     </button>
-                    <div class="multiselect-menu hidden absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 max-h-56 overflow-y-auto space-y-1.5">
-                        <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100 text-xxs text-slate-400">
-                            <span>Select Departments</span>
-                            <button type="button" class="text-blue-600 hover:underline clear-multiselect">Clear</button>
+                    
+                    <!-- Dropdown Popup -->
+                    <div class="multiselect-menu hidden absolute left-0 z-50 mt-1.5 w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl p-3.5 max-h-64 overflow-y-auto space-y-1 ring-1 ring-black/5">
+                        <div class="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-100 text-xs">
+                            <span class="font-bold text-slate-700">Select Departments</span>
+                            <button type="button" class="font-semibold text-blue-600 hover:text-blue-800 clear-multiselect">Clear</button>
                         </div>
                         @foreach($departments as $dept)
-                            <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs text-slate-700">
+                            <label class="flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-blue-50/50 cursor-pointer text-xs text-slate-700 transition-colors">
                                 <input type="checkbox" name="department_id[]" value="{{ $dept->id }}" 
                                     {{ in_array($dept->id, $selectedDepartments) ? 'checked' : '' }}
-                                    class="rounded border-slate-300 text-blue-600 focus:ring-0">
-                                <span class="truncate">{{ $dept->name }}</span>
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer">
+                                <span class="truncate font-medium">{{ $dept->name }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -168,21 +174,23 @@
 
                 <!-- 4. Status Multi-Select -->
                 <div class="relative custom-multiselect">
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Status</label>
-                    <button type="button" class="multiselect-toggle w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left">
-                        <span class="truncate multiselect-label">
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Status</label>
+                    <button type="button" class="multiselect-toggle w-full px-3.5 py-2.5 bg-white border border-slate-300 hover:border-slate-400 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left transition-all">
+                        <span class="truncate multiselect-label font-medium">
                             @if(count($selectedStatuses) > 0)
                                 {{ count($selectedStatuses) }} Selected
                             @else
                                 All Statuses
                             @endif
                         </span>
-                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-1"></i>
+                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-2 shrink-0"></i>
                     </button>
-                    <div class="multiselect-menu hidden absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 max-h-56 overflow-y-auto space-y-1.5">
-                        <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100 text-xxs text-slate-400">
-                            <span>Select Statuses</span>
-                            <button type="button" class="text-blue-600 hover:underline clear-multiselect">Clear</button>
+                    
+                    <!-- Dropdown Popup -->
+                    <div class="multiselect-menu hidden absolute right-0 sm:left-0 z-50 mt-1.5 w-72 bg-white border border-slate-200 rounded-2xl shadow-2xl p-3.5 max-h-64 overflow-y-auto space-y-1 ring-1 ring-black/5">
+                        <div class="flex items-center justify-between pb-2 mb-1.5 border-b border-slate-100 text-xs">
+                            <span class="font-bold text-slate-700">Select Statuses</span>
+                            <button type="button" class="font-semibold text-blue-600 hover:text-blue-800 clear-multiselect">Clear</button>
                         </div>
                         @php
                             $statusOptions = [
@@ -194,55 +202,59 @@
                             ];
                         @endphp
                         @foreach($statusOptions as $val => $label)
-                            <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs text-slate-700">
+                            <label class="flex items-center space-x-2.5 px-2 py-1.5 rounded-xl hover:bg-blue-50/50 cursor-pointer text-xs text-slate-700 transition-colors">
                                 <input type="checkbox" name="status[]" value="{{ $val }}" 
                                     {{ in_array($val, $selectedStatuses) ? 'checked' : '' }}
-                                    class="rounded border-slate-300 text-blue-600 focus:ring-0">
-                                <span class="truncate">{{ $label }}</span>
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-0 w-4 h-4 cursor-pointer">
+                                <span class="truncate font-medium">{{ $label }}</span>
                             </label>
                         @endforeach
                     </div>
                 </div>
+            </div>
 
-                <!-- 5. Work Location -->
+            <!-- Row 3: Secondary Filters & Action Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 items-end pt-1">
+                
+                <!-- Work Location -->
                 <div>
-                    <label for="work_location" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Work Location</label>
+                    <label for="work_location" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Work Location</label>
                     <input type="text" id="work_location" name="work_location" value="{{ request('work_location') }}"
-                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs"
+                        class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs transition-all"
                         placeholder="e.g. Kolkata">
                 </div>
 
-                <!-- 6. Date Range (From - To) -->
+                <!-- Date Range: From -->
                 <div>
-                    <label for="from_date" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Joined From</label>
+                    <label for="from_date" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Joined From</label>
                     <input type="date" id="from_date" name="from_date" value="{{ request('from_date') }}"
-                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                        class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs transition-all">
                 </div>
 
+                <!-- Date Range: To -->
                 <div>
-                    <label for="to_date" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Joined To</label>
+                    <label for="to_date" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Joined To</label>
                     <input type="date" id="to_date" name="to_date" value="{{ request('to_date') }}"
-                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                        class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs transition-all">
                 </div>
-            </div>
 
-            <!-- Row 3: Action Buttons & Offer Letter status -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                <div class="flex items-center space-x-2 w-full sm:w-auto">
-                    <span class="text-xs font-semibold text-slate-600">Offer Letter:</span>
-                    <select id="offer_letter_status" name="offer_letter_status" class="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                <!-- Offer Letter Status -->
+                <div>
+                    <label for="offer_letter_status" class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Offer Letter</label>
+                    <select id="offer_letter_status" name="offer_letter_status" class="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs transition-all">
                         <option value="">Any</option>
                         <option value="generated" {{ request('offer_letter_status') === 'generated' ? 'selected' : '' }}>Generated</option>
                         <option value="not_generated" {{ request('offer_letter_status') === 'not_generated' ? 'selected' : '' }}>Not Generated</option>
                     </select>
                 </div>
 
-                <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
-                    <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center">
+                <!-- Submit & Clear Buttons (spanning 2 columns on lg) -->
+                <div class="lg:col-span-2 flex items-center space-x-3">
+                    <button type="submit" class="flex-1 py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all flex items-center justify-center">
                         <i class="fa-solid fa-magnifying-glass mr-2"></i> Apply Filters
                     </button>
                     @if(request()->hasAny(['search', 'company_id', 'designation_id', 'department_id', 'status', 'work_location', 'from_date', 'to_date', 'offer_letter_status']))
-                        <a href="{{ route('admin.employees.index') }}" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
+                        <a href="{{ route('admin.employees.index') }}" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
                             Clear
                         </a>
                     @endif
@@ -507,12 +519,10 @@
             const labelSpan = ms.querySelector('.multiselect-label');
             const checkboxes = ms.querySelectorAll('input[type="checkbox"]');
             const clearBtn = ms.querySelector('.clear-multiselect');
-            const defaultLabel = labelSpan.textContent.trim();
 
             function updateLabel() {
                 const checked = ms.querySelectorAll('input[type="checkbox"]:checked');
                 if (checked.length === 0) {
-                    // Extract default name
                     if (ms.querySelector('input[name="company_id[]"]')) labelSpan.textContent = 'All Companies';
                     else if (ms.querySelector('input[name="designation_id[]"]')) labelSpan.textContent = 'All Designations';
                     else if (ms.querySelector('input[name="department_id[]"]')) labelSpan.textContent = 'All Departments';
