@@ -374,56 +374,69 @@ class DocumentGeneratorService
         $otDays = data_get($extra, 'ot_days', 0);
         $payMode = data_get($extra, 'pay_mode', 'Bank Transfer');
 
-        $hra = data_get($extra, 'hra', $allowances);
-        $medical = data_get($extra, 'medical_allowance', 0.0);
-        $special = data_get($extra, 'special_allowance', 0.0);
-        $leave = data_get($extra, 'leave_encashment', 0.0);
-        $otAllow = data_get($extra, 'ot_allowance', 0.0);
+        $hra = (float) data_get($extra, 'hra', $allowances);
+        $medical = (float) data_get($extra, 'medical_allowance', 0.0);
+        $special = (float) data_get($extra, 'special_allowance', 0.0);
+        $leave = (float) data_get($extra, 'leave_encashment', 0.0);
+        $otAllow = (float) data_get($extra, 'ot_allowance', 0.0);
 
-        $ptax = data_get($extra, 'professional_tax', 0.0);
-        $pf = data_get($extra, 'provident_fund', $deductions);
-        $esic = data_get($extra, 'esic', 0.0);
+        $ptax = (float) data_get($extra, 'professional_tax', 0.0);
+        $pf = (float) data_get($extra, 'provident_fund', $deductions);
+        $esic = (float) data_get($extra, 'esic', 0.0);
 
+        $basic = (float) $basic;
         $totalEarnings = $basic + $hra + $medical + $special + $leave + $otAllow;
         $totalDeductions = $ptax + $pf + $esic;
         $net = $totalEarnings - $totalDeductions;
 
-        // Initialize FPDF
-        $pdf = new \FPDF('P', 'mm', 'A4');
+        // Initialize FPDF: A4 Landscape (297mm x 210mm) matching Payslip Format.pdf
+        $pdf = new \FPDF('L', 'mm', 'A4');
         $pdf->AddPage();
-        $pdf->SetMargins(15, 15, 15);
+        $pdf->SetMargins(10, 10, 10);
         $pdf->SetAutoPageBreak(false);
 
-        // --- 1. Header Section ---
-        // Header Outer border box
+        // Coordinates & Dimensions based on original Payslip Format.pdf
+        $x0 = 39.5;
+        $y0 = 30.0;
+        $w1 = 49.5;  // Col 1 width (Earnings / Field 1)
+        $w2 = 59.2;  // Col 2 width (Amount / Val 1)
+        $w3 = 36.7;  // Col 3 width (Deductions / Field 2)
+        $w4 = 72.6;  // Col 4 width (Amount / Val 2)
+        $wTotal = 218.0; // Total Width (49.5 + 59.2 + 36.7 + 72.6 = 218.0)
+
         $pdf->SetDrawColor(0, 0, 0);
-        $pdf->SetLineWidth(0.3);
-        $pdf->Rect(15, 15, 180, 30);
+        $pdf->SetLineWidth(0.25);
+        $pdf->SetTextColor(0, 0, 0);
 
-        // Vertical divider at X = 50
-        $pdf->Line(50, 15, 50, 45);
+        // --- 1. Header Box (Logo + Company Name) ---
+        $pdf->Rect($x0, $y0, $wTotal, 21.0);
+        // Vertical line separating logo from title
+        $pdf->Line($x0 + $w1, $y0, $x0 + $w1, $y0 + 21.0);
 
-        // Render Company Logo
+        // Logo in Left Box
         $logoPath = public_path('images/logo.png');
         if (file_exists($logoPath)) {
-            $pdf->Image($logoPath, 18, 17, 28);
+            $pdf->Image($logoPath, $x0 + 4, $y0 + 2.5, 41.5, 16);
         } else {
-            $pdf->SetFont('Arial', 'B', 8);
-            $pdf->SetXY(15, 25);
-            $pdf->Cell(35, 10, 'RM HR Solutions', 0, 0, 'C');
+            $pdf->SetFont('Arial', 'B', 9);
+            $pdf->SetXY($x0, $y0 + 6);
+            $pdf->Cell($w1, 8, 'RM HR Solutions', 0, 0, 'C');
         }
 
-        // Title Block
+        // Title in Right Box
         $pdf->SetFont('Arial', 'B', 22);
-        $pdf->SetXY(50, 18);
-        $pdf->Cell(145, 10, 'RM HR Solutions Pvt. Ltd.', 0, 0, 'C');
+        $pdf->SetXY($x0 + $w1, $y0 + 3.5);
+        $pdf->Cell($w2 + $w3 + $w4, 14, 'RM HR Solutions Pvt. Ltd.', 0, 0, 'C');
 
-        // Address Subtitle
-        $pdf->SetFont('Arial', '', 8.5);
-        $pdf->SetXY(50, 29);
-        $pdf->Cell(145, 5, 'Panchla, Panchla, Howrah, 711322 West Bengal, India', 0, 0, 'C');
+        // --- 2. Address Subtitle Bar ---
+        $y = $y0 + 21.0;
+        $pdf->Rect($x0, $y, $wTotal, 5.6);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY($x0, $y);
+        $pdf->Cell($wTotal, 5.6, 'Panchla, Panchla, Howrah, 711322 West Bengal, India', 0, 0, 'C');
 
-        // Parse month to Aug'2026 format matching the screenshot
+        // --- 3. PAY SLIP Month Bar ---
+        $y += 5.6;
         $formattedMonth = $month;
         try {
             $time = strtotime($month);
@@ -432,162 +445,158 @@ class DocumentGeneratorService
             }
         } catch (\Throwable $e) {}
 
-        // Month Bar Row
-        $pdf->Rect(15, 45, 180, 6);
+        $pdf->Rect($x0, $y, $wTotal, 5.6);
         $pdf->SetFont('Arial', 'B', 8.5);
-        $pdf->SetXY(15, 45);
-        $pdf->Cell(180, 6, 'PAY SLIP For the Month of -' . $formattedMonth, 0, 0, 'C');
+        $pdf->SetXY($x0, $y);
+        $pdf->Cell($wTotal, 5.6, 'PAY SLIP For the Month of -' . $formattedMonth, 0, 0, 'C');
 
-        // --- 2. Employee Details Section ---
-        // Draw grid outline
-        $pdf->Rect(15, 51, 180, 36);
+        // --- 4. Employee Information Grid (6 rows) ---
+        $y += 5.6;
+        $empGridY = $y;
+        $rowH = 5.63;
+        $gridH = $rowH * 6;
 
-        // Draw vertical division lines matching the colon columns
-        $pdf->Line(55, 51, 55, 87);
-        $pdf->Line(63, 51, 63, 87);
-        $pdf->Line(105, 51, 105, 87);
-        $pdf->Line(145, 51, 145, 87);
-        $pdf->Line(153, 51, 153, 87);
+        $pdf->Rect($x0, $empGridY, $wTotal, $gridH);
+        // Vertical lines
+        $pdf->Line($x0 + $w1, $empGridY, $x0 + $w1, $empGridY + $gridH);
+        $pdf->Line($x0 + $w1 + $w2, $empGridY, $x0 + $w1 + $w2, $empGridY + $gridH);
+        $pdf->Line($x0 + $w1 + $w2 + $w3, $empGridY, $x0 + $w1 + $w2 + $w3, $empGridY + $gridH);
 
-        // Draw horizontal division lines
-        for ($y = 57; $y <= 81; $y += 6) {
-            $pdf->Line(15, $y, 195, $y);
+        // Horizontal lines inside grid
+        for ($i = 1; $i < 6; $i++) {
+            $pdf->Line($x0, $empGridY + ($i * $rowH), $x0 + $wTotal, $empGridY + ($i * $rowH));
         }
 
-        $pdf->SetFont('Arial', '', 8.5);
-        // Row 1
-        $pdf->SetXY(15, 51); $pdf->Cell(40, 6, '  Working Days', 0, 0, 'L');
-        $pdf->SetXY(55, 51); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(63, 51); $pdf->Cell(42, 6, ' ' . $workingDays, 0, 0, 'L');
-        $pdf->SetXY(105, 51); $pdf->Cell(40, 6, '  Net Payable Days', 0, 0, 'L');
-        $pdf->SetXY(145, 51); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(153, 51); $pdf->Cell(42, 6, ' ' . $netPayableDays, 0, 0, 'L');
+        $empRows = [
+            ['Working Days', $workingDays, 'Net Payable Days', $netPayableDays],
+            ['Employee ID', $employee->employee_id, 'OT Days', $otDays],
+            ['Employee Name', $employee->aadhaar_full_name ?? $employee->full_name, 'Pay Mode', $payMode],
+            ['Joining Date', ($employee->joining_date ? $employee->joining_date->format('d-M-Y') : 'N/A'), 'Bank Name', ($employee->bank_name ?? 'N/A')],
+            ['UAN', ($employee->old_uan_number ?? 'N/A'), 'Account No.', ($employee->bank_account_number ?? 'N/A')],
+            ['ESI No', ($employee->old_esic_number ?? 'N/A'), 'IFSC Code', ($employee->ifsc_code ?? 'N/A')],
+        ];
 
-        // Row 2
-        $pdf->SetXY(15, 57); $pdf->Cell(40, 6, '  Employee ID', 0, 0, 'L');
-        $pdf->SetXY(55, 57); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(63, 57); $pdf->Cell(42, 6, ' ' . $employee->employee_id, 0, 0, 'L');
-        $pdf->SetXY(105, 57); $pdf->Cell(40, 6, '  OT Days', 0, 0, 'L');
-        $pdf->SetXY(145, 57); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(153, 57); $pdf->Cell(42, 6, ' ' . $otDays, 0, 0, 'L');
+        $pdf->SetFont('Arial', '', 8);
+        foreach ($empRows as $idx => $r) {
+            $currY = $empGridY + ($idx * $rowH);
+            // Col 1 Label (Centered)
+            $pdf->SetXY($x0, $currY);
+            $pdf->Cell($w1, $rowH, $r[0], 0, 0, 'C');
 
-        // Row 3
-        $pdf->SetXY(15, 63); $pdf->Cell(40, 6, '  Employee Name', 0, 0, 'L');
-        $pdf->SetXY(55, 63); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(63, 63); $pdf->Cell(42, 6, ' ' . $employee->full_name, 0, 0, 'L');
-        $pdf->SetXY(105, 63); $pdf->Cell(40, 6, '  Pay Mode', 0, 0, 'L');
-        $pdf->SetXY(145, 63); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(153, 63); $pdf->Cell(42, 6, ' ' . $payMode, 0, 0, 'L');
+            // Col 2 Value with Colon
+            $pdf->SetXY($x0 + $w1, $currY);
+            $pdf->Cell(8, $rowH, ':', 0, 0, 'C');
+            $pdf->SetXY($x0 + $w1 + 8, $currY);
+            $pdf->Cell($w2 - 8, $rowH, ' ' . $r[1], 0, 0, 'L');
 
-        // Row 4
-        $pdf->SetXY(15, 69); $pdf->Cell(40, 6, '  Joining Date', 0, 0, 'L');
-        $pdf->SetXY(55, 69); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(63, 69); $pdf->Cell(42, 6, ' ' . ($employee->joining_date ? $employee->joining_date->format('d-M-Y') : 'N/A'), 0, 0, 'L');
-        $pdf->SetXY(105, 69); $pdf->Cell(40, 6, '  Bank Name', 0, 0, 'L');
-        $pdf->SetXY(145, 69); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(153, 69); $pdf->Cell(42, 6, ' ' . ($employee->bank_name ?? 'N/A'), 0, 0, 'L');
+            // Col 3 Label (Centered)
+            $pdf->SetXY($x0 + $w1 + $w2, $currY);
+            $pdf->Cell($w3, $rowH, $r[2], 0, 0, 'C');
 
-        // Row 5
-        $pdf->SetXY(15, 75); $pdf->Cell(40, 6, '  UAN', 0, 0, 'L');
-        $pdf->SetXY(55, 75); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(63, 75); $pdf->Cell(42, 6, ' ' . ($employee->old_uan_number ?? 'N/A'), 0, 0, 'L');
-        $pdf->SetXY(105, 75); $pdf->Cell(40, 6, '  Account No.', 0, 0, 'L');
-        $pdf->SetXY(145, 75); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(153, 75); $pdf->Cell(42, 6, ' ' . ($employee->bank_account_number ?? 'N/A'), 0, 0, 'L');
-
-        // Row 6
-        $pdf->SetXY(15, 81); $pdf->Cell(40, 6, '  ESI No', 0, 0, 'L');
-        $pdf->SetXY(55, 81); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(63, 81); $pdf->Cell(42, 6, ' ' . ($employee->old_esic_number ?? 'N/A'), 0, 0, 'L');
-        $pdf->SetXY(105, 81); $pdf->Cell(40, 6, '  IFSC Code', 0, 0, 'L');
-        $pdf->SetXY(145, 81); $pdf->Cell(8, 6, ':', 0, 0, 'C');
-        $pdf->SetXY(153, 81); $pdf->Cell(42, 6, ' ' . ($employee->ifsc_code ?? 'N/A'), 0, 0, 'L');
-
-        // --- 3. Earnings & Deductions Section ---
-        // Draw outline enclosing header, details, and totals
-        $pdf->Rect(15, 92, 180, 48);
-
-        // Draw vertical division lines from Y=92 (header start) to Y=140 (totals end)
-        $pdf->Line(75, 92, 75, 140);
-        $pdf->Line(105, 92, 105, 140);
-        $pdf->Line(165, 92, 165, 140);
-
-        // Draw horizontal division lines
-        for ($y = 98; $y <= 134; $y += 6) {
-            $pdf->Line(15, $y, 195, $y);
+            // Col 4 Value with Colon
+            $pdf->SetXY($x0 + $w1 + $w2 + $w3, $currY);
+            $pdf->Cell(8, $rowH, ':', 0, 0, 'C');
+            $pdf->SetXY($x0 + $w1 + $w2 + $w3 + 8, $currY);
+            $pdf->Cell($w4 - 8, $rowH, ' ' . $r[3], 0, 0, 'L');
         }
 
-        // Header Row text
+        // --- 5. Earnings & Deductions Grid ---
+        $y = $empGridY + $gridH;
+        $earnGridY = $y;
+        $earnRowsCount = 6; // 6 item rows
+        $earnGridH = $rowH * (1 + $earnRowsCount + 1); // Header (1) + Items (6) + Total (1) = 8 rows
+
+        $pdf->Rect($x0, $earnGridY, $wTotal, $earnGridH);
+        // Vertical lines
+        $pdf->Line($x0 + $w1, $earnGridY, $x0 + $w1, $earnGridY + $earnGridH);
+        $pdf->Line($x0 + $w1 + $w2, $earnGridY, $x0 + $w1 + $w2, $earnGridY + $earnGridH);
+        $pdf->Line($x0 + $w1 + $w2 + $w3, $earnGridY, $x0 + $w1 + $w2 + $w3, $earnGridY + $earnGridH);
+
+        // Horizontal lines
+        for ($i = 1; $i <= (1 + $earnRowsCount); $i++) {
+            $pdf->Line($x0, $earnGridY + ($i * $rowH), $x0 + $wTotal, $earnGridY + ($i * $rowH));
+        }
+
+        // Header Row
         $pdf->SetFont('Arial', 'B', 8.5);
-        $pdf->SetXY(15, 92); $pdf->Cell(60, 6, '  Earnings', 0, 0, 'L');
-        $pdf->SetXY(75, 92); $pdf->Cell(30, 6, 'Amount', 0, 0, 'C');
-        $pdf->SetXY(105, 92); $pdf->Cell(60, 6, '  Deductions', 0, 0, 'L');
-        $pdf->SetXY(165, 92); $pdf->Cell(30, 6, 'Amount', 0, 0, 'C');
+        $pdf->SetXY($x0, $earnGridY);
+        $pdf->Cell($w1, $rowH, 'Earnings', 0, 0, 'C');
+        $pdf->SetXY($x0 + $w1, $earnGridY);
+        $pdf->Cell($w2, $rowH, 'Amount', 0, 0, 'C');
+        $pdf->SetXY($x0 + $w1 + $w2, $earnGridY);
+        $pdf->Cell($w3, $rowH, 'Deductions', 0, 0, 'C');
+        $pdf->SetXY($x0 + $w1 + $w2 + $w3, $earnGridY);
+        $pdf->Cell($w4, $rowH, 'Amount', 0, 0, 'C');
 
-        $pdf->SetFont('Arial', '', 8.5);
-        // Row 1
-        $pdf->SetXY(15, 98); $pdf->Cell(60, 6, '  BASIC SALARY', 0, 0, 'L');
-        $pdf->SetXY(75, 98); $pdf->Cell(30, 6, number_format($basic, 2) . '  ', 0, 0, 'R');
-        $pdf->SetXY(105, 98); $pdf->Cell(60, 6, '  PROFESSIONAL TAX', 0, 0, 'L');
-        $pdf->SetXY(165, 98); $pdf->Cell(30, 6, number_format($ptax, 2) . '  ', 0, 0, 'R');
+        // Earnings & Deductions Items
+        $earnItems = [
+            ['BASIC SALARY', $basic > 0 ? number_format($basic, 2) : '', 'PROFESSIONAL TAX', $ptax > 0 ? number_format($ptax, 2) : ''],
+            ['H.R.A.', $hra > 0 ? number_format($hra, 2) : '', 'Provident Fund', $pf > 0 ? number_format($pf, 2) : ''],
+            ['MEDICAL ALLOWANCE', $medical > 0 ? number_format($medical, 2) : '', 'ESIC', $esic > 0 ? number_format($esic, 2) : ''],
+            ['SPECIAL ALLOWANCE', $special > 0 ? number_format($special, 2) : '', '', ''],
+            ['LEAVE ENCASHMENT', $leave > 0 ? number_format($leave, 2) : '', '', ''],
+            ['OT ALLOWANCE', $otAllow > 0 ? number_format($otAllow, 2) : '', '', ''],
+        ];
 
-        // Row 2
-        $pdf->SetXY(15, 104); $pdf->Cell(60, 6, '  H.R.A.', 0, 0, 'L');
-        $pdf->SetXY(75, 104); $pdf->Cell(30, 6, number_format($hra, 2) . '  ', 0, 0, 'R');
-        $pdf->SetXY(105, 104); $pdf->Cell(60, 6, '  Provident Fund', 0, 0, 'L');
-        $pdf->SetXY(165, 104); $pdf->Cell(30, 6, number_format($pf, 2) . '  ', 0, 0, 'R');
+        $pdf->SetFont('Arial', '', 8);
+        foreach ($earnItems as $idx => $item) {
+            $currY = $earnGridY + (($idx + 1) * $rowH);
+            $pdf->SetXY($x0, $currY);
+            $pdf->Cell($w1, $rowH, $item[0], 0, 0, 'C');
 
-        // Row 3
-        $pdf->SetXY(15, 110); $pdf->Cell(60, 6, '  MEDICAL ALLOWANCE', 0, 0, 'L');
-        $pdf->SetXY(75, 110); $pdf->Cell(30, 6, number_format($medical, 2) . '  ', 0, 0, 'R');
-        $pdf->SetXY(105, 110); $pdf->Cell(60, 6, '  ESIC', 0, 0, 'L');
-        $pdf->SetXY(165, 110); $pdf->Cell(30, 6, number_format($esic, 2) . '  ', 0, 0, 'R');
+            $pdf->SetXY($x0 + $w1, $currY);
+            if ($item[1] !== '') {
+                $pdf->Cell($w2, $rowH, $item[1] . '  ', 0, 0, 'R');
+            }
 
-        // Row 4
-        $pdf->SetXY(15, 116); $pdf->Cell(60, 6, '  SPECIAL ALLOWANCE', 0, 0, 'L');
-        $pdf->SetXY(75, 116); $pdf->Cell(30, 6, number_format($special, 2) . '  ', 0, 0, 'R');
-        $pdf->SetXY(105, 116); $pdf->Cell(60, 6, '', 0, 0, 'L');
-        $pdf->SetXY(165, 116); $pdf->Cell(30, 6, '', 0, 0, 'R');
+            $pdf->SetXY($x0 + $w1 + $w2, $currY);
+            $pdf->Cell($w3, $rowH, $item[2], 0, 0, 'C');
 
-        // Row 5
-        $pdf->SetXY(15, 122); $pdf->Cell(60, 6, '  LEAVE ENCASHMENT', 0, 0, 'L');
-        $pdf->SetXY(75, 122); $pdf->Cell(30, 6, number_format($leave, 2) . '  ', 0, 0, 'R');
-        $pdf->SetXY(105, 122); $pdf->Cell(60, 6, '', 0, 0, 'L');
-        $pdf->SetXY(165, 122); $pdf->Cell(30, 6, '', 0, 0, 'R');
+            $pdf->SetXY($x0 + $w1 + $w2 + $w3, $currY);
+            if ($item[3] !== '') {
+                $pdf->Cell($w4, $rowH, $item[3] . '  ', 0, 0, 'R');
+            }
+        }
 
-        // Row 6
-        $pdf->SetXY(15, 128); $pdf->Cell(60, 6, '  OT ALLOWANCE', 0, 0, 'L');
-        $pdf->SetXY(75, 128); $pdf->Cell(30, 6, number_format($otAllow, 2) . '  ', 0, 0, 'R');
-        $pdf->SetXY(105, 128); $pdf->Cell(60, 6, '', 0, 0, 'L');
-        $pdf->SetXY(165, 128); $pdf->Cell(30, 6, '', 0, 0, 'R');
-
-        // --- 4. Totals Row ---
+        // Totals Row
+        $totY = $earnGridY + ((1 + $earnRowsCount) * $rowH);
         $pdf->SetFont('Arial', 'B', 8.5);
-        $pdf->SetXY(15, 134); $pdf->Cell(60, 6, '  Total', 0, 0, 'L');
-        $pdf->SetXY(75, 134); $pdf->Cell(30, 6, number_format($totalEarnings, 2) . '  ', 0, 0, 'R');
-        $pdf->SetXY(105, 134); $pdf->Cell(60, 6, '  Total', 0, 0, 'L');
-        $pdf->SetXY(165, 134); $pdf->Cell(30, 6, number_format($totalDeductions, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY($x0, $totY);
+        $pdf->Cell($w1, $rowH, 'Total', 0, 0, 'C');
+        $pdf->SetXY($x0 + $w1, $totY);
+        $pdf->Cell($w2, $rowH, number_format($totalEarnings, 2) . '  ', 0, 0, 'R');
+        $pdf->SetXY($x0 + $w1 + $w2, $totY);
+        $pdf->Cell($w3, $rowH, 'Total', 0, 0, 'C');
+        $pdf->SetXY($x0 + $w1 + $w2 + $w3, $totY);
+        $pdf->Cell($w4, $rowH, number_format($totalDeductions, 2) . '  ', 0, 0, 'R');
 
-        // --- 5. Net Pay & Words Block ---
-        // Net Pay Bar
-        $pdf->Rect(15, 140, 180, 6);
-        $pdf->Line(55, 140, 55, 146);
+        // --- 6. *Net Pay Row ---
+        $y = $earnGridY + $earnGridH;
+        $pdf->Rect($x0, $y, $wTotal, $rowH);
+        $pdf->Line($x0 + $w1, $y, $x0 + $w1, $y + $rowH);
         $pdf->SetFont('Arial', 'B', 8.5);
-        $pdf->SetXY(15, 140); $pdf->Cell(40, 6, '  *Net Pay', 0, 0, 'L');
-        $pdf->SetXY(55, 140); $pdf->Cell(140, 6, ' Rs. ' . number_format($net, 2), 0, 0, 'L');
+        $pdf->SetXY($x0, $y);
+        $pdf->Cell($w1, $rowH, '*Net Pay', 0, 0, 'C');
+        $pdf->SetXY($x0 + $w1, $y);
+        $pdf->Cell($w2 + $w3 + $w4, $rowH, '  Rs. ' . number_format($net, 2), 0, 0, 'L');
 
-        // Rupees in Word Bar
+        // --- 7. Rupees in word: Row ---
+        $y += $rowH;
         $netInWords = $this->convertNumberToWords($net);
-        $pdf->Rect(15, 146, 180, 6);
-        $pdf->SetXY(15, 146); $pdf->Cell(180, 6, '  Rupees in word: ' . $netInWords, 0, 0, 'L');
+        $pdf->Rect($x0, $y, $wTotal, $rowH);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetXY($x0, $y);
+        $pdf->Cell($wTotal, $rowH, '  Rupees in word: ' . $netInWords, 0, 0, 'L');
 
-        // --- 6. Disclaimer Footer ---
-        $pdf->Rect(15, 154, 180, 7);
-        $pdf->SetFont('Arial', '', 7.5);
-        $pdf->SetXY(15, 154);
-        $pdf->Cell(180, 7, '  * This is computer generated document and does not require any signature.', 0, 0, 'L');
+        // --- 8. Computer Generated Disclaimer Footer ---
+        $y += $rowH;
+        $disclaimerH = 10.2;
+        $pdf->Rect($x0, $y, $wTotal, $disclaimerH);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetXY($x0, $y + 1);
+        $pdf->Cell($wTotal, 8, '  * This is computer generated document and does not require any signature.', 0, 0, 'L');
 
-        // Output to file
+        // Save PDF to file
         $pdf->Output('F', $filePath);
 
         return 'storage/payslips/' . $fileName;
