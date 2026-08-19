@@ -75,24 +75,36 @@ class AdminDashboardController extends Controller
             });
         }
 
-        // Company filter
+        // Company multi-select filter
         if ($request->filled('company_id')) {
-            $query->where('company_id', $request->company_id);
+            $companies = is_array($request->company_id) ? array_filter($request->company_id) : [$request->company_id];
+            if (!empty($companies)) {
+                $query->whereIn('company_id', $companies);
+            }
         }
 
-        // Department filter
+        // Department multi-select filter
         if ($request->filled('department_id')) {
-            $query->where('department_id', $request->department_id);
+            $departments = is_array($request->department_id) ? array_filter($request->department_id) : [$request->department_id];
+            if (!empty($departments)) {
+                $query->whereIn('department_id', $departments);
+            }
         }
 
-        // Designation filter
+        // Designation multi-select filter
         if ($request->filled('designation_id')) {
-            $query->where('designation_id', $request->designation_id);
+            $designations = is_array($request->designation_id) ? array_filter($request->designation_id) : [$request->designation_id];
+            if (!empty($designations)) {
+                $query->whereIn('designation_id', $designations);
+            }
         }
 
-        // Status filter
+        // Status multi-select filter
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $statuses = is_array($request->status) ? array_filter($request->status) : [$request->status];
+            if (!empty($statuses)) {
+                $query->whereIn('status', $statuses);
+            }
         }
 
         // Work Location filter

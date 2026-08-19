@@ -4,6 +4,13 @@
 @section('page_title', 'Candidate & Staff Database')
 
 @section('content')
+@php
+    $selectedCompanies = (array) request('company_id', []);
+    $selectedDesignations = (array) request('designation_id', []);
+    $selectedDepartments = (array) request('department_id', []);
+    $selectedStatuses = (array) request('status', []);
+@endphp
+
 <div class="space-y-6">
 
     <!-- Top Action Bar -->
@@ -44,7 +51,7 @@
     <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex items-center justify-between border-b border-slate-100 pb-3">
             <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center">
-                <i class="fa-solid fa-filter text-blue-600 mr-2"></i> Comprehensive Search & Filters
+                <i class="fa-solid fa-filter text-blue-600 mr-2"></i> Comprehensive Search & Multi-Filters
             </h3>
             @if(request()->hasAny(['search', 'company_id', 'designation_id', 'department_id', 'status', 'work_location', 'from_date', 'to_date', 'offer_letter_status']))
                 <a href="{{ route('admin.employees.index') }}" class="text-xs font-semibold text-rose-600 hover:underline flex items-center">
@@ -53,7 +60,7 @@
             @endif
         </div>
 
-        <form action="{{ route('admin.employees.index') }}" method="GET" class="space-y-4">
+        <form action="{{ route('admin.employees.index') }}" method="GET" class="space-y-4" id="filters-form">
             <!-- Row 1: Keyword Search Bar -->
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
@@ -69,55 +76,135 @@
                 @endif
             </div>
 
-            <!-- Row 2: Detailed Filters Grid -->
+            <!-- Row 2: Detailed Multi-Select Filters Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                <!-- Company / Client -->
-                <div>
-                    <label for="company_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Company / Client</label>
-                    <select id="company_id" name="company_id" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
-                        <option value="">All Companies</option>
+                
+                <!-- 1. Company / Client Multi-Select -->
+                <div class="relative custom-multiselect">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Company / Client</label>
+                    <button type="button" class="multiselect-toggle w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left">
+                        <span class="truncate multiselect-label">
+                            @if(count($selectedCompanies) > 0)
+                                {{ count($selectedCompanies) }} Selected
+                            @else
+                                All Companies
+                            @endif
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-1"></i>
+                    </button>
+                    <div class="multiselect-menu hidden absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 max-h-56 overflow-y-auto space-y-1.5">
+                        <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100 text-xxs text-slate-400">
+                            <span>Select Companies</span>
+                            <button type="button" class="text-blue-600 hover:underline clear-multiselect">Clear</button>
+                        </div>
                         @foreach($companies as $comp)
-                            <option value="{{ $comp->id }}" {{ request('company_id') == $comp->id ? 'selected' : '' }}>{{ $comp->name }}</option>
+                            <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs text-slate-700">
+                                <input type="checkbox" name="company_id[]" value="{{ $comp->id }}" 
+                                    {{ in_array($comp->id, $selectedCompanies) ? 'checked' : '' }}
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-0">
+                                <span class="truncate">{{ $comp->name }}</span>
+                            </label>
                         @endforeach
-                    </select>
+                    </div>
                 </div>
 
-                <!-- Designation -->
-                <div>
-                    <label for="designation_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Designation</label>
-                    <select id="designation_id" name="designation_id" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
-                        <option value="">All Designations</option>
+                <!-- 2. Designation Multi-Select -->
+                <div class="relative custom-multiselect">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Designation</label>
+                    <button type="button" class="multiselect-toggle w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left">
+                        <span class="truncate multiselect-label">
+                            @if(count($selectedDesignations) > 0)
+                                {{ count($selectedDesignations) }} Selected
+                            @else
+                                All Designations
+                            @endif
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-1"></i>
+                    </button>
+                    <div class="multiselect-menu hidden absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 max-h-56 overflow-y-auto space-y-1.5">
+                        <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100 text-xxs text-slate-400">
+                            <span>Select Designations</span>
+                            <button type="button" class="text-blue-600 hover:underline clear-multiselect">Clear</button>
+                        </div>
                         @foreach($designations as $desig)
-                            <option value="{{ $desig->id }}" {{ request('designation_id') == $desig->id ? 'selected' : '' }}>{{ $desig->name }}</option>
+                            <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs text-slate-700">
+                                <input type="checkbox" name="designation_id[]" value="{{ $desig->id }}" 
+                                    {{ in_array($desig->id, $selectedDesignations) ? 'checked' : '' }}
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-0">
+                                <span class="truncate">{{ $desig->name }}</span>
+                            </label>
                         @endforeach
-                    </select>
+                    </div>
                 </div>
 
-                <!-- Department -->
-                <div>
-                    <label for="department_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Department</label>
-                    <select id="department_id" name="department_id" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
-                        <option value="">All Departments</option>
+                <!-- 3. Department Multi-Select -->
+                <div class="relative custom-multiselect">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Department</label>
+                    <button type="button" class="multiselect-toggle w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left">
+                        <span class="truncate multiselect-label">
+                            @if(count($selectedDepartments) > 0)
+                                {{ count($selectedDepartments) }} Selected
+                            @else
+                                All Departments
+                            @endif
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-1"></i>
+                    </button>
+                    <div class="multiselect-menu hidden absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 max-h-56 overflow-y-auto space-y-1.5">
+                        <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100 text-xxs text-slate-400">
+                            <span>Select Departments</span>
+                            <button type="button" class="text-blue-600 hover:underline clear-multiselect">Clear</button>
+                        </div>
                         @foreach($departments as $dept)
-                            <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
+                            <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs text-slate-700">
+                                <input type="checkbox" name="department_id[]" value="{{ $dept->id }}" 
+                                    {{ in_array($dept->id, $selectedDepartments) ? 'checked' : '' }}
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-0">
+                                <span class="truncate">{{ $dept->name }}</span>
+                            </label>
                         @endforeach
-                    </select>
+                    </div>
                 </div>
 
-                <!-- Status -->
-                <div>
-                    <label for="status" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Status</label>
-                    <select id="status" name="status" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
-                        <option value="">All Statuses</option>
-                        <option value="pending_review" {{ request('status') === 'pending_review' ? 'selected' : '' }}>Pending Review</option>
-                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                        <option value="on_leave" {{ request('status') === 'on_leave' ? 'selected' : '' }}>On Leave</option>
-                        <option value="terminated" {{ request('status') === 'terminated' ? 'selected' : '' }}>Terminated</option>
-                    </select>
+                <!-- 4. Status Multi-Select -->
+                <div class="relative custom-multiselect">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Status</label>
+                    <button type="button" class="multiselect-toggle w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs flex items-center justify-between text-left">
+                        <span class="truncate multiselect-label">
+                            @if(count($selectedStatuses) > 0)
+                                {{ count($selectedStatuses) }} Selected
+                            @else
+                                All Statuses
+                            @endif
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-xxs text-slate-400 ml-1"></i>
+                    </button>
+                    <div class="multiselect-menu hidden absolute left-0 right-0 z-30 mt-1 bg-white border border-slate-200 rounded-2xl shadow-xl p-3 max-h-56 overflow-y-auto space-y-1.5">
+                        <div class="flex items-center justify-between pb-1 mb-1 border-b border-slate-100 text-xxs text-slate-400">
+                            <span>Select Statuses</span>
+                            <button type="button" class="text-blue-600 hover:underline clear-multiselect">Clear</button>
+                        </div>
+                        @php
+                            $statusOptions = [
+                                'pending_review' => 'Pending Review',
+                                'active' => 'Active',
+                                'inactive' => 'Inactive',
+                                'on_leave' => 'On Leave',
+                                'terminated' => 'Terminated',
+                            ];
+                        @endphp
+                        @foreach($statusOptions as $val => $label)
+                            <label class="flex items-center space-x-2 p-1.5 rounded-lg hover:bg-slate-50 cursor-pointer text-xs text-slate-700">
+                                <input type="checkbox" name="status[]" value="{{ $val }}" 
+                                    {{ in_array($val, $selectedStatuses) ? 'checked' : '' }}
+                                    class="rounded border-slate-300 text-blue-600 focus:ring-0">
+                                <span class="truncate">{{ $label }}</span>
+                            </label>
+                        @endforeach
+                    </div>
                 </div>
 
-                <!-- Work Location -->
+                <!-- 5. Work Location -->
                 <div>
                     <label for="work_location" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Work Location</label>
                     <input type="text" id="work_location" name="work_location" value="{{ request('work_location') }}"
@@ -125,7 +212,7 @@
                         placeholder="e.g. Kolkata">
                 </div>
 
-                <!-- Date Range (From - To) -->
+                <!-- 6. Date Range (From - To) -->
                 <div>
                     <label for="from_date" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Joined From</label>
                     <input type="date" id="from_date" name="from_date" value="{{ request('from_date') }}"
@@ -411,6 +498,63 @@
 @section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Multi-select dropdown toggle and behavior
+        const multiselects = document.querySelectorAll('.custom-multiselect');
+
+        multiselects.forEach(ms => {
+            const toggleBtn = ms.querySelector('.multiselect-toggle');
+            const menu = ms.querySelector('.multiselect-menu');
+            const labelSpan = ms.querySelector('.multiselect-label');
+            const checkboxes = ms.querySelectorAll('input[type="checkbox"]');
+            const clearBtn = ms.querySelector('.clear-multiselect');
+            const defaultLabel = labelSpan.textContent.trim();
+
+            function updateLabel() {
+                const checked = ms.querySelectorAll('input[type="checkbox"]:checked');
+                if (checked.length === 0) {
+                    // Extract default name
+                    if (ms.querySelector('input[name="company_id[]"]')) labelSpan.textContent = 'All Companies';
+                    else if (ms.querySelector('input[name="designation_id[]"]')) labelSpan.textContent = 'All Designations';
+                    else if (ms.querySelector('input[name="department_id[]"]')) labelSpan.textContent = 'All Departments';
+                    else if (ms.querySelector('input[name="status[]"]')) labelSpan.textContent = 'All Statuses';
+                } else if (checked.length === 1) {
+                    labelSpan.textContent = checked[0].closest('label').querySelector('span').textContent.trim();
+                } else {
+                    labelSpan.textContent = checked.length + ' Selected';
+                }
+            }
+
+            toggleBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                // Close other open menus
+                document.querySelectorAll('.multiselect-menu').forEach(m => {
+                    if (m !== menu) m.classList.add('hidden');
+                });
+                menu.classList.toggle('hidden');
+            });
+
+            menu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', updateLabel);
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    checkboxes.forEach(cb => cb.checked = false);
+                    updateLabel();
+                });
+            }
+        });
+
+        // Close multi-select menus when clicking anywhere outside
+        document.addEventListener('click', function () {
+            document.querySelectorAll('.multiselect-menu').forEach(m => m.classList.add('hidden'));
+        });
+
+        // Bulk selection checkboxes
         const selectAll = document.getElementById('select-all-checkbox');
         const checkboxes = document.querySelectorAll('.employee-checkbox');
         const bulkPanel = document.getElementById('bulk-actions-panel');

@@ -373,4 +373,35 @@ class AdminAuthTest extends TestCase
         $response->assertStatus(200);
         $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
     }
+
+    /**
+     * Test multi-select filtering for Company, Designation, Department, and Status.
+     */
+    public function test_admin_can_filter_and_export_with_multiselect_options(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+        $company = \App\Models\Company::first();
+        $dept = \App\Models\Department::first();
+        $desig = \App\Models\Designation::first();
+
+        // 1. Multi-select on Web View
+        $response = $this->actingAs($admin, 'admin')->get(route('admin.employees.index', [
+            'company_id' => [$company->id],
+            'department_id' => [$dept->id],
+            'designation_id' => [$desig->id],
+            'status' => ['active', 'pending_review'],
+        ]));
+        $response->assertStatus(200);
+
+        // 2. Multi-select on Export
+        $exportResponse = $this->actingAs($admin, 'admin')->get(route('admin.employees.export', [
+            'company_id' => [$company->id],
+            'department_id' => [$dept->id],
+            'designation_id' => [$desig->id],
+            'status' => ['active', 'pending_review'],
+        ]));
+        $exportResponse->assertStatus(200);
+        $exportResponse->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+    }
 }
