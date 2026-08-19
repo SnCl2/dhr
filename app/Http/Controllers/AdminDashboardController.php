@@ -47,23 +47,47 @@ class AdminDashboardController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Employees CRUD & Import
+    | Employees CRUD & Import / Export
     |--------------------------------------------------------------------------
     */
-    public function employeesIndex(Request $request)
+    protected function buildEmployeeQuery(Request $request)
     {
         $query = Employee::with(['department', 'designationRelation', 'company', 'offerLetters']);
 
-        // Search filter
+        // Comprehensive search filter
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
             $query->where(function($q) use ($search) {
                 $q->where('aadhaar_full_name', 'like', "%$search%")
                   ->orWhere('first_name', 'like', "%$search%")
                   ->orWhere('last_name', 'like', "%$search%")
                   ->orWhere('email', 'like', "%$search%")
-                  ->orWhere('employee_id', 'like', "%$search%");
+                  ->orWhere('phone', 'like', "%$search%")
+                  ->orWhere('contact_number', 'like', "%$search%")
+                  ->orWhere('employee_id', 'like', "%$search%")
+                  ->orWhere('aadhaar_number', 'like', "%$search%")
+                  ->orWhere('pan_number', 'like', "%$search%")
+                  ->orWhere('voter_id_number', 'like', "%$search%")
+                  ->orWhere('old_uan_number', 'like', "%$search%")
+                  ->orWhere('bank_account_number', 'like', "%$search%")
+                  ->orWhere('city', 'like', "%$search%")
+                  ->orWhere('work_location', 'like', "%$search%");
             });
+        }
+
+        // Company filter
+        if ($request->filled('company_id')) {
+            $query->where('company_id', $request->company_id);
+        }
+
+        // Department filter
+        if ($request->filled('department_id')) {
+            $query->where('department_id', $request->department_id);
+        }
+
+        // Designation filter
+        if ($request->filled('designation_id')) {
+            $query->where('designation_id', $request->designation_id);
         }
 
         // Status filter
@@ -71,7 +95,20 @@ class AdminDashboardController extends Controller
             $query->where('status', $request->status);
         }
 
-        // Offer letter filter
+        // Work Location filter
+        if ($request->filled('work_location')) {
+            $query->where('work_location', 'like', '%' . trim($request->work_location) . '%');
+        }
+
+        // Date Range filter
+        if ($request->filled('from_date')) {
+            $query->whereDate('joining_date', '>=', $request->from_date);
+        }
+        if ($request->filled('to_date')) {
+            $query->whereDate('joining_date', '<=', $request->to_date);
+        }
+
+        // Offer letter status filter
         if ($request->filled('offer_letter_status')) {
             if ($request->offer_letter_status === 'generated') {
                 $query->has('offerLetters');
@@ -80,11 +117,118 @@ class AdminDashboardController extends Controller
             }
         }
 
-        $employees = $query->latest()->paginate(10)->withQueryString();
+        return $query;
+    }
+
+    public function employeesIndex(Request $request)
+    {
+        $query = $this->buildEmployeeQuery($request);
+
+        $employees = $query->latest()->paginate(15)->withQueryString();
         $departments = Department::all();
         $designations = Designation::all();
         $companies = Company::all();
-        return view('admin.employees.index', compact('employees', 'departments', 'designations', 'companies'));
+        
+        // Distinct work locations for filter dropdown
+        $workLocations = Employee::whereNotNull('work_location')
+            ->where('work_location', '!=', '')
+            ->distinct()
+            ->pluck('work_location');
+
+        return view('admin.employees.index', compact('employees', 'departments', 'designations', 'companies', 'workLocations'));
+    }
+
+    public function employeesExport(Request $request)
+    {
+        $fileName = 'employees_export_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+        ];
+
+        $query = $this->buildEmployeeQuery($request)->latest();
+
+        $callback = function() use ($query) {
+            $file = fopen('php://output', 'w');
+            
+            // Output UTF-8 BOM for Excel compatibility
+            fputs($file, "\xEF\xBB\xBF");
+
+            // 30 Column headers matching Book 9.xlsx
+            fputcsv($file, [
+                'Full Name as per Aadhaar',
+                'Aadhaar Number',
+                'PAN Number',
+                'Voter ID Number',
+                'Prefix',
+                "Father's Name as per Aadhaar",
+                "Mother's Name as per Aadhaar",
+                'Gender',
+                'Date of Birth',
+                'Mother Tongue',
+                'Full Address as per Aadhaar',
+                'Landmark',
+                'Contact Number',
+                'City',
+                'Emargency Contact Number',
+                'Pin Code',
+                'State',
+                'Last Qualification',
+                'Pass out Year',
+                'Marital Status',
+                'Email ID',
+                'Old UAN Number',
+                'Old ESIC Number',
+                'Bank Account Number',
+                'IFSC Code Number',
+                'Bank Name',
+                'Client Name',
+                'Work Location',
+                'Designation',
+                'NTH Salary'
+            ]);
+
+            $query->chunk(100, function($employees) use ($file) {
+                foreach ($employees as $emp) {
+                    fputcsv($file, [
+                        $emp->aadhaar_full_name ?? $emp->full_name,
+                        $emp->aadhaar_number ?? '',
+                        $emp->pan_number ?? '',
+                        $emp->voter_id_number ?? '',
+                        $emp->prefix ?? '',
+                        $emp->father_name_aadhaar ?? '',
+                        $emp->mother_name_aadhaar ?? '',
+                        $emp->gender ?? '',
+                        $emp->dob ? $emp->dob->format('Y-m-d') : '',
+                        $emp->mother_tongue ?? '',
+                        $emp->aadhaar_address ?? '',
+                        $emp->landmark ?? '',
+                        $emp->contact_number ?? $emp->phone ?? '',
+                        $emp->city ?? '',
+                        $emp->emergency_contact_number ?? '',
+                        $emp->pin_code ?? '',
+                        $emp->state ?? '',
+                        $emp->last_qualification ?? '',
+                        $emp->pass_out_year ?? '',
+                        $emp->marital_status ?? '',
+                        $emp->email ?? $emp->email_id ?? '',
+                        $emp->old_uan_number ?? '',
+                        $emp->old_esic_number ?? '',
+                        $emp->bank_account_number ?? '',
+                        $emp->ifsc_code ?? '',
+                        $emp->bank_name ?? '',
+                        $emp->company ? $emp->company->name : '',
+                        $emp->work_location ?? '',
+                        $emp->designationRelation ? $emp->designationRelation->name : '',
+                        $emp->nth_salary ?? $emp->salary ?? '',
+                    ]);
+                }
+            });
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function employeesCreate()

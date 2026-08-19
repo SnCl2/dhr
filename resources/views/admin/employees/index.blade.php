@@ -1,214 +1,318 @@
 @extends('layouts.admin')
 
-@section('title', 'Candidate & Staff Management - Propszy')
+@section('title', 'Candidate & Staff Management - RM HR Solutions')
 @section('page_title', 'Candidate & Staff Database')
 
 @section('content')
-<!-- Search, Filter & Bulk actions toolbar -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8 items-end">
-    <!-- Filters form -->
-    <div class="lg:col-span-8">
-        <form action="{{ route('admin.employees.index') }}" method="GET" class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <!-- Search -->
-            <div>
-                <label for="search" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Search Records</label>
-                <div class="relative">
-                    <input type="text" id="search" name="search" value="{{ request('search') }}"
-                        class="block w-full pl-3 pr-10 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm"
-                        placeholder="ID, Name, Email...">
-                    @if(request('search'))
-                        <a href="{{ route('admin.employees.index', request()->except('search')) }}" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
-                            <i class="fa-solid fa-circle-xmark"></i>
+<div class="space-y-6">
+
+    <!-- Top Action Bar -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                <i class="fa-solid fa-users text-blue-600 mr-2.5"></i> Employee Records
+                <span class="ml-3 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                    {{ $employees->total() }} Total
+                </span>
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">Manage onboarded candidates, export data, and generate official documentation.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <!-- Export Filtered CSV -->
+            <a href="{{ route('admin.employees.export', request()->query()) }}" 
+               title="Export filtered records matching current search/filter to CSV"
+               class="inline-flex items-center px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 text-slate-700 hover:text-blue-600 rounded-xl text-xs font-semibold shadow-2xs transition-all">
+                <i class="fa-solid fa-file-export mr-2 text-emerald-600 text-sm"></i> Export CSV
+            </a>
+
+            <!-- Import CSV Modal Trigger -->
+            <button onclick="document.getElementById('csv-import-modal').classList.remove('hidden')" 
+                    class="inline-flex items-center px-4 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 hover:border-slate-400 text-slate-700 hover:text-blue-600 rounded-xl text-xs font-semibold shadow-2xs transition-all">
+                <i class="fa-solid fa-file-import mr-2 text-blue-600 text-sm"></i> Import CSV
+            </button>
+
+            <!-- Add Candidate -->
+            <a href="{{ route('admin.employees.create') }}" 
+               class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all">
+                <i class="fa-solid fa-user-plus mr-2"></i> Onboard Candidate
+            </a>
+        </div>
+    </div>
+
+    <!-- Comprehensive Search & Filter Card -->
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center">
+                <i class="fa-solid fa-filter text-blue-600 mr-2"></i> Comprehensive Search & Filters
+            </h3>
+            @if(request()->hasAny(['search', 'company_id', 'designation_id', 'department_id', 'status', 'work_location', 'from_date', 'to_date', 'offer_letter_status']))
+                <a href="{{ route('admin.employees.index') }}" class="text-xs font-semibold text-rose-600 hover:underline flex items-center">
+                    <i class="fa-solid fa-rotate-left mr-1"></i> Reset Filters
+                </a>
+            @endif
+        </div>
+
+        <form action="{{ route('admin.employees.index') }}" method="GET" class="space-y-4">
+            <!-- Row 1: Keyword Search Bar -->
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <input type="text" id="search" name="search" value="{{ request('search') }}"
+                    class="block w-full pl-10 pr-10 py-3 bg-slate-50/50 border border-slate-300 rounded-2xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-2xs"
+                    placeholder="Search by Full Name, Aadhaar Number, PAN, Email, Phone, Employee ID, UAN, Location, City...">
+                @if(request('search'))
+                    <a href="{{ route('admin.employees.index', request()->except('search')) }}" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </a>
+                @endif
+            </div>
+
+            <!-- Row 2: Detailed Filters Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+                <!-- Company / Client -->
+                <div>
+                    <label for="company_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Company / Client</label>
+                    <select id="company_id" name="company_id" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                        <option value="">All Companies</option>
+                        @foreach($companies as $comp)
+                            <option value="{{ $comp->id }}" {{ request('company_id') == $comp->id ? 'selected' : '' }}>{{ $comp->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Designation -->
+                <div>
+                    <label for="designation_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Designation</label>
+                    <select id="designation_id" name="designation_id" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                        <option value="">All Designations</option>
+                        @foreach($designations as $desig)
+                            <option value="{{ $desig->id }}" {{ request('designation_id') == $desig->id ? 'selected' : '' }}>{{ $desig->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Department -->
+                <div>
+                    <label for="department_id" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Department</label>
+                    <select id="department_id" name="department_id" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                        <option value="">All Departments</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->id }}" {{ request('department_id') == $dept->id ? 'selected' : '' }}>{{ $dept->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label for="status" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Status</label>
+                    <select id="status" name="status" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                        <option value="">All Statuses</option>
+                        <option value="pending_review" {{ request('status') === 'pending_review' ? 'selected' : '' }}>Pending Review</option>
+                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                        <option value="on_leave" {{ request('status') === 'on_leave' ? 'selected' : '' }}>On Leave</option>
+                        <option value="terminated" {{ request('status') === 'terminated' ? 'selected' : '' }}>Terminated</option>
+                    </select>
+                </div>
+
+                <!-- Work Location -->
+                <div>
+                    <label for="work_location" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Work Location</label>
+                    <input type="text" id="work_location" name="work_location" value="{{ request('work_location') }}"
+                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs"
+                        placeholder="e.g. Kolkata">
+                </div>
+
+                <!-- Date Range (From - To) -->
+                <div>
+                    <label for="from_date" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Joined From</label>
+                    <input type="date" id="from_date" name="from_date" value="{{ request('from_date') }}"
+                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                </div>
+
+                <div>
+                    <label for="to_date" class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Joined To</label>
+                    <input type="date" id="to_date" name="to_date" value="{{ request('to_date') }}"
+                        class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                </div>
+            </div>
+
+            <!-- Row 3: Action Buttons & Offer Letter status -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                <div class="flex items-center space-x-2 w-full sm:w-auto">
+                    <span class="text-xs font-semibold text-slate-600">Offer Letter:</span>
+                    <select id="offer_letter_status" name="offer_letter_status" class="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
+                        <option value="">Any</option>
+                        <option value="generated" {{ request('offer_letter_status') === 'generated' ? 'selected' : '' }}>Generated</option>
+                        <option value="not_generated" {{ request('offer_letter_status') === 'not_generated' ? 'selected' : '' }}>Not Generated</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                    <button type="submit" class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold shadow-xs transition-all flex items-center">
+                        <i class="fa-solid fa-magnifying-glass mr-2"></i> Apply Filters
+                    </button>
+                    @if(request()->hasAny(['search', 'company_id', 'designation_id', 'department_id', 'status', 'work_location', 'from_date', 'to_date', 'offer_letter_status']))
+                        <a href="{{ route('admin.employees.index') }}" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
+                            Clear
                         </a>
                     @endif
                 </div>
             </div>
-
-            <!-- Status Filter -->
-            <div>
-                <label for="status" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Filter Status</label>
-                <select id="status" name="status" onchange="this.form.submit()"
-                    class="block w-full px-3 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
-                    <option value="">All Statuses</option>
-                    <option value="pending_review" {{ request('status') === 'pending_review' ? 'selected' : '' }}>Pending Review</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active Staff</option>
-                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Inactive Staff</option>
-                    <option value="on_leave" {{ request('status') === 'on_leave' ? 'selected' : '' }}>On Leave</option>
-                    <option value="terminated" {{ request('status') === 'terminated' ? 'selected' : '' }}>Terminated</option>
-                </select>
-            </div>
-
-            <!-- Offer Letter Status Filter -->
-            <div>
-                <label for="offer_letter_status" class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Offer Letter</label>
-                <select id="offer_letter_status" name="offer_letter_status" onchange="this.form.submit()"
-                    class="block w-full px-3 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
-                    <option value="">All Candidates</option>
-                    <option value="generated" {{ request('offer_letter_status') === 'generated' ? 'selected' : '' }}>Offer Letter Generated</option>
-                    <option value="not_generated" {{ request('offer_letter_status') === 'not_generated' ? 'selected' : '' }}>Offer Letter Not Generated</option>
-                </select>
-            </div>
-
-            <!-- Filter submit button -->
-            <div class="flex items-end">
-                <button type="submit" class="w-full px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-sm font-semibold border border-slate-750 transition-colors">
-                    <i class="fa-solid fa-filter mr-2"></i>Apply Filters
-                </button>
-            </div>
         </form>
     </div>
 
-    <!-- Right Side Toolbar: Add New & CSV Import triggers -->
-    <div class="lg:col-span-4 flex justify-end space-x-3">
-        <button onclick="document.getElementById('csv-import-modal').classList.remove('hidden')" class="px-4 py-2.5 bg-slate-850 hover:bg-slate-800 text-purple-300 hover:text-white border border-purple-500/20 hover:border-purple-500/40 rounded-xl text-sm font-semibold transition-all">
-            <i class="fa-solid fa-file-csv mr-2"></i>Import CSV
-        </button>
-        <a href="{{ route('admin.employees.create') }}" class="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-purple-500/10 transition-all duration-300">
-            <i class="fa-solid fa-user-plus mr-2"></i>Add Staff Member
-        </a>
-    </div>
-</div>
+    <!-- Bulk Actions Form -->
+    <form id="bulk-generate-form" action="{{ route('admin.offer-letters.bulk-generate-selected') }}" method="POST">
+        @csrf
 
-<!-- Bulk Actions Form -->
-<form id="bulk-generate-form" action="{{ route('admin.offer-letters.bulk-generate-selected') }}" method="POST">
-    @csrf
-
-    <!-- Bulk Actions Header Panel (hidden by default) -->
-    <div id="bulk-actions-panel" class="hidden mb-6 p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center justify-between text-sm shadow-xl">
-        <div class="flex items-center space-x-3 text-slate-300 mb-3 sm:mb-0">
-            <i class="fa-solid fa-square-check text-purple-400 text-lg"></i>
-            <span>Selected <strong id="selected-count" class="text-white">0</strong> candidates</span>
-        </div>
-        <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2">
-                <label for="bulk_type" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Type:</label>
-                <select id="bulk_type" name="type" required
-                    class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-purple-500 text-xs">
-                    <option value="external">External/Contractor Layout</option>
-                    <option value="internal">Internal Staff Layout</option>
-                </select>
+        <!-- Bulk Actions Header Panel (hidden by default) -->
+        <div id="bulk-actions-panel" class="hidden mb-6 p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center justify-between text-sm shadow-xl">
+            <div class="flex items-center space-x-3 text-slate-300 mb-3 sm:mb-0">
+                <i class="fa-solid fa-square-check text-blue-400 text-lg"></i>
+                <span>Selected <strong id="selected-count" class="text-white">0</strong> candidates</span>
             </div>
-            <button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-purple-500/10">
-                <i class="fa-solid fa-bolt mr-1.5"></i> Bulk Generate
-            </button>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <label for="bulk_type" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Type:</label>
+                    <select id="bulk_type" name="type" required
+                        class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs">
+                        <option value="external">External/Contractor Layout</option>
+                        <option value="internal">Internal Staff Layout</option>
+                    </select>
+                </div>
+                <button type="submit" class="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/10">
+                    <i class="fa-solid fa-bolt mr-1.5"></i> Bulk Generate Offer Letters
+                </button>
+            </div>
         </div>
-    </div>
 
-    <!-- Employees Database Table -->
-    <div class="glass-dark rounded-3xl overflow-hidden shadow-xl mb-8">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="border-b border-slate-850 bg-slate-900/40 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                        <th class="p-6 w-12">
-                            <input type="checkbox" id="select-all-checkbox" class="rounded bg-slate-950 border border-slate-800 text-purple-600 focus:ring-0 cursor-pointer">
-                        </th>
-                        <th class="p-6">Employee ID</th>
-                        <th class="p-6">Name</th>
-                        <th class="p-6">Contact Info</th>
-                        <th class="p-6">Department & Designation</th>
-                        <th class="p-6">Status</th>
-                        <th class="p-6 text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-850 text-sm">
-                    @forelse($employees as $emp)
-                    <tr class="text-slate-300 hover:bg-slate-900/20">
-                        <td class="p-6">
-                            <input type="checkbox" name="employee_ids[]" value="{{ $emp->id }}" class="employee-checkbox rounded bg-slate-950 border border-slate-800 text-purple-600 focus:ring-0 cursor-pointer">
-                        </td>
-                        <td class="p-6 font-semibold text-purple-400 select-all">{{ $emp->employee_id }}</td>
-                        <td class="p-6">
-                            <div class="flex items-center space-x-3">
-                                @if($emp->profile_image)
-                                    <img src="{{ asset($emp->profile_image) }}" alt="{{ $emp->full_name }}" class="w-10 h-10 rounded-full object-cover border border-purple-500/30">
-                                @else
-                                    <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-750 flex items-center justify-center text-xs font-bold text-purple-300">
-                                        {{ strtoupper(substr($emp->full_name, 0, 1)) }}
+        <!-- Employees Database Table -->
+        <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm mb-8">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-200 bg-slate-50/80 text-xs font-bold text-slate-600 uppercase tracking-wider">
+                            <th class="p-5 w-12 text-center">
+                                <input type="checkbox" id="select-all-checkbox" class="rounded bg-white border border-slate-300 text-blue-600 focus:ring-0 cursor-pointer">
+                            </th>
+                            <th class="p-5">Employee ID</th>
+                            <th class="p-5">Name & Personal</th>
+                            <th class="p-5">Contact Details</th>
+                            <th class="p-5">Company & Designation</th>
+                            <th class="p-5">Status</th>
+                            <th class="p-5 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm">
+                        @forelse($employees as $emp)
+                        <tr class="text-slate-700 hover:bg-blue-50/20 transition-colors">
+                            <td class="p-5 text-center">
+                                <input type="checkbox" name="employee_ids[]" value="{{ $emp->id }}" class="employee-checkbox rounded bg-white border border-slate-300 text-blue-600 focus:ring-0 cursor-pointer">
+                            </td>
+                            <td class="p-5 font-bold text-blue-600 font-mono select-all">{{ $emp->employee_id }}</td>
+                            <td class="p-5">
+                                <div class="flex items-center space-x-3">
+                                    @if($emp->profile_image)
+                                        <img src="{{ asset($emp->profile_image) }}" alt="{{ $emp->full_name }}" class="w-10 h-10 rounded-full object-cover border border-blue-200 shadow-2xs">
+                                    @else
+                                        <div class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-xs font-bold text-blue-700">
+                                            {{ strtoupper(substr($emp->full_name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <span class="block font-bold text-slate-900">{{ $emp->full_name }}</span>
+                                        <span class="block text-xs text-slate-500 mt-0.5">
+                                            <i class="fa-regular fa-calendar mr-1 text-slate-400"></i>Joined: {{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}
+                                        </span>
                                     </div>
-                                @endif
-                                <div>
-                                    <span class="block font-semibold text-white">{{ $emp->full_name }}</span>
-                                    <span class="block text-xs text-slate-500 mt-0.5">Joined: {{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}</span>
                                 </div>
-                            </div>
-                        </td>
-                        <td class="p-6">
-                            <span class="block">{{ $emp->email }}</span>
-                            @if($emp->phone)
-                                <span class="block text-xs text-slate-500 mt-0.5">{{ $emp->phone }}</span>
-                            @endif
-                        </td>
-                        <td class="p-6">
-                            @if($emp->company)
-                                <span class="block font-bold text-purple-750 text-xs mb-1 select-all"><i class="fa-solid fa-building mr-1.5"></i>{{ $emp->company->name }}</span>
-                            @endif
-                            @if($emp->department || $emp->designationRelation)
-                                <span class="block text-slate-700">{{ $emp->department ? $emp->department->name : 'N/A' }}</span>
-                                <span class="block text-xs text-slate-500 mt-0.5">{{ $emp->designationRelation ? $emp->designationRelation->name : 'N/A' }}</span>
-                            @else
-                                <span class="text-slate-500">Unassigned</span>
-                            @endif
-                        </td>
-                        <td class="p-6">
-                            <span class="px-2.5 py-1 rounded-lg text-xs font-semibold uppercase tracking-wider 
-                                @if($emp->status === 'active') bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
-                                @elseif($emp->status === 'pending_review') bg-amber-500/10 text-amber-400 border border-amber-500/20
-                                @elseif($emp->status === 'on_leave') bg-indigo-500/10 text-indigo-400 border border-indigo-500/20
-                                @else bg-rose-500/10 text-rose-400 border border-rose-500/20
-                                @endif">
-                                {{ str_replace('_', ' ', $emp->status) }}
-                            </span>
-                        </td>
-                        <td class="p-6 text-right space-x-2">
-                            <!-- Generate Offer Letter (Only if they do not have one already) -->
-                            @if($emp->offerLetters->isEmpty() && $emp->status !== 'terminated')
-                                <a href="{{ route('admin.offer-letters.generate', ['employee_id' => $emp->id]) }}" title="Generate Offer Letter" class="inline-flex p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 hover:bg-emerald-500 hover:text-white transition-colors">
-                                    <i class="fa-solid fa-file-signature"></i>
+                            </td>
+                            <td class="p-5">
+                                <span class="block text-slate-800 font-medium">{{ $emp->email }}</span>
+                                <span class="block text-xs text-slate-500 mt-0.5">
+                                    <i class="fa-solid fa-phone mr-1 text-slate-400"></i>{{ $emp->contact_number ?? $emp->phone ?? 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="p-5">
+                                @if($emp->company)
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-slate-100 text-slate-800 mb-1">
+                                        <i class="fa-solid fa-building mr-1.5 text-blue-600"></i>{{ $emp->company->name }}
+                                    </span>
+                                @endif
+                                <span class="block text-xs text-slate-600 font-medium">
+                                    {{ $emp->designationRelation ? $emp->designationRelation->name : 'Unassigned' }}
+                                </span>
+                                @if($emp->work_location)
+                                    <span class="block text-xxs text-slate-400 mt-0.5">
+                                        <i class="fa-solid fa-location-dot mr-1"></i>{{ $emp->work_location }}
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="p-5">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider 
+                                    @if($emp->status === 'active') bg-emerald-50 text-emerald-700 border border-emerald-200
+                                    @elseif($emp->status === 'pending_review') bg-amber-50 text-amber-700 border border-amber-200
+                                    @elseif($emp->status === 'on_leave') bg-blue-50 text-blue-700 border border-blue-200
+                                    @else bg-rose-50 text-rose-700 border border-rose-200
+                                    @endif">
+                                    {{ str_replace('_', ' ', $emp->status) }}
+                                </span>
+                            </td>
+                            <td class="p-5 text-right space-x-2">
+                                <!-- Generate Offer Letter (Only if they do not have one already) -->
+                                @if($emp->offerLetters->isEmpty() && $emp->status !== 'terminated')
+                                    <a href="{{ route('admin.offer-letters.generate', ['employee_id' => $emp->id]) }}" title="Generate Offer Letter" class="inline-flex p-2 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 hover:bg-emerald-600 hover:text-white transition-all shadow-2xs">
+                                        <i class="fa-solid fa-file-signature"></i>
+                                    </a>
+                                @endif
+
+                                <!-- Secret Login / Switch Account -->
+                                <form action="{{ route('admin.employees.login-as', $emp) }}" method="POST" class="inline" target="_blank">
+                                    @csrf
+                                    <button type="submit" title="Login As Employee" class="inline-flex p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-all shadow-2xs">
+                                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                                    </button>
+                                </form>
+
+                                <!-- Edit Candidate -->
+                                <a href="{{ route('admin.employees.edit', $emp) }}" title="Edit Candidate" class="inline-flex p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-all shadow-2xs">
+                                    <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
-                            @endif
 
-                            <!-- Secret Login / Switch Account -->
-                            <form action="{{ route('admin.employees.login-as', $emp) }}" method="POST" class="inline" target="_blank">
-                                @csrf
-                                <button type="submit" title="Login As Employee" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-purple-600 hover:border-purple-300 transition-colors">
-                                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                                </button>
-                            </form>
+                                <!-- Delete Candidate -->
+                                <form action="{{ route('admin.employees.destroy', $emp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this staff record?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" title="Delete Candidate" class="inline-flex p-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-300 transition-all shadow-2xs">
+                                        <i class="fa-solid fa-trash-can"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="7" class="p-12 text-center text-slate-500 text-sm">
+                                <i class="fa-solid fa-folder-open text-3xl mb-3 text-slate-300 block"></i>
+                                No candidates or staff members match your selected search filters.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-                            <a href="{{ route('admin.employees.edit', $emp) }}" title="Edit Candidate" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-350 transition-colors">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </a>
-
-                            <form action="{{ route('admin.employees.destroy', $emp) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this staff record?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" title="Delete Candidate" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-rose-600 hover:border-rose-350 transition-colors">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="p-12 text-center text-slate-550 text-base">
-                            <i class="fa-solid fa-folder-open text-3xl mb-4 block"></i>
-                            No candidates or employees found in this view.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+            <!-- Pagination -->
+            @if($employees->hasPages())
+            <div class="px-6 py-4 border-t border-slate-100 bg-slate-50/50">
+                {{ $employees->links() }}
+            </div>
+            @endif
         </div>
-
-        <!-- Pagination -->
-        @if($employees->hasPages())
-        <div class="px-6 py-4 border-t border-slate-850">
-            {{ $employees->links() }}
-        </div>
-        @endif
-    </div>
-</form>
+    </form>
+</div>
 
 <!-- CSV Bulk Import Modal (Popup) -->
 <div id="csv-import-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">

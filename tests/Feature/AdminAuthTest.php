@@ -356,4 +356,21 @@ class AdminAuthTest extends TestCase
             'nth_salary' => 17500.00,
         ]);
     }
+
+    /**
+     * Test admin can export filtered employees to CSV in Book 9 schema.
+     */
+    public function test_admin_can_export_filtered_employees_to_csv(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        $response = $this->actingAs($admin, 'admin')->get(route('admin.employees.export', [
+            'status' => 'active',
+            'search' => 'John',
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+    }
 }
