@@ -240,15 +240,15 @@
                     <ul class="space-y-2 text-sm text-slate-400">
                         <li class="flex items-start space-x-2">
                             <i class="fa-solid fa-location-dot mt-1 text-purple-400"></i>
-                            <span>Amtala, DH Road, South 24 Parganas, West Bengal, 743503</span>
+                            <span>{{ $contactAddress }}</span>
                         </li>
                         <li class="flex items-center space-x-2">
                             <i class="fa-solid fa-phone text-purple-400"></i>
-                            <span>+91 94323 13430</span>
+                            <span>{{ $contactPhone }}</span>
                         </li>
                         <li class="flex items-center space-x-2">
                             <i class="fa-solid fa-envelope text-purple-400"></i>
-                            <span>info@propszy.com</span>
+                            <span>{{ $contactEmail }}</span>
                         </li>
                     </ul>
                 </div>

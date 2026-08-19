@@ -19,6 +19,23 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        view()->composer('*', function ($view) {
+            try {
+                if (\Schema::hasTable('site_content')) {
+                    $contactEmail = \DB::table('site_content')->where('key', 'contact_email')->value('value') ?? 'info@propszy.com';
+                    $contactPhone = \DB::table('site_content')->where('key', 'contact_phone')->value('value') ?? '+91 94323 13430';
+                    $contactAddress = \DB::table('site_content')->where('key', 'contact_address')->value('value') ?? 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503';
+                } else {
+                    $contactEmail = 'info@propszy.com';
+                    $contactPhone = '+91 94323 13430';
+                    $contactAddress = 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503';
+                }
+            } catch (\Throwable $e) {
+                $contactEmail = 'info@propszy.com';
+                $contactPhone = '+91 94323 13430';
+                $contactAddress = 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503';
+            }
+            $view->with(compact('contactEmail', 'contactPhone', 'contactAddress'));
+        });
     }
 }
