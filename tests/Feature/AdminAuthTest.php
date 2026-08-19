@@ -100,8 +100,6 @@ class AdminAuthTest extends TestCase
         $desig = Designation::first();
 
         $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.store'), [
-            'first_name' => 'Mark',
-            'last_name' => 'Taylor',
             'email' => 'mark.taylor@example.com',
             'status' => 'active',
             'department_id' => $dept->id,
@@ -131,14 +129,12 @@ class AdminAuthTest extends TestCase
             'bank_account_number' => '1234567890',
             'ifsc_code' => 'UTIB0000123',
             'bank_name' => 'Axis Bank',
-            'client_name' => 'Client A',
             'work_location' => 'Kolkata Office',
-            'designation' => 'Software Engineer',
             'nth_salary' => 10000.00,
         ]);
         $response->assertRedirect(route('admin.employees.index'));
         $this->assertDatabaseHas('employees', [
-            'first_name' => 'Mark',
+            'aadhaar_full_name' => 'Mark Taylor',
             'company_id' => $company->id,
         ]);
 
@@ -149,7 +145,7 @@ class AdminAuthTest extends TestCase
         
         // Assert the employee's company_id was set to null on delete cascade
         $this->assertDatabaseHas('employees', [
-            'first_name' => 'Mark',
+            'aadhaar_full_name' => 'Mark Taylor',
             'company_id' => null,
         ]);
     }
@@ -166,14 +162,12 @@ class AdminAuthTest extends TestCase
         $desig = Designation::first();
         $company = Company::first();
 
-        // 1. Create Employee with simulated documents
+        // 1. Create Employee with simulated profile image and documents
         \Illuminate\Support\Facades\Storage::fake('public');
         $employeeDocument = \Illuminate\Http\UploadedFile::fake()->create('employee_doc.pdf', 500);
         $profileImage = \Illuminate\Http\UploadedFile::fake()->create('profile.jpg', 200, 'image/jpeg');
 
         $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.store'), [
-            'first_name' => 'John',
-            'last_name' => 'Doe',
             'email' => 'unique.test.employee@example.com',
             'status' => 'active',
             'department_id' => $dept->id,
@@ -203,9 +197,7 @@ class AdminAuthTest extends TestCase
             'bank_account_number' => '9876543210',
             'ifsc_code' => 'SBIN0000123',
             'bank_name' => 'State Bank of India',
-            'client_name' => 'Client B',
             'work_location' => 'Delhi Hub',
-            'designation' => 'Lead Engineer',
             'nth_salary' => 13000.00,
             'employee_document' => $employeeDocument,
             'profile_image' => $profileImage,
@@ -217,14 +209,13 @@ class AdminAuthTest extends TestCase
         $this->assertNotNull($employee);
         $this->assertNotNull($employee->employee_document);
         $this->assertNotNull($employee->profile_image);
+        $this->assertEquals('John Doe', $employee->aadhaar_full_name);
 
-        // 2. Update Employee details and upload a new document
+        // 2. Update Employee details and upload a new document & profile image
         $employeeDocumentUpdated = \Illuminate\Http\UploadedFile::fake()->create('employee_doc_updated.pdf', 600);
-        $profileImageUpdated = \Illuminate\Http\UploadedFile::fake()->create('profile_updated.jpg', 200, 'image/jpeg');
+        $profileImageUpdated = \Illuminate\Http\UploadedFile::fake()->create('profile_updated.jpg', 300, 'image/jpeg');
 
         $response = $this->actingAs($admin, 'admin')->put(route('admin.employees.update', $employee), [
-            'first_name' => 'John Updated',
-            'last_name' => 'Doe',
             'email' => 'unique.test.employee@example.com',
             'status' => 'inactive',
             'department_id' => $dept->id,
@@ -232,7 +223,7 @@ class AdminAuthTest extends TestCase
             'company_id' => $company->id,
             'joining_date' => '2026-08-17',
             'salary' => 16000.00,
-            'aadhaar_full_name' => 'John Doe',
+            'aadhaar_full_name' => 'John Updated',
             'aadhaar_number' => '987654321012',
             'prefix' => 'Mr.',
             'father_name_aadhaar' => 'Richard Doe',
@@ -254,9 +245,7 @@ class AdminAuthTest extends TestCase
             'bank_account_number' => '9876543210',
             'ifsc_code' => 'SBIN0000123',
             'bank_name' => 'State Bank of India',
-            'client_name' => 'Client B',
             'work_location' => 'Delhi Hub',
-            'designation' => 'Lead Engineer',
             'nth_salary' => 14000.00,
             'employee_document' => $employeeDocumentUpdated,
             'profile_image' => $profileImageUpdated,
@@ -265,7 +254,7 @@ class AdminAuthTest extends TestCase
         $response->assertRedirect(route('admin.employees.index'));
         
         $employee->refresh();
-        $this->assertEquals('John Updated', $employee->first_name);
+        $this->assertEquals('John Updated', $employee->aadhaar_full_name);
         $this->assertEquals('inactive', $employee->status);
         $this->assertEquals(16000.00, $employee->salary);
         $this->assertNotNull($employee->employee_document);

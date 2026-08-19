@@ -119,8 +119,19 @@
                         </td>
                         <td class="p-6 font-semibold text-purple-400 select-all">{{ $emp->employee_id }}</td>
                         <td class="p-6">
-                            <span class="block font-semibold text-white">{{ $emp->full_name }}</span>
-                            <span class="block text-xs text-slate-500 mt-0.5">Joined: {{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}</span>
+                            <div class="flex items-center space-x-3">
+                                @if($emp->profile_image)
+                                    <img src="{{ asset($emp->profile_image) }}" alt="{{ $emp->full_name }}" class="w-10 h-10 rounded-full object-cover border border-purple-500/30">
+                                @else
+                                    <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-750 flex items-center justify-center text-xs font-bold text-purple-300">
+                                        {{ strtoupper(substr($emp->full_name, 0, 1)) }}
+                                    </div>
+                                @endif
+                                <div>
+                                    <span class="block font-semibold text-white">{{ $emp->full_name }}</span>
+                                    <span class="block text-xs text-slate-500 mt-0.5">Joined: {{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}</span>
+                                </div>
+                            </div>
                         </td>
                         <td class="p-6">
                             <span class="block">{{ $emp->email }}</span>

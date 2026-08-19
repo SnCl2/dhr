@@ -31,12 +31,9 @@ return new class extends Migration
                 }
             }
 
-            // Add new unified document column and profile image column
+            // Add new unified document column
             if (!Schema::hasColumn('employees', 'employee_document')) {
                 $table->string('employee_document')->nullable();
-            }
-            if (!Schema::hasColumn('employees', 'profile_image')) {
-                $table->string('profile_image')->nullable();
             }
         });
     }
@@ -58,12 +55,9 @@ return new class extends Migration
             $table->string('doc_photo')->nullable();
             $table->string('doc_bank_passbook')->nullable();
 
-            // Drop columns
+            // Drop unified document column
             if (Schema::hasColumn('employees', 'employee_document')) {
                 $table->dropColumn('employee_document');
-            }
-            if (Schema::hasColumn('employees', 'profile_image')) {
-                $table->dropColumn('profile_image');
             }
         });
     }

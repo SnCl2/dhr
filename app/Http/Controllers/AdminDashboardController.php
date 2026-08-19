@@ -58,7 +58,8 @@ class AdminDashboardController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('first_name', 'like', "%$search%")
+                $q->where('aadhaar_full_name', 'like', "%$search%")
+                  ->orWhere('first_name', 'like', "%$search%")
                   ->orWhere('last_name', 'like', "%$search%")
                   ->orWhere('email', 'like', "%$search%")
                   ->orWhere('employee_id', 'like', "%$search%");
@@ -97,8 +98,6 @@ class AdminDashboardController extends Controller
     public function employeesStore(Request $request)
     {
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:employees,email'],
             'phone' => ['nullable', 'string', 'max:20'],
             'status' => ['required', 'string'],
@@ -135,16 +134,22 @@ class AdminDashboardController extends Controller
             'bank_account_number' => ['required', 'string', 'max:50'],
             'ifsc_code' => ['required', 'string', 'max:20'],
             'bank_name' => ['required', 'string', 'max:255'],
-            'client_name' => ['required', 'string', 'max:255'],
             'work_location' => ['required', 'string', 'max:255'],
-            'designation' => ['required', 'string', 'max:255'],
             'nth_salary' => ['required', 'numeric', 'min:0'],
 
-            // Documents (Single File, Max 20MB)
+            // Profile Image & Documents
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'employee_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf,zip,rar,doc,docx', 'max:20480'],
-            // Profile Image (Max 2MB)
-            'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
         ]);
+
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            $imageName = time() . '_avatar_' . $image->getClientOriginalName();
+            $image->move(public_path('storage/avatars'), $imageName);
+            $validated['profile_image'] = 'storage/avatars/' . $imageName;
+        } else {
+            $validated['profile_image'] = null;
+        }
 
         if ($request->hasFile('employee_document')) {
             $file = $request->file('employee_document');
@@ -153,15 +158,6 @@ class AdminDashboardController extends Controller
             $validated['employee_document'] = 'storage/documents/' . $fileName;
         } else {
             $validated['employee_document'] = null;
-        }
-
-        if ($request->hasFile('profile_image')) {
-            $file = $request->file('profile_image');
-            $fileName = time() . '_profile_' . $file->getClientOriginalName();
-            $file->move(public_path('storage/profiles'), $fileName);
-            $validated['profile_image'] = 'storage/profiles/' . $fileName;
-        } else {
-            $validated['profile_image'] = null;
         }
 
         // Auto-generate Employee ID: EMP-YYYY-XXXX
@@ -179,8 +175,10 @@ class AdminDashboardController extends Controller
         }
         $employeeId = $prefix . $nextNum;
 
-        // Auto-generate random temp password
-        $plainPassword = strtolower($request->first_name) . rand(1000, 9999);
+        // Auto-generate random temp password from full name
+        $namePart = $request->aadhaar_full_name ? explode(' ', trim($request->aadhaar_full_name))[0] : 'emp';
+        $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', $namePart) ?: 'emp';
+        $plainPassword = strtolower($cleanName) . rand(1000, 9999);
 
         $validated['employee_id'] = $employeeId;
         $validated['password'] = Hash::make($plainPassword);
@@ -203,8 +201,6 @@ class AdminDashboardController extends Controller
     public function employeesUpdate(Request $request, Employee $employee)
     {
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'unique:employees,email,' . $employee->id],
             'phone' => ['nullable', 'string', 'max:20'],
             'status' => ['required', 'string'],
@@ -241,16 +237,25 @@ class AdminDashboardController extends Controller
             'bank_account_number' => ['required', 'string', 'max:50'],
             'ifsc_code' => ['required', 'string', 'max:20'],
             'bank_name' => ['required', 'string', 'max:255'],
-            'client_name' => ['required', 'string', 'max:255'],
             'work_location' => ['required', 'string', 'max:255'],
-            'designation' => ['required', 'string', 'max:255'],
             'nth_salary' => ['required', 'numeric', 'min:0'],
 
-            // Documents (Single File, Max 20MB)
+            // Profile Image & Documents
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'employee_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf,zip,rar,doc,docx', 'max:20480'],
-            // Profile Image (Max 2MB)
-            'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png', 'max:2048'],
         ]);
+
+        if ($request->hasFile('profile_image')) {
+            if ($employee->profile_image && file_exists(public_path($employee->profile_image))) {
+                @unlink(public_path($employee->profile_image));
+            }
+            $image = $request->file('profile_image');
+            $imageName = time() . '_avatar_' . $image->getClientOriginalName();
+            $image->move(public_path('storage/avatars'), $imageName);
+            $validated['profile_image'] = 'storage/avatars/' . $imageName;
+        } else {
+            unset($validated['profile_image']);
+        }
 
         if ($request->hasFile('employee_document')) {
             if ($employee->employee_document && file_exists(public_path($employee->employee_document))) {
@@ -262,18 +267,6 @@ class AdminDashboardController extends Controller
             $validated['employee_document'] = 'storage/documents/' . $fileName;
         } else {
             unset($validated['employee_document']);
-        }
-
-        if ($request->hasFile('profile_image')) {
-            if ($employee->profile_image && file_exists(public_path($employee->profile_image))) {
-                @unlink(public_path($employee->profile_image));
-            }
-            $file = $request->file('profile_image');
-            $fileName = time() . '_profile_' . $file->getClientOriginalName();
-            $file->move(public_path('storage/profiles'), $fileName);
-            $validated['profile_image'] = 'storage/profiles/' . $fileName;
-        } else {
-            unset($validated['profile_image']);
         }
 
         $employee->update($validated);

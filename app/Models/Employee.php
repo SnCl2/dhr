@@ -75,7 +75,11 @@ class Employee extends Authenticatable
 
     public function getFullNameAttribute()
     {
-        return "{$this->first_name} {$this->last_name}";
+        if (!empty($this->aadhaar_full_name)) {
+            return $this->aadhaar_full_name;
+        }
+        $name = trim("{$this->first_name} {$this->last_name}");
+        return $name ?: ($this->email ?? 'Employee');
     }
 
     public function department()
