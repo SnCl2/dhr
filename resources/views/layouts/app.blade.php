@@ -152,6 +152,7 @@
                 <nav class="hidden md:flex items-center space-x-1">
                     <a href="{{ route('home') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('home') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Home</a>
                     <a href="{{ route('about') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('about') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">About Us</a>
+                    <a href="{{ route('directors-desk') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('directors-desk') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Directors Desk</a>
                     <a href="{{ route('services') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('services') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Services</a>
                     <a href="{{ route('gallery') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('gallery') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Gallery</a>
                     <a href="{{ route('contact') }}" class="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 {{ request()->routeIs('contact') ? 'bg-purple-500/10 text-purple-700 border border-purple-500/20' : 'text-slate-650 hover:text-purple-750 hover:bg-slate-100/80' }}">Contact Us</a>
@@ -169,6 +170,7 @@
         <div id="mobile-menu" class="hidden md:hidden border-t border-slate-800 bg-slate-950/95 px-4 py-4 space-y-2">
             <a href="{{ route('home') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Home</a>
             <a href="{{ route('about') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">About Us</a>
+            <a href="{{ route('directors-desk') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Directors Desk</a>
             <a href="{{ route('services') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Services</a>
             <a href="{{ route('gallery') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Gallery</a>
             <a href="{{ route('contact') }}" class="block px-4 py-2 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800">Contact Us</a>
@@ -231,6 +233,7 @@
                     <ul class="space-y-2 text-sm">
                         <li><a href="{{ route('home') }}" class="text-slate-400 hover:text-purple-400 transition-colors">Home</a></li>
                         <li><a href="{{ route('about') }}" class="text-slate-400 hover:text-purple-400 transition-colors">About Us</a></li>
+                        <li><a href="{{ route('directors-desk') }}" class="text-slate-400 hover:text-purple-400 transition-colors">Directors Desk</a></li>
                         <li><a href="{{ route('services') }}" class="text-slate-400 hover:text-purple-400 transition-colors">Our Services</a></li>
                         <li><a href="{{ route('gallery') }}" class="text-slate-400 hover:text-purple-400 transition-colors">Gallery</a></li>
                         <li><a href="{{ route('contact') }}" class="text-slate-400 hover:text-purple-400 transition-colors">Contact Us</a></li>

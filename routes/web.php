@@ -17,6 +17,7 @@ Route::get('/about', [PublicController::class, 'about'])->name('about');
 Route::get('/services', [PublicController::class, 'services'])->name('services');
 Route::get('/gallery', [PublicController::class, 'gallery'])->name('gallery');
 Route::get('/contact', [PublicController::class, 'contact'])->name('contact');
+Route::get('/directors-desk', [PublicController::class, 'directorsDesk'])->name('directors-desk');
 Route::post('/contact/submit', [PublicController::class, 'submitContact'])->name('contact.submit');
 
 /*

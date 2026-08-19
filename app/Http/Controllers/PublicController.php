@@ -92,6 +92,14 @@ class PublicController extends Controller
     }
 
     /**
+     * Display the director's desk page.
+     */
+    public function directorsDesk()
+    {
+        return view('directors-desk');
+    }
+
+    /**
      * Handle contact form submission.
      */
     public function submitContact(Request $request)
