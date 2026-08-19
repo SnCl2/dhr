@@ -134,8 +134,14 @@
         <!-- Logo -->
         <div class="h-20 flex items-center px-6 border-b border-slate-200">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white">
-                    <i class="fa-solid fa-user-shield text-base"></i>
+                <div class="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center">
+                    @if(file_exists(public_path('images/logo.png')))
+                        <img src="{{ asset('images/logo.png') }}" class="w-full h-full object-contain bg-white" alt="RM HR SOLUTIONS Logo">
+                    @else
+                        <div class="w-full h-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                            <i class="fa-solid fa-user-shield text-base"></i>
+                        </div>
+                    @endif
                 </div>
                 <span class="font-outfit font-extrabold text-lg tracking-wider text-slate-800">RM HR SOLUTIONS ADMIN</span>
             </a>

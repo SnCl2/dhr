@@ -121,8 +121,14 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-3 group">
-                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-300">
-                            <i class="fa-solid fa-people-carry-box text-xl animate-pulse"></i>
+                        <div class="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
+                            @if(file_exists(public_path('images/logo.png')))
+                                <img src="{{ asset('images/logo.png') }}" class="w-full h-full object-contain bg-white" alt="RM HR SOLUTIONS Logo">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-white">
+                                    <i class="fa-solid fa-people-carry-box text-xl animate-pulse"></i>
+                                </div>
+                            @endif
                         </div>
                         <span class="font-outfit font-extrabold text-2xl tracking-wider bg-gradient-to-r from-purple-800 via-purple-600 to-indigo-500 bg-clip-text text-transparent group-hover:text-purple-600 transition-colors duration-300">RM HR SOLUTIONS</span>
                     </a>
