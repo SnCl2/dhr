@@ -50,7 +50,7 @@
                 
                 <!-- Image Wrapper -->
                 <div class="relative bg-white p-3 rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                    <img src="{{ asset('images/director.png') }}" alt="Akib Ahmed Molla" class="w-full h-[400px] object-cover rounded-2xl grayscale-[20%] group-hover:grayscale-0 transition-all duration-500">
+                    <img src="{{ asset('images/director.png') }}" alt="Akib Ahmed Molla" class="w-full h-auto rounded-2xl grayscale-[20%] group-hover:grayscale-0 transition-all duration-500">
                 </div>
             </div>
             
