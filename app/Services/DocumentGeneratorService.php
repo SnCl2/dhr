@@ -21,29 +21,13 @@ class DocumentGeneratorService
         // 2. Initialize AlphaPDF
         $pdf = new AlphaPDF('P', 'mm', 'A4');
         $pdf->AliasNbPages();
-        $pdf->SetAutoPageBreak(false);
+        $pdf->SetMargins(20, 32, 20);
+        $pdf->SetAutoPageBreak(true, 22);
         
         // ------------------ PAGE 1 ------------------
         $pdf->AddPage();
-        $pdf->SetMargins(20, 20, 20);
-        
-        // Logo
-        $logoPath = public_path('images/logo.png');
-        if (file_exists($logoPath)) {
-            $pdf->Image($logoPath, 20, 15, 30);
-        } else {
-            $pdf->SetFont('Arial', 'B', 14);
-            $pdf->SetTextColor(30, 58, 138);
-            $pdf->Text(20, 20, 'RM HR SOLUTIONS');
-        }
-        
-        // Issued Date (right aligned)
-        $pdf->SetY(20);
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->SetTextColor(55, 65, 81);
-        $pdf->Cell(0, 10, 'Issued Date: ' . date('d-M-Y'), 0, 1, 'R');
 
-        // Prevent logo overlap by starting candidate info block at Y = 52
+        // Prevent logo overlap by starting candidate info block at Y = 52 on Page 1
         $pdf->SetY(52);
  
         // Candidate / Staff Info Block
@@ -127,6 +111,9 @@ class DocumentGeneratorService
         $writeSectionHeader($pdf, '3', 'CONFIDENTIAL INFORMATION');
         $writeBullet($pdf, "Any information you obtain from time to time regarding processes, methods, client information, business practice, etc., should be treated as being of the utmost confidential.");
 
+        // ------------------ PAGE 2 ------------------
+        $pdf->AddPage();
+
         // Term 4: Service Rules
         $writeSectionHeader($pdf, '4', 'SERVICE RULES, DISCIPLINE and GRIEVANCES');
         $writeBullet($pdf, "During your employment with us, you will not be associated yourself with such activities, as in the opinion of the Management will be harmful or detrimental to the interest of the company.");
@@ -139,11 +126,6 @@ class DocumentGeneratorService
         // Term 5: Period of Services
         $writeSectionHeader($pdf, '5', 'PERIOD OF SERVICES and NOTICE PERIOD PAY');
         $writeBullet($pdf, "During the period of your engagement your services can be terminated by either side by giving 7 days' notice or 7 day pay in lieu thereof at company direction.");
-
-        // ------------------ PAGE 2 ------------------
-        $pdf->AddPage();
-        
-        // Term 5 bullet 2
         $writeBullet($pdf, "In case of notice pay take over, the same will be recovered if you leave the company before completion of the notice period.");
         $pdf->Ln(2);
 
@@ -734,21 +716,32 @@ class AlphaPDF extends \FPDF
             $this->SetAlpha(1.0); // reset
         }
 
-        // 2. Header line and title (on pages after Page 1)
-        if ($this->PageNo() > 1) {
-            $this->SetDrawColor(226, 232, 240); // slate-200
-            $this->Line(20, 15, 190, 15);
-            $this->SetFont('Arial', 'B', 8);
-            $this->SetTextColor(100, 116, 139); // slate-500
-            $this->Text(20, 11, 'RM HR SOLUTIONS PVT. LTD.');
+        // 2. Header line, logo (top-left) and issued date (top-right) on all pages
+        if (file_exists($logoPath)) {
+            $this->Image($logoPath, 20, 10, 25);
+        } else {
+            $this->SetFont('Arial', 'B', 12);
+            $this->SetTextColor(30, 58, 138);
+            $this->Text(20, 15, 'RM HR SOLUTIONS');
         }
+
+        // Issued Date (right aligned)
+        $this->SetY(12);
+        $this->SetFont('Arial', '', 9.5);
+        $this->SetTextColor(55, 65, 81);
+        $this->SetX(20);
+        $this->Cell(0, 10, 'Issued Date: ' . date('d-M-Y'), 0, 0, 'R');
+
+        // Divider line below header
+        $this->SetDrawColor(226, 232, 240); // slate-200
+        $this->Line(20, 26, 190, 26);
     }
 
     // Footer override
     function Footer()
     {
         $this->SetDrawColor(226, 232, 240); // slate-200
-        $this->Line(20, 282, 190, 282);
+        $this->Line(20, 280, 190, 280);
 
         // Fetch contact info dynamically from site_content
         $email = \DB::table('site_content')->where('key', 'contact_email')->value('value') ?? 'info@propszy.com';
