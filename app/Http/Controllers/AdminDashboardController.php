@@ -1453,18 +1453,20 @@ class AdminDashboardController extends Controller
     */
     public function profileShow()
     {
-        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+        $guard = \Illuminate\Support\Facades\Auth::guard('admin')->check() ? 'admin' : 'staff';
+        $admin = \Illuminate\Support\Facades\Auth::guard($guard)->user();
         return view('admin.profile', compact('admin'));
     }
 
     public function profileUpdate(Request $request)
     {
-        /** @var \App\Models\Admin $admin */
-        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+        $guard = \Illuminate\Support\Facades\Auth::guard('admin')->check() ? 'admin' : 'staff';
+        $admin = \Illuminate\Support\Facades\Auth::guard($guard)->user();
+        $table = $guard === 'admin' ? 'admins' : 'staff';
 
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:admins,email,' . $admin->id],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . $table . ',email,' . $admin->id],
         ]);
 
         $admin->name = $request->name;
@@ -1472,13 +1474,13 @@ class AdminDashboardController extends Controller
         $admin->save();
 
         return redirect()->route('admin.profile')
-            ->with('success', 'Admin ID (Name & Email) updated successfully.');
+            ->with('success', 'Profile ID (Name & Email) updated successfully.');
     }
 
     public function passwordUpdate(Request $request)
     {
-        /** @var \App\Models\Admin $admin */
-        $admin = \Illuminate\Support\Facades\Auth::guard('admin')->user();
+        $guard = \Illuminate\Support\Facades\Auth::guard('admin')->check() ? 'admin' : 'staff';
+        $admin = \Illuminate\Support\Facades\Auth::guard($guard)->user();
 
         $request->validate([
             'current_password' => ['required', 'string'],
@@ -1494,6 +1496,6 @@ class AdminDashboardController extends Controller
         $admin->save();
 
         return redirect()->route('admin.profile')
-            ->with('success', 'Admin security password changed successfully.');
+            ->with('success', 'Security password changed successfully.');
     }
 }

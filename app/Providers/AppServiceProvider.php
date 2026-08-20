@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,36 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // 1. Admin Super Access Bypass
+        Gate::before(function ($user, $ability) {
+            if ($user instanceof \App\Models\Admin) {
+                return true;
+            }
+        });
+
+        // 2. Define Gates for Staff Permissions
+        $permissions = [
+            'manage_employees',
+            'manage_companies',
+            'manage_departments',
+            'manage_designations',
+            'manage_payslips',
+            'manage_offer_letters',
+            'manage_bulletins',
+            'manage_inquiries',
+            'manage_cms',
+            'manage_staff',
+        ];
+
+        foreach ($permissions as $permission) {
+            Gate::define($permission, function ($user) use ($permission) {
+                if ($user instanceof \App\Models\Staff) {
+                    return $user->hasPermission($permission);
+                }
+                return false;
+            });
+        }
+
         view()->composer('*', function ($view) {
             try {
                 if (\Schema::hasTable('site_content')) {

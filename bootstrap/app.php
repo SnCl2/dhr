@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'auth.admin' => \App\Http\Middleware\AuthenticateAdmin::class,
             'auth.employee' => \App\Http\Middleware\AuthenticateEmployee::class,
             'password.change' => \App\Http\Middleware\EnforcePasswordChange::class,
+            'password.change.staff' => \App\Http\Middleware\EnforceStaffPasswordChange::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

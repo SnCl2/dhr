@@ -1,3 +1,7 @@
+@php
+    $backendUser = Auth::guard('admin')->user() ?? Auth::guard('staff')->user();
+    $isStaff = Auth::guard('staff')->check();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -154,38 +158,49 @@
                 <span>Dashboard</span>
             </a>
 
+            @can('manage_employees')
             <a href="{{ route('admin.employees.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.employees.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-users w-5 text-center"></i>
                 <span>Candidate / Staff CRUD</span>
             </a>
+            @endcan
 
+            @can('manage_companies')
             <a href="{{ route('admin.companies.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.companies.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-building w-5 text-center"></i>
                 <span>Manage Companies</span>
             </a>
+            @endcan
 
+            @can('manage_departments')
             <a href="{{ route('admin.departments.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.departments.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-folder-tree w-5 text-center"></i>
                 <span>Manage Departments</span>
             </a>
+            @endcan
 
+            @can('manage_designations')
             <a href="{{ route('admin.designations.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.designations.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-id-card w-5 text-center"></i>
                 <span>Manage Designations</span>
             </a>
+            @endcan
 
-
-
+            @can('manage_payslips')
             <a href="{{ route('admin.payslips.generate') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.payslips.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-file-circle-check w-5 text-center"></i>
                 <span>Generate Payslips</span>
             </a>
+            @endcan
 
+            @can('manage_bulletins')
             <a href="{{ route('admin.bulletins.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.bulletins.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-bullhorn w-5 text-center"></i>
                 <span>Notice Board Bulletins</span>
             </a>
+            @endcan
 
+            @can('manage_inquiries')
             <a href="{{ route('admin.inquiries.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.inquiries.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-envelope-open-text w-5 text-center"></i>
                 <span>Contact Inquiries</span>
@@ -196,15 +211,25 @@
                     <span class="ml-auto inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold bg-pink-500 text-white animate-pulse">{{ $unread }}</span>
                 @endif
             </a>
+            @endcan
 
+            @can('manage_cms')
             <a href="{{ route('admin.cms.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.cms.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-window-restore w-5 text-center"></i>
                 <span>CMS Content Manage</span>
             </a>
+            @endcan
+
+            @can('manage_staff')
+            <a href="{{ route('admin.staff.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.staff.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
+                <i class="fa-solid fa-users-gear w-5 text-center"></i>
+                <span>Manage Staff</span>
+            </a>
+            @endcan
 
             <a href="{{ route('admin.profile') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.profile') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-shield-halved w-5 text-center"></i>
-                <span>Admin ID & Security</span>
+                <span>{{ $isStaff ? 'Staff ID & Security' : 'Admin ID & Security' }}</span>
             </a>
         </nav>
 
@@ -212,11 +237,11 @@
         <div class="p-6 border-t border-slate-200 bg-slate-50">
             <a href="{{ route('admin.profile') }}" title="Click to edit profile and password" class="flex items-center space-x-3 mb-3 p-2 -m-2 rounded-xl hover:bg-slate-200/50 transition-colors group">
                 <div class="w-10 h-10 rounded-full bg-slate-200 group-hover:bg-purple-100 flex items-center justify-center text-purple-600 font-bold border border-slate-300 transition-colors">
-                    {{ substr(Auth::guard('admin')->user()->name, 0, 1) }}
+                    {{ substr($backendUser->name ?? 'U', 0, 1) }}
                 </div>
                 <div class="overflow-hidden flex-grow">
-                    <span class="block text-sm font-semibold text-slate-800 group-hover:text-purple-700 truncate transition-colors">{{ Auth::guard('admin')->user()->name }}</span>
-                    <span class="block text-xs text-slate-500 truncate">{{ Auth::guard('admin')->user()->email }}</span>
+                    <span class="block text-sm font-semibold text-slate-800 group-hover:text-purple-700 truncate transition-colors">{{ $backendUser->name ?? 'Backend User' }}</span>
+                    <span class="block text-xs text-slate-500 truncate">{{ $backendUser->email ?? '' }}</span>
                 </div>
                 <i class="fa-solid fa-gear text-slate-400 group-hover:text-purple-600 text-xs"></i>
             </a>
@@ -226,7 +251,7 @@
                 <span>View Public Website</span>
             </a>
 
-            <form action="{{ route('admin.logout') }}" method="POST">
+            <form action="{{ $isStaff ? route('staff.logout') : route('admin.logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center space-x-2 py-2 px-4 bg-slate-100 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-lg text-xs font-semibold text-slate-650 transition-colors duration-200">
                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -256,14 +281,14 @@
             <div class="flex items-center space-x-4">
                 <a href="{{ route('admin.profile') }}" class="hidden sm:flex text-right flex-col justify-center hover:opacity-80 transition-opacity">
                     <span class="block text-xs font-semibold uppercase tracking-wider text-purple-600">Security Clearance</span>
-                    <span class="block text-xs text-slate-500">{{ Auth::guard('admin')->user()->name }} (Admin Mode)</span>
+                    <span class="block text-xs text-slate-500">{{ $backendUser->name ?? 'Backend User' }} ({{ $isStaff ? 'Staff Mode' : 'Admin Mode' }})</span>
                 </a>
-                <a href="{{ route('admin.profile') }}" title="Admin Account Settings" class="w-9 h-9 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-600 flex items-center justify-center text-sm transition-colors">
+                <a href="{{ route('admin.profile') }}" title="Account Settings" class="w-9 h-9 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-200 text-purple-600 flex items-center justify-center text-sm transition-colors">
                     <i class="fa-solid fa-user-gear"></i>
                 </a>
                 <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></div>
                 <!-- Mobile logout form trigger -->
-                <form action="{{ route('admin.logout') }}" method="POST" class="lg:hidden">
+                <form action="{{ $isStaff ? route('staff.logout') : route('admin.logout') }}" method="POST" class="lg:hidden">
                     @csrf
                     <button type="submit" class="p-2.5 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-rose-600">
                         <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>

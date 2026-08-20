@@ -9,6 +9,8 @@ use App\Models\Bulletin;
 use App\Models\SiteContent;
 use App\Models\Employee;
 use App\Models\Company;
+use App\Models\Staff;
+use App\Models\Permission;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -25,6 +27,35 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@admin.com',
             'password' => Hash::make('password123'),
         ]);
+
+        // Seed Permissions
+        $permissions = [
+            ['name' => 'manage_employees', 'label' => 'Manage Candidates / Employees'],
+            ['name' => 'manage_companies', 'label' => 'Manage Companies'],
+            ['name' => 'manage_departments', 'label' => 'Manage Departments'],
+            ['name' => 'manage_designations', 'label' => 'Manage Designations'],
+            ['name' => 'manage_payslips', 'label' => 'Generate Payslips'],
+            ['name' => 'manage_offer_letters', 'label' => 'Generate Offer Letters'],
+            ['name' => 'manage_bulletins', 'label' => 'Notice Board Bulletins'],
+            ['name' => 'manage_inquiries', 'label' => 'Contact Inquiries'],
+            ['name' => 'manage_cms', 'label' => 'CMS Content Manage'],
+        ];
+
+        foreach ($permissions as $p) {
+            Permission::create($p);
+        }
+
+        // Seed a dummy staff member
+        $staff = Staff::create([
+            'name' => 'Management Staff',
+            'email' => 'staff@staff.com',
+            'password' => Hash::make('password123'),
+            'is_password_changed' => false,
+        ]);
+
+        // Assign some permissions (e.g. manage_employees, manage_payslips)
+        $permsToAssign = Permission::whereIn('name', ['manage_employees', 'manage_payslips'])->get();
+        $staff->permissions()->attach($permsToAssign);
 
         // 2. Seed Companies
         $companies = [
