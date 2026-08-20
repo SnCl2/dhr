@@ -1,7 +1,10 @@
+@php
+    $isStaff = Auth::guard('staff')->check();
+@endphp
 @extends('layouts.admin')
 
-@section('title', 'Admin Profile & Security - RM HR Solutions')
-@section('page_title', 'Admin Account & Security Settings')
+@section('title', ($isStaff ? 'Staff' : 'Admin') . ' Profile & Security - RM HR Solutions')
+@section('page_title', ($isStaff ? 'Staff' : 'Admin') . ' Account & Security Settings')
 
 @section('content')
 <div class="max-w-5xl mx-auto space-y-8">
@@ -18,7 +21,7 @@
                     <div class="flex items-center space-x-2">
                         <h2 class="font-outfit font-extrabold text-2xl tracking-wide">{{ $admin->name }}</h2>
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> Super Admin
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span> {{ $isStaff ? 'Staff Member' : 'Super Admin' }}
                         </span>
                     </div>
                     <p class="text-xs text-slate-300 mt-1 flex items-center space-x-2">
@@ -29,7 +32,7 @@
             </div>
             <div class="bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/10 text-xs">
                 <span class="text-slate-300 block">System Guard:</span>
-                <span class="font-semibold text-white font-mono">admin (Session Protected)</span>
+                <span class="font-semibold text-white font-mono">{{ $isStaff ? 'staff' : 'admin' }} (Session Protected)</span>
             </div>
         </div>
     </div>
@@ -44,8 +47,8 @@
                         <i class="fa-solid fa-user-pen"></i>
                     </div>
                     <div>
-                        <h3 class="font-outfit font-bold text-lg text-slate-900">Admin Identity & Login ID</h3>
-                        <p class="text-xs text-slate-500">Update your official administrative name and login email ID.</p>
+                        <h3 class="font-outfit font-bold text-lg text-slate-900">{{ $isStaff ? 'Staff' : 'Admin' }} Identity & Login ID</h3>
+                        <p class="text-xs text-slate-500">Update your official identity profile name and login email ID.</p>
                     </div>
                 </div>
 
@@ -53,32 +56,32 @@
                     @csrf
                     @method('PUT')
 
-                    <!-- Administrator Name -->
+                    <!-- Full Name -->
                     <div>
-                        <label for="name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Administrator Full Name *</label>
+                        <label for="name" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">{{ $isStaff ? 'Staff' : 'Administrator' }} Full Name *</label>
                         <div class="mt-1.5 relative rounded-xl shadow-xs">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                 <i class="fa-solid fa-user text-sm"></i>
                             </div>
                             <input type="text" id="name" name="name" required value="{{ old('name', $admin->name) }}"
                                 class="block w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm font-medium @error('name') border-rose-500 @enderror"
-                                placeholder="e.g. Master Administrator">
+                                placeholder="{{ $isStaff ? 'e.g. John Doe' : 'e.g. Master Administrator' }}">
                         </div>
                         @error('name')
                             <p class="mt-1.5 text-xs text-rose-500">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <!-- Login Email (Admin ID) -->
+                    <!-- Login Email -->
                     <div>
-                        <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Admin Login Email (ID) *</label>
+                        <label for="email" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">{{ $isStaff ? 'Staff' : 'Admin' }} Login Email (ID) *</label>
                         <div class="mt-1.5 relative rounded-xl shadow-xs">
                             <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                                 <i class="fa-solid fa-at text-sm"></i>
                             </div>
                             <input type="email" id="email" name="email" required value="{{ old('email', $admin->email) }}"
                                 class="block w-full pl-10 pr-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-900 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm font-medium @error('email') border-rose-500 @enderror"
-                                placeholder="admin@example.com">
+                                placeholder="email@example.com">
                         </div>
                         @error('email')
                             <p class="mt-1.5 text-xs text-rose-500">{{ $message }}</p>
@@ -88,7 +91,7 @@
                     <div class="pt-4 border-t border-slate-100 flex justify-end">
                         <button type="submit"
                             class="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-semibold transition-all shadow-lg shadow-purple-500/10">
-                            <i class="fa-solid fa-floppy-disk mr-1.5"></i> Update Admin Identity
+                            <i class="fa-solid fa-floppy-disk mr-1.5"></i> Update {{ $isStaff ? 'Staff' : 'Admin' }} Identity
                         </button>
                     </div>
                 </form>
@@ -103,7 +106,7 @@
                         <i class="fa-solid fa-key"></i>
                     </div>
                     <div>
-                        <h3 class="font-outfit font-bold text-lg text-slate-900">Change Admin Password</h3>
+                        <h3 class="font-outfit font-bold text-lg text-slate-900">Change {{ $isStaff ? 'Staff' : 'Admin' }} Password</h3>
                         <p class="text-xs text-slate-500">Provide your current password to set a new secure password.</p>
                     </div>
                 </div>
