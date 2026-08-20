@@ -89,13 +89,13 @@ class StaffAuthAndPermissionTest extends TestCase
         $response = $this->actingAs($staff, 'staff')->get(route('admin.employees.index'));
         $response->assertStatus(200);
 
-        // 2. Staff accesses forbidden Companies list (should return 403 Forbidden)
+        // 2. Staff accesses forbidden Companies list (should redirect back to previous page: employees.index)
         $response = $this->actingAs($staff, 'staff')->get(route('admin.companies.index'));
-        $response->assertStatus(403);
+        $response->assertRedirect(route('admin.employees.index'));
 
-        // 3. Staff accesses forbidden Staff management panel (should return 403 Forbidden)
+        // 3. Staff accesses forbidden Staff management panel (should redirect back)
         $response = $this->actingAs($staff, 'staff')->get(route('admin.staff.index'));
-        $response->assertStatus(403);
+        $response->assertRedirect();
     }
 
     /**

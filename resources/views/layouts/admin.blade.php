@@ -299,23 +299,68 @@
 
         <!-- Panel Body Content -->
         <main class="flex-grow p-6 sm:p-8 overflow-y-auto">
-            @if(session('success'))
-                <div class="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 flex items-center space-x-3 shadow-lg">
-                    <i class="fa-solid fa-circle-check text-xl text-emerald-400"></i>
-                    <span class="text-sm font-medium">{{ session('success') }}</span>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="mb-6 p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 flex items-center space-x-3 shadow-lg">
-                    <i class="fa-solid fa-circle-exclamation text-xl text-rose-400"></i>
-                    <span class="text-sm font-medium">{{ session('error') }}</span>
-                </div>
-            @endif
-
             @yield('content')
         </main>
     </div>
+
+    <!-- Global Slide-in Toast Notification Container -->
+    <div id="global-toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-3 max-w-sm w-full"></div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('global-toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            
+            // Premium layout styles
+            toast.className = `transform translate-x-[120%] transition-all duration-300 ease-out flex items-center p-4 space-x-3 rounded-xl border shadow-2xl backdrop-blur-md`;
+            
+            if (type === 'error') {
+                toast.className += ' bg-rose-950/95 border-rose-500/30 text-rose-200';
+                toast.innerHTML = `<i class="fa-solid fa-circle-exclamation text-rose-400 text-lg"></i>`;
+            } else if (type === 'warning') {
+                toast.className += ' bg-amber-950/95 border-amber-500/30 text-amber-200';
+                toast.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-amber-400 text-lg"></i>`;
+            } else {
+                toast.className += ' bg-emerald-950/95 border-emerald-500/30 text-emerald-200';
+                toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>`;
+            }
+            
+            toast.innerHTML += `
+                <div class="flex-grow text-xs font-semibold pr-2">${message}</div>
+                <button class="text-slate-400 hover:text-slate-200 transition-colors ml-auto" onclick="this.parentElement.remove()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Trigger slide-in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-[120%]');
+            }, 50);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-[120%]');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 5000);
+        }
+
+        // Auto trigger toasts for session flash messages
+        @if(session('success'))
+            showToast("{{ session('success') }}", 'success');
+        @endif
+        @if(session('error'))
+            showToast("{{ session('error') }}", 'error');
+        @endif
+        @if(session('warning'))
+            showToast("{{ session('warning') }}", 'warning');
+        @endif
+    </script>
 
     @yield('scripts')
 </body>
