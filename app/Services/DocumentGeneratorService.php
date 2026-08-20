@@ -18,8 +18,9 @@ class DocumentGeneratorService
         $fileName = 'Offer_Letter_' . $employee->employee_id . '_' . time() . '.pdf';
         $filePath = $dir . '/' . $fileName;
 
-        // 2. Initialize FPDF
-        $pdf = new \FPDF('P', 'mm', 'A4');
+        // 2. Initialize AlphaPDF
+        $pdf = new AlphaPDF('P', 'mm', 'A4');
+        $pdf->AliasNbPages();
         $pdf->SetAutoPageBreak(false);
         
         // ------------------ PAGE 1 ------------------
@@ -41,8 +42,10 @@ class DocumentGeneratorService
         $pdf->SetFont('Arial', '', 10);
         $pdf->SetTextColor(55, 65, 81);
         $pdf->Cell(0, 10, 'Issued Date: ' . date('d-M-Y'), 0, 1, 'R');
-        $pdf->Ln(5);
 
+        // Prevent logo overlap by starting candidate info block at Y = 52
+        $pdf->SetY(52);
+ 
         // Candidate / Staff Info Block
         $pdf->SetFont('Arial', '', 10);
         $pdf->SetTextColor(0, 0, 0);
@@ -81,7 +84,7 @@ class DocumentGeneratorService
 
         // Letter Body Intro
         $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(0, 5, 'Dear ' . $employee->first_name . ',', 0, 1);
+        $pdf->Cell(0, 5, 'Dear ' . $employee->full_name . ',', 0, 1);
         $pdf->Ln(3);
 
         $startDate = $customData['joining_date'] ?? ($employee->joining_date ? $employee->joining_date->format('d-m-Y') : date('d-m-Y'));
@@ -658,5 +661,108 @@ class DocumentGeneratorService
             "and " . $words[floor($point / 10) * 10] . " " . 
             $words[$point % 10] . " Paisa" : '';
         return $result . "Rupees " . $points . " Only";
+    }
+}
+
+class AlphaPDF extends \FPDF
+{
+    protected $extgstates = array();
+    protected $n_extgstates = array();
+
+    function SetAlpha($alpha, $bm='Normal')
+    {
+        // set alpha state
+        $gs = $this->AddExtGState(array('ca'=>$alpha, 'CA'=>$alpha, 'BM'=>'/'.$bm));
+        $this->SetExtGState($gs);
+    }
+
+    function AddExtGState($parms)
+    {
+        $n = count($this->extgstates)+1;
+        $this->extgstates[$n] = $parms;
+        return $n;
+    }
+
+    function SetExtGState($gs)
+    {
+        $this->_out(sprintf('/GS%d gs', $gs));
+    }
+
+    function _putextgstates()
+    {
+        for ($i = 1; $i <= count($this->extgstates); $i++) {
+            $this->_newobj();
+            $this->_put('<</Type /ExtGState');
+            $parms = $this->extgstates[$i];
+            $this->_put(sprintf('/ca %.3F', $parms['ca']));
+            $this->_put(sprintf('/CA %.3F', $parms['CA']));
+            $this->_put(sprintf('/BM %s', $parms['BM']));
+            $this->_put('>>');
+            $this->_put('endobj');
+        }
+    }
+
+    function _putresourcedict()
+    {
+        parent::_putresourcedict();
+        $this->_put('/ExtGState <<');
+        foreach($this->extgstates as $k=>$v) {
+            $this->_put('/GS'.$k.' '.$this->n_extgstates[$k].' 0 R');
+        }
+        $this->_put('>>');
+    }
+
+    function _putresources()
+    {
+        $this->n_extgstates = array();
+        for ($i = 1; $i <= count($this->extgstates); $i++) {
+            $this->n_extgstates[$i] = $this->n + $i;
+        }
+        $this->_putextgstates();
+        parent::_putresources();
+    }
+
+    // Header override
+    function Header()
+    {
+        // 1. Watermark (logo in the center of the page with low opacity)
+        $logoPath = public_path('images/logo.png');
+        if (file_exists($logoPath)) {
+            $this->SetAlpha(0.06);
+            $this->Image($logoPath, 55, 98.5, 100);
+            $this->SetAlpha(1.0); // reset
+        }
+
+        // 2. Header line and title (on pages after Page 1)
+        if ($this->PageNo() > 1) {
+            $this->SetDrawColor(226, 232, 240); // slate-200
+            $this->Line(20, 15, 190, 15);
+            $this->SetFont('Arial', 'B', 8);
+            $this->SetTextColor(100, 116, 139); // slate-500
+            $this->Text(20, 11, 'RM HR SOLUTIONS PVT. LTD.');
+        }
+    }
+
+    // Footer override
+    function Footer()
+    {
+        $this->SetDrawColor(226, 232, 240); // slate-200
+        $this->Line(20, 282, 190, 282);
+
+        // Fetch contact info dynamically from site_content
+        $email = \DB::table('site_content')->where('key', 'contact_email')->value('value') ?? 'info@propszy.com';
+        $phone = \DB::table('site_content')->where('key', 'contact_phone')->value('value') ?? '+91 94323 13430';
+        $address = \DB::table('site_content')->where('key', 'contact_address')->value('value') ?? 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503';
+
+        $this->SetY(-12);
+        $this->SetFont('Arial', '', 7.5);
+        $this->SetTextColor(100, 116, 139); // slate-500
+
+        $footerText = "Address: {$address} | Phone: {$phone} | Email: {$email}";
+        $this->Cell(0, 4, iconv('UTF-8', 'windows-1252//TRANSLIT', $footerText), 0, 0, 'C');
+
+        // Page number on the right
+        $this->SetY(-12);
+        $this->Cell(0, 4, 'Page ' . $this->PageNo() . ' of {nb}', 0, 0, 'R');
     }
 }
