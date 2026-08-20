@@ -184,15 +184,6 @@ class DocumentGeneratorService
         $pdf->Cell(0, 5, 'Signature', 0, 1, 'R');
         $pdf->Ln(8);
 
-        $pdf->Cell(30, 5, 'Emp Name:', 0, 0);
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 5, $employee->full_name, 0, 1);
-
-        $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(30, 5, 'Emp Code:', 0, 0);
-        $pdf->SetFont('Arial', 'B', 10);
-        $pdf->Cell(0, 5, $employee->employee_id, 0, 1);
-
         // ------------------ PAGE 3 (ANNEXURE) ------------------
         $pdf->AddPage();
         
