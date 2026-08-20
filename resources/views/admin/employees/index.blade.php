@@ -264,27 +264,53 @@
     </div>
 
     <!-- Bulk Actions Form -->
-    <form id="bulk-generate-form" action="{{ route('admin.offer-letters.bulk-generate-selected') }}" method="POST" onsubmit="return handleBulkGenerateSubmit(event)">
+    <form id="bulk-generate-form" action="{{ route('admin.employees.bulk-action') }}" method="POST" onsubmit="return handleBulkGenerateSubmit(event)">
         @csrf
 
         <!-- Bulk Actions Header Panel (hidden by default) -->
-        <div id="bulk-actions-panel" class="hidden mb-6 p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-center justify-between text-sm shadow-xl">
-            <div class="flex items-center space-x-3 text-slate-300 mb-3 sm:mb-0">
+        <div id="bulk-actions-panel" class="hidden mb-6 p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col lg:flex-row items-center justify-between text-sm shadow-xl transition-all">
+            <div class="flex items-center space-x-3 text-slate-300 mb-3 lg:mb-0">
                 <i class="fa-solid fa-square-check text-blue-400 text-lg"></i>
                 <span>Selected <strong id="selected-count" class="text-white">0</strong> candidates</span>
             </div>
-            <div class="flex items-center space-x-4">
+            <div class="flex flex-wrap items-center gap-4">
+                <!-- Action selector -->
                 <div class="flex items-center space-x-2">
+                    <label for="bulk_action" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Action:</label>
+                    <select id="bulk_action" name="action" required onchange="handleBulkActionChange()"
+                        class="px-3 py-1.5 bg-slate-950 border border-slate-850 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs">
+                        <option value="offer_letter">Generate Offer Letters</option>
+                        <option value="status_change">Change Status</option>
+                        <option value="delete">Delete Selected</option>
+                    </select>
+                </div>
+
+                <!-- Parameters for Offer Letter -->
+                <div id="bulk_offer_letter_params" class="flex items-center space-x-2">
                     <label for="bulk_type" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Type:</label>
-                    <select id="bulk_type" name="type" required
-                        class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs">
+                    <select id="bulk_type" name="type"
+                        class="px-3 py-1.5 bg-slate-950 border border-slate-850 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs">
                         <option value="external">External/Contractor Layout</option>
                         <option value="internal">Internal Staff Layout</option>
                     </select>
                 </div>
+
+                <!-- Parameters for Status Change -->
+                <div id="bulk_status_change_params" class="hidden flex items-center space-x-2">
+                    <label for="bulk_status" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Status:</label>
+                    <select id="bulk_status" name="status"
+                        class="px-3 py-1.5 bg-slate-950 border border-slate-850 rounded-xl text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 text-xs">
+                        <option value="pending_review">Pending Review</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="on_leave">On Leave</option>
+                        <option value="terminated">Terminated</option>
+                    </select>
+                </div>
+
                 <div id="bulk-hidden-inputs"></div>
                 <button type="submit" class="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-blue-500/10">
-                    <i class="fa-solid fa-bolt mr-1.5"></i> Bulk Generate Offer Letters
+                    <i class="fa-solid fa-bolt mr-1.5"></i> Apply Action
                 </button>
             </div>
         </div>
@@ -600,6 +626,23 @@
             });
         });
 
+        window.handleBulkActionChange = function() {
+            const action = document.getElementById('bulk_action').value;
+            const offerLetterParams = document.getElementById('bulk_offer_letter_params');
+            const statusChangeParams = document.getElementById('bulk_status_change_params');
+            
+            if (action === 'offer_letter') {
+                offerLetterParams.classList.remove('hidden');
+                statusChangeParams.classList.add('hidden');
+            } else if (action === 'status_change') {
+                offerLetterParams.classList.add('hidden');
+                statusChangeParams.classList.remove('hidden');
+            } else {
+                offerLetterParams.classList.add('hidden');
+                statusChangeParams.classList.add('hidden');
+            }
+        };
+
         window.handleBulkGenerateSubmit = function(e) {
             const checked = document.querySelectorAll('.employee-checkbox:checked');
             if (checked.length === 0) {
@@ -607,6 +650,15 @@
                 e.preventDefault();
                 return false;
             }
+
+            const action = document.getElementById('bulk_action').value;
+            if (action === 'delete') {
+                if (!confirm('Are you sure you want to delete the selected ' + checked.length + ' candidates? This cannot be undone.')) {
+                    e.preventDefault();
+                    return false;
+                }
+            }
+
             const container = document.getElementById('bulk-hidden-inputs');
             container.innerHTML = '';
             checked.forEach(cb => {

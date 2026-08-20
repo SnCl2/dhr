@@ -443,6 +443,64 @@ class AdminDashboardController extends Controller
             ->with('success', "Employee deleted successfully.");
     }
 
+    public function employeesBulkAction(Request $request)
+    {
+        $request->validate([
+            'employee_ids' => ['required', 'array'],
+            'employee_ids.*' => ['exists:employees,id'],
+            'action' => ['required', 'in:offer_letter,status_change,delete'],
+            'status' => ['nullable', 'in:pending_review,active,inactive,on_leave,terminated'],
+            'type' => ['nullable', 'in:internal,external'],
+        ]);
+
+        $employeeIds = $request->employee_ids;
+        $action = $request->action;
+
+        if ($action === 'delete') {
+            \Illuminate\Support\Facades\Gate::authorize('delete_employees');
+            Employee::whereIn('id', $employeeIds)->delete();
+            return redirect()->route('admin.employees.index')
+                ->with('success', 'Successfully deleted ' . count($employeeIds) . ' employees.');
+        }
+
+        if ($action === 'status_change') {
+            \Illuminate\Support\Facades\Gate::authorize('edit_employees');
+            Employee::whereIn('id', $employeeIds)->update(['status' => $request->status]);
+            return redirect()->route('admin.employees.index')
+                ->with('success', 'Successfully updated status for ' . count($employeeIds) . ' employees.');
+        }
+
+        if ($action === 'offer_letter') {
+            \Illuminate\Support\Facades\Gate::authorize('create_offer_letters');
+            $employees = Employee::with('company')->whereIn('id', $employeeIds)->get();
+            $count = 0;
+            $type = $request->type ?? 'external';
+
+            foreach ($employees as $employee) {
+                if ($employee->status === 'terminated') continue;
+
+                $customData = [
+                    'salary' => $employee->salary,
+                    'joining_date' => $employee->joining_date ? $employee->joining_date->format('d-M-Y') : null,
+                ];
+
+                $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $type, $customData);
+
+                OfferLetter::create([
+                    'employee_id' => $employee->id,
+                    'pdf_path' => $pdfPath,
+                ]);
+
+                $count++;
+            }
+
+            return redirect()->route('admin.employees.index')
+                ->with('success', 'Successfully generated ' . $count . ' offer letters.');
+        }
+
+        return redirect()->route('admin.employees.index');
+    }
+
     public function downloadEmployeeTemplate(Request $request)
     {
         $headers = [

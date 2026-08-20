@@ -80,6 +80,7 @@ Route::middleware(['auth.admin', 'password.change.staff'])->prefix('admin')->nam
         Route::get('/employees', [AdminDashboardController::class, 'employeesIndex'])->name('employees.index');
         Route::get('/employees/download-template', [AdminDashboardController::class, 'downloadEmployeeTemplate'])->name('employees.download-template');
         Route::get('/employees/export', [AdminDashboardController::class, 'employeesExport'])->name('employees.export');
+        Route::post('/employees/bulk-action', [AdminDashboardController::class, 'employeesBulkAction'])->name('employees.bulk-action');
     });
     Route::middleware(['can:create_employees'])->group(function () {
         Route::get('/employees/create', [AdminDashboardController::class, 'employeesCreate'])->name('employees.create');

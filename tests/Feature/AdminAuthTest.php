@@ -499,4 +499,99 @@ class AdminAuthTest extends TestCase
         $admin->refresh();
         $this->assertTrue(Hash::check('BrandNewPassword!2026', $admin->password));
     }
+
+    public function test_admin_can_bulk_delete_employees(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        // Create 2 test employees
+        $emp1 = \App\Models\Employee::create([
+            'employee_id' => 'EMP-BULK-DEL-1',
+            'aadhaar_full_name' => 'Bulk Del 1',
+            'email' => 'bulkdel1@test.com',
+            'password' => bcrypt('password'),
+            'status' => 'pending_review',
+        ]);
+        $emp2 = \App\Models\Employee::create([
+            'employee_id' => 'EMP-BULK-DEL-2',
+            'aadhaar_full_name' => 'Bulk Del 2',
+            'email' => 'bulkdel2@test.com',
+            'password' => bcrypt('password'),
+            'status' => 'pending_review',
+        ]);
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.bulk-action'), [
+            'employee_ids' => [$emp1->id, $emp2->id],
+            'action' => 'delete',
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+        $this->assertDatabaseMissing('employees', ['id' => $emp1->id]);
+        $this->assertDatabaseMissing('employees', ['id' => $emp2->id]);
+    }
+
+    public function test_admin_can_bulk_change_status_of_employees(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        // Create 2 test employees
+        $emp1 = \App\Models\Employee::create([
+            'employee_id' => 'EMP-BULK-STATUS-1',
+            'aadhaar_full_name' => 'Bulk Stat 1',
+            'email' => 'bulkstat1@test.com',
+            'password' => bcrypt('password'),
+            'status' => 'pending_review',
+        ]);
+        $emp2 = \App\Models\Employee::create([
+            'employee_id' => 'EMP-BULK-STATUS-2',
+            'aadhaar_full_name' => 'Bulk Stat 2',
+            'email' => 'bulkstat2@test.com',
+            'password' => bcrypt('password'),
+            'status' => 'pending_review',
+        ]);
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.bulk-action'), [
+            'employee_ids' => [$emp1->id, $emp2->id],
+            'action' => 'status_change',
+            'status' => 'active',
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+        $this->assertDatabaseHas('employees', ['id' => $emp1->id, 'status' => 'active']);
+        $this->assertDatabaseHas('employees', ['id' => $emp2->id, 'status' => 'active']);
+    }
+
+    public function test_admin_can_bulk_generate_offer_letters(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        // Create 2 test employees
+        $emp1 = \App\Models\Employee::create([
+            'employee_id' => 'EMP-BULK-OL-1',
+            'aadhaar_full_name' => 'Bulk OL 1',
+            'email' => 'bulkol1@test.com',
+            'password' => bcrypt('password'),
+            'status' => 'active',
+        ]);
+        $emp2 = \App\Models\Employee::create([
+            'employee_id' => 'EMP-BULK-OL-2',
+            'aadhaar_full_name' => 'Bulk OL 2',
+            'email' => 'bulkol2@test.com',
+            'password' => bcrypt('password'),
+            'status' => 'active',
+        ]);
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.bulk-action'), [
+            'employee_ids' => [$emp1->id, $emp2->id],
+            'action' => 'offer_letter',
+            'type' => 'internal',
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+        $this->assertDatabaseHas('offer_letters', ['employee_id' => $emp1->id]);
+        $this->assertDatabaseHas('offer_letters', ['employee_id' => $emp2->id]);
+    }
 }
