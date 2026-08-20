@@ -11,7 +11,7 @@
        class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-purple-500/20 shadow-lg hover:shadow-purple-500/5 group">
         <div>
             <span class="block text-xs font-semibold text-slate-400 group-hover:text-purple-400 transition-colors uppercase tracking-wider">Total Candidates / Employees</span>
-            <span class="block font-outfit font-extrabold text-3xl text-white mt-1">{{ $stats['total_employees'] }}</span>
+            <span class="block font-outfit font-extrabold text-3xl text-slate-800 mt-1">{{ $stats['total_employees'] }}</span>
         </div>
         <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-purple-500/20 transition-all">
             <i class="fa-solid fa-users"></i>
@@ -23,7 +23,7 @@
        class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-emerald-500/20 shadow-lg hover:shadow-emerald-500/5 group">
         <div>
             <span class="block text-xs font-semibold text-slate-400 group-hover:text-emerald-400 transition-colors uppercase tracking-wider">Active Staff Placements</span>
-            <span class="block font-outfit font-extrabold text-3xl text-emerald-400 mt-1">{{ $stats['active_employees'] }}</span>
+            <span class="block font-outfit font-extrabold text-3xl text-emerald-600 mt-1">{{ $stats['active_employees'] }}</span>
         </div>
         <div class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-emerald-500/20 transition-all">
             <i class="fa-solid fa-user-check"></i>
@@ -35,7 +35,7 @@
        class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-amber-500/20 shadow-lg hover:shadow-amber-500/5 group">
         <div>
             <span class="block text-xs font-semibold text-slate-400 group-hover:text-amber-400 transition-colors uppercase tracking-wider">Pending Review Approvals</span>
-            <span class="block font-outfit font-extrabold text-3xl text-amber-400 mt-1">{{ $stats['pending_reviews'] }}</span>
+            <span class="block font-outfit font-extrabold text-3xl text-amber-600 mt-1">{{ $stats['pending_reviews'] }}</span>
         </div>
         <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-amber-500/20 transition-all">
             <i class="fa-solid fa-user-clock"></i>
@@ -47,7 +47,7 @@
        class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-pink-500/20 shadow-lg hover:shadow-pink-500/5 group">
         <div>
             <span class="block text-xs font-semibold text-slate-400 group-hover:text-pink-400 transition-colors uppercase tracking-wider">Unread Inbox Inquiries</span>
-            <span class="block font-outfit font-extrabold text-3xl text-pink-400 mt-1">{{ $stats['unread_inquiries'] }}</span>
+            <span class="block font-outfit font-extrabold text-3xl text-pink-600 mt-1">{{ $stats['unread_inquiries'] }}</span>
         </div>
         <div class="w-12 h-12 rounded-xl bg-pink-500/10 text-pink-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-pink-500/20 transition-all">
             <i class="fa-solid fa-envelope-open-text"></i>
@@ -59,7 +59,7 @@
        class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-indigo-500/20 shadow-lg hover:shadow-indigo-500/5 group">
         <div>
             <span class="block text-xs font-semibold text-slate-400 group-hover:text-indigo-400 transition-colors uppercase tracking-wider">Total Manage Staff</span>
-            <span class="block font-outfit font-extrabold text-3xl text-indigo-400 mt-1">{{ $stats['total_staff'] }}</span>
+            <span class="block font-outfit font-extrabold text-3xl text-indigo-600 mt-1">{{ $stats['total_staff'] }}</span>
         </div>
         <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-500/20 transition-all">
             <i class="fa-solid fa-user-shield"></i>
@@ -71,7 +71,7 @@
        class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-sky-500/20 shadow-lg hover:shadow-sky-500/5 group">
         <div>
             <span class="block text-xs font-semibold text-slate-400 group-hover:text-sky-400 transition-colors uppercase tracking-wider">Total Internal Staff</span>
-            <span class="block font-outfit font-extrabold text-3xl text-sky-400 mt-1">{{ $stats['internal_staff'] }}</span>
+            <span class="block font-outfit font-extrabold text-3xl text-sky-600 mt-1">{{ $stats['internal_staff'] }}</span>
         </div>
         <div class="w-12 h-12 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-sky-500/20 transition-all">
             <i class="fa-solid fa-building-user"></i>
