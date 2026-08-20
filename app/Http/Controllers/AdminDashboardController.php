@@ -447,7 +447,18 @@ class AdminDashboardController extends Controller
             'Content-Disposition' => 'attachment; filename="employee_import_template.csv"',
         ];
 
-        $callback = function() use ($request) {
+        $companyName = $request->query('company');
+        $defaultSalary = '18000';
+        if ($companyName) {
+            $company = \App\Models\Company::where('name', $companyName)->first();
+            if ($company && $company->net_salary !== null) {
+                $defaultSalary = (float)$company->net_salary == (int)$company->net_salary 
+                    ? (string)(int)$company->net_salary 
+                    : (string)$company->net_salary;
+            }
+        }
+
+        $callback = function() use ($request, $defaultSalary) {
             $file = fopen('php://output', 'w');
             
             // CSV headers matching Book 9.xlsx
@@ -512,10 +523,10 @@ class AdminDashboardController extends Controller
                 '987654321000',
                 'SBIN0000123',
                 'State Bank of India',
-                $request->query('company', 'Acme Corp'),
+                $request->query('company') ?: 'Acme Corp',
                 'Kolkata Hub',
-                $request->query('designation', 'Office Assistant'),
-                '18000'
+                $request->query('designation') ?: 'Office Assistant',
+                $defaultSalary
             ]);
 
             fclose($file);
@@ -633,7 +644,7 @@ class AdminDashboardController extends Controller
                 'email' => $email,
                 'phone' => $data['contactnumber'] ?? $data['phone'] ?? null,
                 'password' => Hash::make($plainPassword),
-                'status' => 'active',
+                'status' => 'pending_review',
                 'department_id' => $dept->id,
                 'designation_id' => $desig->id,
                 'company_id' => $companyId,
@@ -1431,10 +1442,72 @@ class AdminDashboardController extends Controller
     | Inquiries Inbox
     |--------------------------------------------------------------------------
     */
-    public function inquiriesIndex()
+    public function inquiriesIndex(Request $request)
     {
-        $inquiries = Inquiry::latest()->paginate(10);
+        $query = Inquiry::query();
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $inquiries = $query->latest()->paginate(10)->withQueryString();
         return view('admin.inquiries.index', compact('inquiries'));
+    }
+
+    public function inquiriesExport(Request $request)
+    {
+        $query = Inquiry::query();
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $inquiries = $query->latest()->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="inquiries_export.csv"',
+        ];
+
+        $callback = function() use ($inquiries) {
+            $file = fopen('php://output', 'w');
+            
+            fputcsv($file, [
+                'ID',
+                'Name',
+                'Email',
+                'Phone',
+                'Subject',
+                'Message',
+                'Status',
+                'Received At'
+            ]);
+
+            foreach ($inquiries as $inq) {
+                fputcsv($file, [
+                    $inq->id,
+                    $inq->name,
+                    $inq->email,
+                    $inq->phone,
+                    $inq->subject,
+                    $inq->message,
+                    $inq->status,
+                    $inq->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function inquiriesReply(Request $request, Inquiry $inquiry)

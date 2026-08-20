@@ -179,6 +179,7 @@ Route::middleware(['auth.admin', 'password.change.staff'])->prefix('admin')->nam
     // CMS & Inquiries Inbox
     Route::middleware(['can:view_inquiries'])->group(function () {
         Route::get('/inquiries', [AdminDashboardController::class, 'inquiriesIndex'])->name('inquiries.index');
+        Route::get('/inquiries/export', [AdminDashboardController::class, 'inquiriesExport'])->name('inquiries.export');
     });
     Route::middleware(['can:reply_inquiries'])->group(function () {
         Route::post('/inquiries/{inquiry}/reply', [AdminDashboardController::class, 'inquiriesReply'])->name('inquiries.reply');
