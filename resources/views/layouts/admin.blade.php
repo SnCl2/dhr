@@ -158,49 +158,49 @@
                 <span>Dashboard</span>
             </a>
 
-            @can('manage_employees')
+            @can('view_employees')
             <a href="{{ route('admin.employees.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.employees.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-users w-5 text-center"></i>
                 <span>Candidate / Staff CRUD</span>
             </a>
             @endcan
 
-            @can('manage_companies')
+            @can('view_companies')
             <a href="{{ route('admin.companies.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.companies.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-building w-5 text-center"></i>
                 <span>Manage Companies</span>
             </a>
             @endcan
 
-            @can('manage_departments')
+            @can('view_departments')
             <a href="{{ route('admin.departments.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.departments.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-folder-tree w-5 text-center"></i>
                 <span>Manage Departments</span>
             </a>
             @endcan
 
-            @can('manage_designations')
+            @can('view_designations')
             <a href="{{ route('admin.designations.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.designations.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-id-card w-5 text-center"></i>
                 <span>Manage Designations</span>
             </a>
             @endcan
 
-            @can('manage_payslips')
+            @can('view_payslips')
             <a href="{{ route('admin.payslips.generate') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.payslips.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-file-circle-check w-5 text-center"></i>
                 <span>Generate Payslips</span>
             </a>
             @endcan
 
-            @can('manage_bulletins')
+            @can('view_bulletins')
             <a href="{{ route('admin.bulletins.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.bulletins.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-bullhorn w-5 text-center"></i>
                 <span>Notice Board Bulletins</span>
             </a>
             @endcan
 
-            @can('manage_inquiries')
+            @can('view_inquiries')
             <a href="{{ route('admin.inquiries.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.inquiries.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-envelope-open-text w-5 text-center"></i>
                 <span>Contact Inquiries</span>
@@ -213,14 +213,14 @@
             </a>
             @endcan
 
-            @can('manage_cms')
+            @can('view_cms')
             <a href="{{ route('admin.cms.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.cms.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-window-restore w-5 text-center"></i>
                 <span>CMS Content Manage</span>
             </a>
             @endcan
 
-            @can('manage_staff')
+            @can('view_staff')
             <a href="{{ route('admin.staff.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.staff.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-users-gear w-5 text-center"></i>
                 <span>Manage Staff</span>

@@ -28,17 +28,59 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password123'),
         ]);
 
-        // Seed Permissions
+        // Seed CRUD-level Permissions
         $permissions = [
-            ['name' => 'manage_employees', 'label' => 'Manage Candidates / Employees'],
-            ['name' => 'manage_companies', 'label' => 'Manage Companies'],
-            ['name' => 'manage_departments', 'label' => 'Manage Departments'],
-            ['name' => 'manage_designations', 'label' => 'Manage Designations'],
-            ['name' => 'manage_payslips', 'label' => 'Generate Payslips'],
-            ['name' => 'manage_offer_letters', 'label' => 'Generate Offer Letters'],
-            ['name' => 'manage_bulletins', 'label' => 'Notice Board Bulletins'],
-            ['name' => 'manage_inquiries', 'label' => 'Contact Inquiries'],
-            ['name' => 'manage_cms', 'label' => 'CMS Content Manage'],
+            // Employees
+            ['name' => 'view_employees', 'label' => 'View Candidates / Employees'],
+            ['name' => 'create_employees', 'label' => 'Create Candidates / Employees'],
+            ['name' => 'edit_employees', 'label' => 'Edit Candidates / Employees'],
+            ['name' => 'delete_employees', 'label' => 'Delete Candidates / Employees'],
+
+            // Companies
+            ['name' => 'view_companies', 'label' => 'View Companies'],
+            ['name' => 'create_companies', 'label' => 'Create Companies'],
+            ['name' => 'edit_companies', 'label' => 'Edit Companies'],
+            ['name' => 'delete_companies', 'label' => 'Delete Companies'],
+
+            // Departments
+            ['name' => 'view_departments', 'label' => 'View Departments'],
+            ['name' => 'create_departments', 'label' => 'Create Departments'],
+            ['name' => 'edit_departments', 'label' => 'Edit Departments'],
+            ['name' => 'delete_departments', 'label' => 'Delete Departments'],
+
+            // Designations
+            ['name' => 'view_designations', 'label' => 'View Designations'],
+            ['name' => 'create_designations', 'label' => 'Create Designations'],
+            ['name' => 'edit_designations', 'label' => 'Edit Designations'],
+            ['name' => 'delete_designations', 'label' => 'Delete Designations'],
+
+            // Payslips
+            ['name' => 'view_payslips', 'label' => 'View Payslips'],
+            ['name' => 'create_payslips', 'label' => 'Create / Generate Payslips'],
+
+            // Offer Letters
+            ['name' => 'view_offer_letters', 'label' => 'View Offer Letters'],
+            ['name' => 'create_offer_letters', 'label' => 'Create / Generate Offer Letters'],
+
+            // Bulletins
+            ['name' => 'view_bulletins', 'label' => 'View Bulletins'],
+            ['name' => 'create_bulletins', 'label' => 'Create Bulletins'],
+            ['name' => 'edit_bulletins', 'label' => 'Edit Bulletins'],
+            ['name' => 'delete_bulletins', 'label' => 'Delete Bulletins'],
+
+            // Inquiries
+            ['name' => 'view_inquiries', 'label' => 'View Inbox Inquiries'],
+            ['name' => 'reply_inquiries', 'label' => 'Reply / Mark Inquiries'],
+
+            // CMS
+            ['name' => 'view_cms', 'label' => 'View CMS Configuration'],
+            ['name' => 'edit_cms', 'label' => 'Update CMS Contents'],
+
+            // Staff Management
+            ['name' => 'view_staff', 'label' => 'View Management Staff'],
+            ['name' => 'create_staff', 'label' => 'Register Management Staff'],
+            ['name' => 'edit_staff', 'label' => 'Edit Management Staff'],
+            ['name' => 'delete_staff', 'label' => 'Delete Management Staff'],
         ];
 
         foreach ($permissions as $p) {
@@ -53,8 +95,14 @@ class DatabaseSeeder extends Seeder
             'is_password_changed' => false,
         ]);
 
-        // Assign some permissions (e.g. manage_employees, manage_payslips)
-        $permsToAssign = Permission::whereIn('name', ['manage_employees', 'manage_payslips'])->get();
+        // Assign some permissions (e.g. view_employees, create_employees, view_payslips, create_payslips)
+        $permsToAssign = Permission::whereIn('name', [
+            'view_employees',
+            'create_employees',
+            'edit_employees',
+            'view_payslips',
+            'create_payslips'
+        ])->get();
         $staff->permissions()->attach($permsToAssign);
 
         // 2. Seed Companies

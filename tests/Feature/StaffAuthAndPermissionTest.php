@@ -80,7 +80,7 @@ class StaffAuthAndPermissionTest extends TestCase
     {
         $this->seed();
 
-        // Retrieve seeded dummy staff (has manage_employees and manage_payslips)
+        // Retrieve seeded dummy staff (has view_employees, create_employees, view_payslips)
         $staff = Staff::where('email', 'staff@staff.com')->first();
         $staff->is_password_changed = true;
         $staff->save();
@@ -108,38 +108,38 @@ class StaffAuthAndPermissionTest extends TestCase
         $admin = Admin::first();
         
         // Create new staff member
-        $manageEmployeesPermission = Permission::where('name', 'manage_employees')->first();
-        $manageCompaniesPermission = Permission::where('name', 'manage_companies')->first();
+        $viewEmployeesPermission = Permission::where('name', 'view_employees')->first();
+        $viewCompaniesPermission = Permission::where('name', 'view_companies')->first();
 
         $response = $this->actingAs($admin, 'admin')->post(route('admin.staff.store'), [
             'name' => 'John Assistant',
             'email' => 'john.assistant@agency.com',
             'password' => 'tempPass1234',
-            'permissions' => [$manageEmployeesPermission->id, $manageCompaniesPermission->id]
+            'permissions' => [$viewEmployeesPermission->id, $viewCompaniesPermission->id]
         ]);
 
         $response->assertRedirect(route('admin.staff.index'));
         $this->assertDatabaseHas('staff', ['email' => 'john.assistant@agency.com']);
 
         $newStaff = Staff::where('email', 'john.assistant@agency.com')->first();
-        $this->assertTrue($newStaff->hasPermission('manage_employees'));
-        $this->assertTrue($newStaff->hasPermission('manage_companies'));
-        $this->assertFalse($newStaff->hasPermission('manage_payslips'));
+        $this->assertTrue($newStaff->hasPermission('view_employees'));
+        $this->assertTrue($newStaff->hasPermission('view_companies'));
+        $this->assertFalse($newStaff->hasPermission('view_payslips'));
 
         // Update the staff member's permissions (revoke companies, add payslips)
-        $managePayslipsPermission = Permission::where('name', 'manage_payslips')->first();
+        $viewPayslipsPermission = Permission::where('name', 'view_payslips')->first();
 
         $response = $this->actingAs($admin, 'admin')->put(route('admin.staff.update', $newStaff), [
             'name' => 'John Assistant Updated',
             'email' => 'john.assistant@agency.com',
-            'permissions' => [$manageEmployeesPermission->id, $managePayslipsPermission->id]
+            'permissions' => [$viewEmployeesPermission->id, $viewPayslipsPermission->id]
         ]);
 
         $response->assertRedirect(route('admin.staff.index'));
         $newStaff->refresh();
         
-        $this->assertTrue($newStaff->hasPermission('manage_employees'));
-        $this->assertTrue($newStaff->hasPermission('manage_payslips'));
-        $this->assertFalse($newStaff->hasPermission('manage_companies'));
+        $this->assertTrue($newStaff->hasPermission('view_employees'));
+        $this->assertTrue($newStaff->hasPermission('view_payslips'));
+        $this->assertFalse($newStaff->hasPermission('view_companies'));
     }
 }

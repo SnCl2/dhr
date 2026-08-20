@@ -27,28 +27,13 @@ class AppServiceProvider extends ServiceProvider
             }
         });
 
-        // 2. Define Gates for Staff Permissions
-        $permissions = [
-            'manage_employees',
-            'manage_companies',
-            'manage_departments',
-            'manage_designations',
-            'manage_payslips',
-            'manage_offer_letters',
-            'manage_bulletins',
-            'manage_inquiries',
-            'manage_cms',
-            'manage_staff',
-        ];
-
-        foreach ($permissions as $permission) {
-            Gate::define($permission, function ($user) use ($permission) {
-                if ($user instanceof \App\Models\Staff) {
-                    return $user->hasPermission($permission);
-                }
-                return false;
-            });
-        }
+        // 2. Resolve Dynamic Database-driven Gates via Fallback
+        Gate::after(function ($user, $ability, $result) {
+            if ($user instanceof \App\Models\Staff) {
+                return $user->hasPermission($ability);
+            }
+            return false;
+        });
 
         view()->composer('*', function ($view) {
             try {
