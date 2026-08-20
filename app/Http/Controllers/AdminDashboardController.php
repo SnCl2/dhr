@@ -635,9 +635,7 @@ class AdminDashboardController extends Controller
             $employeeId = $prefix . $nextNum;
 
             // Generate temporary password
-            $namePart = $fullName ? explode(' ', trim($fullName))[0] : 'emp';
-            $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($namePart)) ?: 'emp';
-            $plainPassword = $cleanName . rand(1000, 9999);
+            $plainPassword = 'password1234';
 
             $nthSalary = (float) ($data['nthsalary'] ?? $data['salary'] ?? 15000.00);
             $grossSalary = $nthSalary > 0 ? round($nthSalary * 1.15, 2) : 15000.00;
