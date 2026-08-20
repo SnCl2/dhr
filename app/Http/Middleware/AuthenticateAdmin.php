@@ -15,10 +15,12 @@ class AuthenticateAdmin
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::guard('admin')->check()) {
+            Auth::shouldUse('admin');
             return $next($request);
         }
 
         if (Auth::guard('staff')->check()) {
+            Auth::shouldUse('staff');
             return $next($request);
         }
 
