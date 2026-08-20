@@ -13,6 +13,7 @@ use App\Models\Payslip;
 use App\Models\Inquiry;
 use App\Models\Bulletin;
 use App\Models\SiteContent;
+use App\Models\Staff;
 use App\Services\DocumentGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -37,6 +38,8 @@ class AdminDashboardController extends Controller
             'active_employees' => Employee::where('status', 'active')->count(),
             'pending_reviews' => Employee::where('status', 'pending_review')->count(),
             'unread_inquiries' => Inquiry::where('status', 'unread')->count(),
+            'total_staff' => Staff::count(),
+            'internal_staff' => Employee::where('company_id', 1)->count(),
         ];
 
         $recentEmployees = Employee::latest()->take(5)->get();
