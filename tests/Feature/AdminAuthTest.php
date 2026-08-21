@@ -594,4 +594,38 @@ class AdminAuthTest extends TestCase
         $this->assertDatabaseHas('offer_letters', ['employee_id' => $emp1->id]);
         $this->assertDatabaseHas('offer_letters', ['employee_id' => $emp2->id]);
     }
+
+    public function test_custom_employee_id_sequence_and_reservation(): void
+    {
+        $this->seed();
+        
+        // Let's create an employee under company 1 (seeded company has ID 1)
+        // Since we seeded RM010001 in DatabaseSeeder, the next ID for company 1 should be RM010002.
+        $idCompany1 = \App\Models\Employee::generateNextEmployeeId(1);
+        $this->assertEquals('RM010002', $idCompany1);
+        
+        // Let's create an employee under another company (e.g. company 2)
+        // Since there is no employee starting with RM01 in that range, the next ID should start from RM010101.
+        $idCompany2 = \App\Models\Employee::generateNextEmployeeId(2);
+        $this->assertEquals('RM010101', $idCompany2);
+        
+        // Let's manually persist an employee with RM010101 to simulate it
+        \App\Models\Employee::create([
+            'employee_id' => 'RM010101',
+            'first_name' => 'Jane',
+            'last_name' => 'Doe',
+            'email' => 'jane.doe@other.com',
+            'password' => bcrypt('password123'),
+            'status' => 'active',
+            'company_id' => 2,
+        ]);
+        
+        // Now next ID for company 2 should be RM010102
+        $nextIdCompany2 = \App\Models\Employee::generateNextEmployeeId(2);
+        $this->assertEquals('RM010102', $nextIdCompany2);
+        
+        // If we generate for company 1, it should still be RM010002
+        $nextIdCompany1 = \App\Models\Employee::generateNextEmployeeId(1);
+        $this->assertEquals('RM010002', $nextIdCompany1);
+    }
 }

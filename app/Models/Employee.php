@@ -106,4 +106,39 @@ class Employee extends Authenticatable
     {
         return $this->hasMany(Payslip::class);
     }
+
+    public static function generateNextEmployeeId($companyId)
+    {
+        $prefix = 'RM01';
+
+        $ids = self::where('employee_id', 'like', 'RM01%')
+            ->pluck('employee_id')
+            ->map(function ($id) {
+                return (int) substr($id, 4);
+            });
+
+        if ($companyId == 1) {
+            $company1Ids = $ids->filter(function ($num) {
+                return $num >= 1 && $num <= 100;
+            });
+
+            if ($company1Ids->isEmpty()) {
+                $nextNum = 1;
+            } else {
+                $nextNum = $company1Ids->max() + 1;
+            }
+        } else {
+            $otherIds = $ids->filter(function ($num) {
+                return $num >= 101;
+            });
+
+            if ($otherIds->isEmpty()) {
+                $nextNum = 101;
+            } else {
+                $nextNum = $otherIds->max() + 1;
+            }
+        }
+
+        return $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+    }
 }

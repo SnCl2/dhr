@@ -319,20 +319,8 @@ class AdminDashboardController extends Controller
             $validated['employee_document'] = null;
         }
 
-        // Auto-generate Employee ID: EMP-YYYY-XXXX
-        $year = date('Y');
-        $prefix = "EMP-{$year}-";
-        $lastEmployee = Employee::where('employee_id', 'like', $prefix . '%')
-            ->orderBy('employee_id', 'desc')
-            ->first();
-
-        if ($lastEmployee) {
-            $lastNum = (int) substr($lastEmployee->employee_id, -4);
-            $nextNum = str_pad($lastNum + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $nextNum = '0001';
-        }
-        $employeeId = $prefix . $nextNum;
+        // Auto-generate Employee ID starting with RM01 prefix
+        $employeeId = Employee::generateNextEmployeeId($request->company_id);
 
         // Auto-generate random temp password from full name
         $namePart = $request->aadhaar_full_name ? explode(' ', trim($request->aadhaar_full_name))[0] : 'emp';
@@ -621,8 +609,6 @@ class AdminDashboardController extends Controller
         $normalizedHeaders = array_map($normalizeKey, $rawHeader);
         
         $importedCount = 0;
-        $year = date('Y');
-        $prefix = "EMP-{$year}-";
 
         while (($row = fgetcsv($file)) !== FALSE) {
             if (empty(array_filter($row))) continue;
@@ -679,18 +665,8 @@ class AdminDashboardController extends Controller
             // Department (default or matched)
             $dept = Department::firstOrCreate(['name' => 'Operations & Logistics']);
 
-            // Get next Employee ID
-            $lastEmployee = Employee::where('employee_id', 'like', $prefix . '%')
-                ->orderBy('employee_id', 'desc')
-                ->first();
-
-            if ($lastEmployee) {
-                $lastNum = (int) substr($lastEmployee->employee_id, -4);
-                $nextNum = str_pad($lastNum + 1, 4, '0', STR_PAD_LEFT);
-            } else {
-                $nextNum = '0001';
-            }
-            $employeeId = $prefix . $nextNum;
+            // Get next Employee ID starting with RM01 prefix
+            $employeeId = Employee::generateNextEmployeeId($companyId);
 
             // Generate temporary password
             $plainPassword = 'password1234';

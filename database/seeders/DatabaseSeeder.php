@@ -93,7 +93,7 @@ class DatabaseSeeder extends Seeder
 
         // 6. Seed a Dummy Employee
         Employee::create([
-            'employee_id' => 'EMP-2026-0001',
+            'employee_id' => 'RM010001',
             'first_name' => 'John',
             'last_name' => 'Doe',
             'email' => 'john.doe@example.com',
