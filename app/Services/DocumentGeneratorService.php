@@ -20,6 +20,13 @@ class DocumentGeneratorService
 
         // 2. Initialize AlphaPDF
         $pdf = new AlphaPDF('P', 'mm', 'A4');
+        $pdf->layoutType = $type;
+
+        if ($type === 'internal') {
+            $pdf->SetMargins(20, 40, 20);
+            return $this->generateInternalOfferLetter($pdf, $filePath, $fileName, $employee, $customData);
+        }
+
         $pdf->AliasNbPages();
         $pdf->SetMargins(20, 36, 20);
         $pdf->SetAutoPageBreak(true, 22);
@@ -346,6 +353,182 @@ class DocumentGeneratorService
     }
 
     /**
+     * Generate custom Internal Staff layout offer letter.
+     */
+    private function generateInternalOfferLetter($pdf, $filePath, $fileName, $employee, $customData)
+    {
+        $pdf->AliasNbPages();
+        $pdf->SetAutoPageBreak(true, 22);
+
+        // --- PAGE 1 ---
+        $pdf->AddPage();
+
+        $pdf->SetY(40);
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(0, 10, 'Date: ' . ($customData['joining_date'] ?? date('d-M-Y')), 0, 1, 'R');
+        $pdf->Ln(2);
+
+        $pdf->Cell(0, 5, 'To,', 0, 1);
+        $pdf->SetFont('Arial', 'B', 10);
+        $prefix = $employee->prefix ?? 'Mr.';
+        $pdf->Cell(0, 6, 'Dear ' . $prefix . ' ' . $employee->full_name, 0, 1);
+        $pdf->Ln(2);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(0, 6, 'Congratulations!', 0, 1);
+        $pdf->Ln(2);
+
+        $companyName = $employee->company ? $employee->company->name : 'RM HR Solutions';
+        $designationName = $employee->designationRelation ? $employee->designationRelation->name : 'Staff Member';
+
+        $company = $employee->company;
+        $basic = floatval($customData['basic'] ?? ($company ? $company->basic : 0));
+        $hra = floatval($customData['hra'] ?? ($company ? $company->hra : 0));
+        $conveyance = floatval($customData['conveyance'] ?? ($company ? $company->conveyance : 0));
+        $medical = floatval($customData['medical_allowance'] ?? ($company ? $company->medical_allowance : 0));
+        $spAllowance = floatval($customData['sp_allowance'] ?? ($company ? $company->sp_allowance : 0));
+        $gross = $basic + $hra + $conveyance + $medical + $spAllowance;
+
+        $bonus = floatval($customData['bonus'] ?? ($company ? $company->bonus : 0));
+        $employerPf = floatval($customData['employer_pf'] ?? ($company ? $company->employer_pf : 0));
+        $employerEsic = floatval($customData['employer_esic'] ?? ($company ? $company->employer_esic : 0));
+        $employerLwf = floatval($customData['employer_lwf'] ?? ($company ? $company->employer_lwf : 0));
+        $ctc = $gross + $bonus + $employerPf + $employerEsic + $employerLwf;
+
+        if ($ctc == 0 && !empty($customData['salary'] ?? $employee->salary)) {
+            $salaryVal = floatval($customData['salary'] ?? $employee->salary);
+            $bonus = ($salaryVal > 5000) ? 500.00 : 0.00;
+            $basic = round(($salaryVal - $bonus) / 1.215721, 2);
+            $hra = round($basic * 0.05, 2);
+            $gross = $basic + $hra;
+            $employerPf = round($basic * 0.13, 2);
+            $employerEsic = round($gross * 0.03402, 2);
+            $employerLwf = 0;
+            $ctc = $gross + $bonus + $employerPf + $employerEsic;
+        }
+
+        $ctcAnnual = $ctc * 12;
+        $ctcAnnualInWords = $this->convertNumberToWords($ctcAnnual);
+
+        $startDate = $customData['joining_date'] ?? ($employee->joining_date ? $employee->joining_date->format('d-M-Y') : date('d-M-Y'));
+        $timestamp = strtotime($startDate);
+        $day = date('j', $timestamp);
+        $monthYear = date('F Y', $timestamp);
+        $suffix = 'th';
+        if ($day == 1 || $day == 21 || $day == 31) $suffix = 'st';
+        elseif ($day == 2 || $day == 22) $suffix = 'nd';
+        elseif ($day == 3 || $day == 23) $suffix = 'rd';
+        $formattedJoiningDate = $day . $suffix . ' of ' . $monthYear;
+
+        $acceptanceTimestamp = strtotime('-3 days', $timestamp);
+        $acceptDay = date('j', $acceptanceTimestamp);
+        $acceptMonthYear = date('F Y', $acceptanceTimestamp);
+        $acceptSuffix = 'th';
+        if ($acceptDay == 1 || $acceptDay == 21 || $acceptDay == 31) $acceptSuffix = 'st';
+        elseif ($acceptDay == 2 || $acceptDay == 22) $acceptSuffix = 'nd';
+        elseif ($acceptDay == 3 || $acceptDay == 23) $acceptSuffix = 'rd';
+        $formattedAcceptDate = $acceptDay . $acceptSuffix . ' of ' . $acceptMonthYear;
+
+        $pdf->SetFont('Arial', '', 10);
+        
+        $body1 = "Pursuant to your interview and subsequent discussions held thereafter, we are pleased to extend an offer of employment with " . $companyName . " in the position of " . $designationName . ". We are hopeful that your knowledge, skills, and experience will make valuable contributions for us. You will be subject to a probationary period of six months from your date of joining. During this period, your performance, conduct, and suitability for the role will be evaluated. Upon successful completion, your employment will be confirmed in writing. Your Total Cost to the Company shall be INR " . number_format($ctcAnnual, 2) . "/- (" . $ctcAnnualInWords . ") per annum. The detailed pay structure is defined in Annexure A below. Your Date of Joining will be " . $formattedJoiningDate . ". You will be assigned with different tasks related to Recruitment & HR activities and will be reported to Talent Acquisitions Manager. This offer is contingent upon successful verification and validation of information shared with us and the Company reserves the right to extend, shorten, or withdraw this offer at its sole discretion. A copy of the following documents along with the originals for verification would be required from you on the day of joining:";
+
+        $pdf->MultiCell(0, 5, iconv('UTF-8', 'windows-1252//TRANSLIT', $body1));
+        $pdf->Ln(4);
+
+        $writeBullet = function($pdf, $text) {
+            $pdf->SetFont('Arial', '', 9.5);
+            $pdf->SetX(28);
+            $pdf->Cell(4, 5, chr(149), 0, 0);
+            $pdf->SetX(32);
+            $pdf->MultiCell(0, 5, iconv('UTF-8', 'windows-1252//TRANSLIT', $text));
+            $pdf->Ln(2.5);
+        };
+
+        $writeBullet($pdf, "Release letter of last company");
+        $writeBullet($pdf, "All Educational and Professional Testimonials");
+        $writeBullet($pdf, "Two recent passport size photographs");
+        $writeBullet($pdf, "Photo Identity Proof & Address Proof (PAN Card, Aadhar Card / Passport - if available) and Bank Details");
+        $writeBullet($pdf, "Last 3 Months' Pay Slips from your previous organization");
+        $pdf->Ln(2);
+
+        $body2 = "All other company related information and Polices will be shared upon joining. You are expected to reply to this mail accepting this offer within " . $formattedAcceptDate . ", failing which this offer shall stand withdrawn. Please do forward the acceptance of resignation from your current employer.";
+        $pdf->MultiCell(0, 5, iconv('UTF-8', 'windows-1252//TRANSLIT', $body2));
+        $pdf->Ln(4);
+
+        $body3 = "Do feel free to connect for other concerns if any.";
+        $pdf->MultiCell(0, 5, iconv('UTF-8', 'windows-1252//TRANSLIT', $body3));
+        
+        // --- PAGE 2 (ANNEXURE) ---
+        $pdf->AddPage();
+        $pdf->SetXY(20, 48);
+
+        $pdf->SetFont('Arial', 'B', 11);
+        $pdf->Cell(0, 6, 'Annexure A', 0, 1, 'C');
+        $pdf->Ln(2);
+
+        $w1 = 110;
+        $w2 = 60;
+        $rowH = 6;
+
+        $pdf->SetDrawColor(0, 0, 0);
+        $pdf->SetLineWidth(0.25);
+
+        $pdf->SetFont('Arial', 'B', 9.5);
+        $pdf->Cell($w1 + $w2, $rowH, 'Gross', 1, 1, 'C');
+
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell($w1, $rowH, ' Basic + DA', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($basic, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, ' Special Allowance', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($spAllowance, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, ' HRA', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($hra, 2) . ' ', 1, 1, 'R');
+
+        $pdf->SetFont('Arial', 'B', 9.5);
+        $pdf->Cell($w1, $rowH, ' Special Allowance (Gross)', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($gross, 2) . ' ', 1, 1, 'R');
+
+        $pdf->Cell($w1, $rowH, ' Deductions', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, ' Amount', 1, 1, 'R');
+
+        $pTax = floatval($customData['professional_tax'] ?? ($company ? $company->professional_tax : 0));
+        if ($pTax == 0 && $gross > 0) {
+            $pTax = ($gross > 15000) ? 150 : (($gross > 10000) ? 110 : 0);
+        }
+        $netSalary = $gross - $pTax;
+
+        $pdf->SetFont('Arial', '', 9);
+        $pdf->Cell($w1, $rowH, ' Professional Tax', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($pTax, 2) . ' ', 1, 1, 'R');
+
+        $pdf->SetFont('Arial', 'B', 9.5);
+        $pdf->Cell($w1, $rowH, ' Net Take Home', 1, 0, 'L');
+        $pdf->Cell($w2, $rowH, number_format($netSalary, 2) . ' ', 1, 1, 'R');
+        $pdf->Ln(6);
+
+        $pdf->SetFont('Arial', '', 9.5);
+        $pdf->MultiCell(0, 5, iconv('UTF-8', 'windows-1252//TRANSLIT', "• You will also be eligible for Variable Pay as per Pay Policy, if applicable."));
+        $pdf->Ln(2);
+        $pdf->MultiCell(0, 5, iconv('UTF-8', 'windows-1252//TRANSLIT', "• You will receive salary, and all other benefits forming part of your salary subject to, and after, deduction of Tax in accordance with applicable laws."));
+        $pdf->Ln(8);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(110, 5, 'Yours Sincerely,', 0, 0, 'L');
+        $pdf->Cell(0, 5, 'Received & Acknowledged', 0, 1, 'R');
+        $pdf->Ln(15);
+
+        $pdf->Cell(110, 5, '', 0, 0, 'L');
+        $pdf->Cell(0, 5, 'Signature: -', 0, 1, 'R');
+
+        $pdf->Output('F', $filePath);
+
+        return 'storage/offer_letters/' . $fileName;
+    }
+
+    /**
      * Generate a Payslip PDF using FPDF and return the relative path.
      */
     public function generatePayslipPdf($employee, $month, $basic, $allowances, $deductions, $net, $type, $extra = null)
@@ -646,6 +829,7 @@ class DocumentGeneratorService
 
 class AlphaPDF extends \FPDF
 {
+    public $layoutType = 'external';
     protected $extgstates = array();
     protected $n_extgstates = array();
 
@@ -713,25 +897,61 @@ class AlphaPDF extends \FPDF
             $this->SetAlpha(1.0); // reset
         }
 
-        // 2. Header line, logo (top-left) and issued date (top-right) on all pages
-        if (file_exists($logoPath)) {
-            $this->Image($logoPath, 20, 10, 25);
+        if ($this->layoutType === 'internal') {
+            // Draw outer border box (Double border-ish style: draw outer box and inner line)
+            $this->SetDrawColor(0, 0, 0);
+            $this->SetLineWidth(0.3);
+            
+            // Draw outer rectangle
+            $this->Rect(15, 10, 180, 24);
+            
+            // Draw vertical separator
+            $this->Line(48, 10, 48, 34);
+            
+            // Logo on the left
+            if (file_exists($logoPath)) {
+                $this->Image($logoPath, 19, 12, 24);
+            }
+            
+            // Text on the right
+            $this->SetTextColor(0, 0, 0);
+            
+            // Company Name
+            $this->SetFont('Arial', 'B', 13.5);
+            $this->Text(51, 16, 'RM HR Solutions Private Limited');
+            
+            // Location
+            $this->SetFont('Arial', '', 10);
+            $this->Text(175, 16, 'Panchla');
+            
+            // Address
+            $this->SetFont('Arial', '', 9.5);
+            $this->Text(58, 22, 'Bazaar, Panchla, Howrah, 711322 West Bengal India');
+            
+            // Contacts
+            $this->SetFont('Arial', 'U', 9.5);
+            $this->Text(51, 28, 'Mob- 9804048242 Mail- info@rmhrsolutions.in Web- www.rmhrsolutions.in');
         } else {
-            $this->SetFont('Arial', 'B', 12);
-            $this->SetTextColor(30, 58, 138);
-            $this->Text(20, 15, 'RM HR SOLUTIONS');
+            // 2. Header line, logo (top-left) and issued date (top-right) on all pages
+            if (file_exists($logoPath)) {
+                $this->Image($logoPath, 20, 10, 25);
+            } else {
+                $this->SetFont('Arial', 'B', 12);
+                $this->SetTextColor(30, 58, 138);
+                $this->Text(20, 15, 'RM HR SOLUTIONS');
+            }
+
+            // Issued Date (right aligned)
+            $this->SetY(12);
+            $this->SetFont('Arial', '', 9.5);
+            $this->SetTextColor(55, 65, 81);
+            $this->SetX(20);
+            $this->Cell(0, 10, 'Issued Date: ' . date('d-M-Y'), 0, 0, 'R');
+
+            // Divider line below header
+            $this->SetDrawColor(226, 232, 240); // slate-200
+            $this->Line(20, 29, 190, 29);
         }
-
-        // Issued Date (right aligned)
-        $this->SetY(12);
-        $this->SetFont('Arial', '', 9.5);
-        $this->SetTextColor(55, 65, 81);
-        $this->SetX(20);
-        $this->Cell(0, 10, 'Issued Date: ' . date('d-M-Y'), 0, 0, 'R');
-
-        // Divider line below header
-        $this->SetDrawColor(226, 232, 240); // slate-200
-        $this->Line(20, 29, 190, 29);
 
         // Reset cursor to top margin (X=left margin, Y=top margin)
         $this->SetY($this->tMargin);
@@ -740,22 +960,35 @@ class AlphaPDF extends \FPDF
     // Footer override
     function Footer()
     {
-        $this->SetDrawColor(226, 232, 240); // slate-200
-        $this->Line(20, 280, 190, 280);
+        if ($this->layoutType === 'internal') {
+            $this->SetDrawColor(0, 0, 0);
+            $this->SetLineWidth(0.3);
+            $this->Line(15, 280, 195, 280);
+            
+            $this->SetY(-15);
+            $this->SetFont('Arial', 'B', 8);
+            $this->SetTextColor(0, 0, 0);
+            
+            $footerText = "Mail- info@rmhrsolutions.in   Mobile- +91 9804048242   Website- www.rmhrsolutions.in";
+            $this->Cell(0, 4, $footerText, 0, 0, 'C');
+        } else {
+            $this->SetDrawColor(226, 232, 240); // slate-200
+            $this->Line(20, 280, 190, 280);
 
-        // Fetch contact info dynamically from site_content
-        $email = \DB::table('site_content')->where('key', 'contact_email')->value('value') ?? 'info@propszy.com';
-        $phone = \DB::table('site_content')->where('key', 'contact_phone')->value('value') ?? '+91 94323 13430';
-        $address = \DB::table('site_content')->where('key', 'contact_address')->value('value') ?? 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503';
+            // Fetch contact info dynamically from site_content
+            $email = \DB::table('site_content')->where('key', 'contact_email')->value('value') ?? 'info@propszy.com';
+            $phone = \DB::table('site_content')->where('key', 'contact_phone')->value('value') ?? '+91 94323 13430';
+            $address = \DB::table('site_content')->where('key', 'contact_address')->value('value') ?? 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503';
 
-        $this->SetY(-15);
-        $this->SetFont('Arial', '', 7);
-        $this->SetTextColor(100, 116, 139); // slate-500
+            $this->SetY(-15);
+            $this->SetFont('Arial', '', 7);
+            $this->SetTextColor(100, 116, 139); // slate-500
 
-        $footerText = "Address: {$address} | Phone: {$phone} | Email: {$email}";
-        $this->Cell(0, 4, iconv('UTF-8', 'windows-1252//TRANSLIT', $footerText), 0, 1, 'C');
+            $footerText = "Address: {$address} | Phone: {$phone} | Email: {$email}";
+            $this->Cell(0, 4, iconv('UTF-8', 'windows-1252//TRANSLIT', $footerText), 0, 1, 'C');
 
-        // Page number centered on a new line below the contact details
-        $this->Cell(0, 4, 'Page ' . $this->PageNo() . ' of {nb}', 0, 0, 'C');
+            // Page number centered on a new line below the contact details
+            $this->Cell(0, 4, 'Page ' . $this->PageNo() . ' of {nb}', 0, 0, 'C');
+        }
     }
 }

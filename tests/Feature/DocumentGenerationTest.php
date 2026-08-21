@@ -45,6 +45,15 @@ class DocumentGenerationTest extends TestCase
         $this->assertNotEmpty($offerLetterPath);
         $this->assertFileExists(public_path($offerLetterPath));
 
+        // 1b. Test Internal Offer Letter PDF generation
+        $internalOfferLetterPath = $service->generateOfferLetterPdf($employee, 'internal', [
+            'salary' => 25000.00,
+            'joining_date' => '01-Aug-2026',
+        ]);
+
+        $this->assertNotEmpty($internalOfferLetterPath);
+        $this->assertFileExists(public_path($internalOfferLetterPath));
+
         // 2. Test Payslip PDF generation
         $payslipPath = $service->generatePayslipPdf(
             $employee,
