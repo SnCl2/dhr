@@ -732,6 +732,9 @@ class AlphaPDF extends \FPDF
         // Divider line below header
         $this->SetDrawColor(226, 232, 240); // slate-200
         $this->Line(20, 29, 190, 29);
+
+        // Reset cursor to top margin (X=left margin, Y=top margin)
+        $this->SetY($this->tMargin);
     }
 
     // Footer override
