@@ -21,7 +21,7 @@ class DocumentGeneratorService
         // 2. Initialize AlphaPDF
         $pdf = new AlphaPDF('P', 'mm', 'A4');
         $pdf->AliasNbPages();
-        $pdf->SetMargins(20, 32, 20);
+        $pdf->SetMargins(20, 36, 20);
         $pdf->SetAutoPageBreak(true, 22);
         
         // ------------------ PAGE 1 ------------------
@@ -111,9 +111,6 @@ class DocumentGeneratorService
         $writeSectionHeader($pdf, '3', 'CONFIDENTIAL INFORMATION');
         $writeBullet($pdf, "Any information you obtain from time to time regarding processes, methods, client information, business practice, etc., should be treated as being of the utmost confidential.");
 
-        // ------------------ PAGE 2 ------------------
-        $pdf->AddPage();
-
         // Term 4: Service Rules
         $writeSectionHeader($pdf, '4', 'SERVICE RULES, DISCIPLINE and GRIEVANCES');
         $writeBullet($pdf, "During your employment with us, you will not be associated yourself with such activities, as in the opinion of the Management will be harmful or detrimental to the interest of the company.");
@@ -168,7 +165,7 @@ class DocumentGeneratorService
 
         // ------------------ PAGE 3 (ANNEXURE) ------------------
         $pdf->AddPage();
-        
+        $pdf->SetXY(20, 48);
         // Metadata on page 3
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, 'Emp Name:', 0, 0);
@@ -734,7 +731,7 @@ class AlphaPDF extends \FPDF
 
         // Divider line below header
         $this->SetDrawColor(226, 232, 240); // slate-200
-        $this->Line(20, 26, 190, 26);
+        $this->Line(20, 29, 190, 29);
     }
 
     // Footer override
@@ -748,15 +745,14 @@ class AlphaPDF extends \FPDF
         $phone = \DB::table('site_content')->where('key', 'contact_phone')->value('value') ?? '+91 94323 13430';
         $address = \DB::table('site_content')->where('key', 'contact_address')->value('value') ?? 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503';
 
-        $this->SetY(-12);
-        $this->SetFont('Arial', '', 7.5);
+        $this->SetY(-15);
+        $this->SetFont('Arial', '', 7);
         $this->SetTextColor(100, 116, 139); // slate-500
 
         $footerText = "Address: {$address} | Phone: {$phone} | Email: {$email}";
-        $this->Cell(0, 4, iconv('UTF-8', 'windows-1252//TRANSLIT', $footerText), 0, 0, 'C');
+        $this->Cell(0, 4, iconv('UTF-8', 'windows-1252//TRANSLIT', $footerText), 0, 1, 'C');
 
-        // Page number on the right
-        $this->SetY(-12);
-        $this->Cell(0, 4, 'Page ' . $this->PageNo() . ' of {nb}', 0, 0, 'R');
+        // Page number centered on a new line below the contact details
+        $this->Cell(0, 4, 'Page ' . $this->PageNo() . ' of {nb}', 0, 0, 'C');
     }
 }
