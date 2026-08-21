@@ -83,24 +83,24 @@
     <!-- Recent Employees Onboarding -->
     <div class="lg:col-span-7 glass-dark p-6 sm:p-8 rounded-3xl">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="font-outfit font-bold text-lg text-white">Recent Candidates / Employees</h3>
-            <a href="{{ route('admin.employees.index') }}" class="text-xs font-semibold text-purple-400 hover:text-purple-300">View All <i class="fa-solid fa-arrow-right ml-1"></i></a>
+            <h3 class="font-outfit font-bold text-lg text-slate-800">Recent Candidates / Employees</h3>
+            <a href="{{ route('admin.employees.index') }}" class="text-xs font-semibold text-purple-600 hover:text-purple-700">View All <i class="fa-solid fa-arrow-right ml-1"></i></a>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="border-b border-slate-800 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                    <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         <th class="pb-3">Employee ID</th>
                         <th class="pb-3">Name</th>
                         <th class="pb-3">Status</th>
                         <th class="pb-3">Joined Date</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800 text-sm">
+                <tbody class="divide-y divide-slate-200 text-sm">
                     @forelse($recentEmployees as $emp)
-                    <tr class="text-slate-300 hover:bg-slate-900/40">
-                        <td class="py-3 font-semibold text-purple-400">{{ $emp->employee_id }}</td>
+                    <tr class="text-slate-700 hover:bg-slate-50/80">
+                        <td class="py-3 font-semibold text-purple-600">{{ $emp->employee_id }}</td>
                         <td class="py-3">{{ $emp->full_name }}</td>
                         <td class="py-3">
                             <span class="px-2 py-0.5 rounded-md text-xs font-semibold uppercase 
@@ -111,7 +111,7 @@
                                 {{ str_replace('_', ' ', $emp->status) }}
                             </span>
                         </td>
-                        <td class="py-3 text-slate-400">{{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}</td>
+                        <td class="py-3 text-slate-500">{{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}</td>
                     </tr>
                     @empty
                     <tr>
@@ -126,23 +126,23 @@
     <!-- Recent Inquiries Inbox -->
     <div class="lg:col-span-5 glass-dark p-6 sm:p-8 rounded-3xl">
         <div class="flex items-center justify-between mb-6">
-            <h3 class="font-outfit font-bold text-lg text-white">Recent Website Inquiries</h3>
-            <a href="{{ route('admin.inquiries.index') }}" class="text-xs font-semibold text-purple-400 hover:text-purple-300">Open Inbox <i class="fa-solid fa-arrow-right ml-1"></i></a>
+            <h3 class="font-outfit font-bold text-lg text-slate-800">Recent Website Inquiries</h3>
+            <a href="{{ route('admin.inquiries.index') }}" class="text-xs font-semibold text-purple-600 hover:text-purple-700">Open Inbox <i class="fa-solid fa-arrow-right ml-1"></i></a>
         </div>
 
         <div class="space-y-4">
             @forelse($recentInquiries as $inq)
-            <div class="p-4 rounded-xl bg-slate-950/40 border border-slate-905/10 flex items-start space-x-3">
+            <div class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-start space-x-3">
                 <div class="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center shrink-0 mt-0.5">
                     <i class="fa-solid fa-envelope"></i>
                 </div>
                 <div class="min-w-0 flex-grow">
                     <div class="flex items-center justify-between">
-                        <span class="block text-sm font-semibold text-white truncate">{{ $inq->name }}</span>
+                        <span class="block text-sm font-semibold text-slate-800 truncate">{{ $inq->name }}</span>
                         <span class="text-xs text-slate-500 shrink-0">{{ $inq->created_at->diffForHumans() }}</span>
                     </div>
-                    <span class="block text-xs text-purple-300 font-semibold truncate">{{ $inq->subject }}</span>
-                    <p class="text-xs text-slate-400 mt-1 truncate">{{ $inq->message }}</p>
+                    <span class="block text-xs text-purple-600 font-semibold truncate">{{ $inq->subject }}</span>
+                    <p class="text-xs text-slate-500 mt-1 truncate">{{ $inq->message }}</p>
                 </div>
             </div>
             @empty
