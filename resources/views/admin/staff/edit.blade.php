@@ -39,13 +39,27 @@
                 </div>
 
                 <!-- Reset Password -->
-                <div class="md:col-span-2">
+                <div>
                     <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Update Password (Optional)</label>
                     <input type="password" id="password" name="password"
                         class="mt-2 block w-full px-4 py-3 bg-white border border-slate-350 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm @error('password') border-rose-500 @enderror"
                         placeholder="••••••••">
-                    <span class="text-[11px] text-slate-500 mt-1.5 block leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i> Leave this field blank if you do not want to change the password.</span>
+                    <span class="text-[11px] text-slate-500 mt-1.5 block leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i> Leave blank to keep current password.</span>
                     @error('password')
+                        <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <!-- Account Status -->
+                <div>
+                    <label for="is_active" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Account Status *</label>
+                    <select id="is_active" name="is_active" required
+                        class="mt-2 block w-full px-4 py-3 bg-white border border-slate-350 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                        <option value="1" {{ old('is_active', $staff->is_active ? '1' : '0') === '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ old('is_active', $staff->is_active ? '1' : '0') === '0' ? 'selected' : '' }}>Deactivated</option>
+                    </select>
+                    <span class="text-[11px] text-slate-500 mt-1.5 block leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i> Deactivated staff cannot log in.</span>
+                    @error('is_active')
                         <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span>
                     @enderror
                 </div>

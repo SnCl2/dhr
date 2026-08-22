@@ -38,13 +38,27 @@
                 </div>
 
                 <!-- Temporary Password -->
-                <div class="md:col-span-2">
+                <div>
                     <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Setup Temporary Password *</label>
                     <input type="password" id="password" name="password" required
                         class="mt-2 block w-full px-4 py-3 bg-white border border-slate-350 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm @error('password') border-rose-500 @enderror"
                         placeholder="••••••••">
-                    <span class="text-[11px] text-slate-500 mt-1.5 block leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i> Note: The staff member will be forced to customize this password on their very first login.</span>
+                    <span class="text-[11px] text-slate-500 mt-1.5 block leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i> Must customize on first login.</span>
                     @error('password')
+                        <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <!-- Account Status -->
+                <div>
+                    <label for="is_active" class="block text-xs font-semibold uppercase tracking-wider text-slate-500">Account Status *</label>
+                    <select id="is_active" name="is_active" required
+                        class="mt-2 block w-full px-4 py-3 bg-white border border-slate-350 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
+                        <option value="1" {{ old('is_active', '1') === '1' ? 'selected' : '' }}>Active</option>
+                        <option value="0" {{ old('is_active') === '0' ? 'selected' : '' }}>Deactivated</option>
+                    </select>
+                    <span class="text-[11px] text-slate-500 mt-1.5 block leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i> Deactivated staff cannot log in.</span>
+                    @error('is_active')
                         <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span>
                     @enderror
                 </div>

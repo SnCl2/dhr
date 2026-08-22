@@ -36,6 +36,7 @@ class StaffManagementController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:staff'],
             'password' => ['required', 'string', 'min:8'],
+            'is_active' => ['required', 'boolean'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['exists:permissions,id'],
         ]);
@@ -45,6 +46,7 @@ class StaffManagementController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'is_password_changed' => false,
+            'is_active' => $request->boolean('is_active'),
         ]);
 
         if ($request->has('permissions')) {
@@ -75,12 +77,14 @@ class StaffManagementController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:staff,email,' . $staff->id],
             'password' => ['nullable', 'string', 'min:8'],
+            'is_active' => ['required', 'boolean'],
             'permissions' => ['nullable', 'array'],
             'permissions.*' => ['exists:permissions,id'],
         ]);
 
         $staff->name = $request->name;
         $staff->email = $request->email;
+        $staff->is_active = $request->boolean('is_active');
 
         if ($request->filled('password')) {
             $staff->password = Hash::make($request->password);
@@ -107,5 +111,18 @@ class StaffManagementController extends Controller
 
         return redirect()->route('admin.staff.index')
             ->with('success', 'Management staff member deleted successfully.');
+    }
+
+    /**
+     * Toggle the active status of the staff member.
+     */
+    public function toggleStatus(Staff $staff)
+    {
+        $staff->is_active = !$staff->is_active;
+        $staff->save();
+
+        $statusText = $staff->is_active ? 'activated' : 'deactivated';
+        return redirect()->route('admin.staff.index')
+            ->with('success', "Staff account for '{$staff->name}' has been successfully {$statusText}.");
     }
 }

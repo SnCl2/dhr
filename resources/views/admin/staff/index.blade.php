@@ -30,6 +30,7 @@
                     <tr class="border-b border-slate-200 bg-slate-50">
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Name & Email</th>
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Assigned Permissions</th>
+                        <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Account Status</th>
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Password Changed</th>
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Date Registered</th>
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Actions</th>
@@ -61,6 +62,17 @@
                                 </div>
                             </td>
                             <td class="p-5">
+                                @if($staff->is_active)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700">
+                                        <i class="fa-solid fa-circle-check text-[10px] mr-1.5"></i> Active
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-700">
+                                        <i class="fa-solid fa-circle-xmark text-[10px] mr-1.5"></i> Deactivated
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="p-5">
                                 @if($staff->is_password_changed)
                                     <span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-semibold bg-emerald-50 border border-emerald-200 text-emerald-700">
                                         <i class="fa-solid fa-circle-check text-[10px] mr-1.5"></i> Yes
@@ -75,6 +87,18 @@
                                 {{ $staff->created_at->format('d-M-Y h:i A') }}
                             </td>
                             <td class="p-5 text-right space-x-2">
+                                <form action="{{ route('admin.staff.toggle-status', $staff) }}" method="POST" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="inline-flex items-center justify-center p-2 bg-slate-100 hover:bg-purple-50 text-slate-500 hover:text-purple-650 border border-slate-200 hover:border-purple-200 rounded-xl transition-all" title="{{ $staff->is_active ? 'Deactivate Account' : 'Activate Account' }}">
+                                        @if($staff->is_active)
+                                            <i class="fa-solid fa-user-slash text-sm"></i>
+                                        @else
+                                            <i class="fa-solid fa-user-check text-sm"></i>
+                                        @endif
+                                    </button>
+                                </form>
+
                                 <a href="{{ route('admin.staff.edit', $staff) }}" class="inline-flex items-center justify-center p-2 bg-slate-100 hover:bg-purple-50 text-slate-500 hover:text-purple-650 border border-slate-200 hover:border-purple-200 rounded-xl transition-all" title="Edit Profile & Permissions">
                                     <i class="fa-solid fa-pen-to-square text-sm"></i>
                                 </a>

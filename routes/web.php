@@ -205,6 +205,7 @@ Route::middleware(['auth.admin', 'password.change.staff'])->prefix('admin')->nam
     Route::middleware(['can:edit_staff'])->group(function () {
         Route::get('/staff/{staff}/edit', [StaffManagementController::class, 'edit'])->name('staff.edit');
         Route::put('/staff/{staff}/update', [StaffManagementController::class, 'update'])->name('staff.update');
+        Route::patch('/staff/{staff}/toggle-status', [StaffManagementController::class, 'toggleStatus'])->name('staff.toggle-status');
     });
     Route::middleware(['can:delete_staff'])->group(function () {
         Route::delete('/staff/{staff}/destroy', [StaffManagementController::class, 'destroy'])->name('staff.destroy');

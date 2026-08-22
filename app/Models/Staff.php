@@ -16,6 +16,7 @@ class Staff extends Authenticatable
         'email',
         'password',
         'is_password_changed',
+        'is_active',
     ];
 
     protected $hidden = [
@@ -26,6 +27,7 @@ class Staff extends Authenticatable
     protected $casts = [
         'password' => 'hashed',
         'is_password_changed' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
     /**

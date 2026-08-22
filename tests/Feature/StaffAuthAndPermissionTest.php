@@ -115,6 +115,7 @@ class StaffAuthAndPermissionTest extends TestCase
             'name' => 'John Assistant',
             'email' => 'john.assistant@agency.com',
             'password' => 'tempPass1234',
+            'is_active' => '1',
             'permissions' => [$viewEmployeesPermission->id, $viewCompaniesPermission->id]
         ]);
 
@@ -132,6 +133,7 @@ class StaffAuthAndPermissionTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->put(route('admin.staff.update', $newStaff), [
             'name' => 'John Assistant Updated',
             'email' => 'john.assistant@agency.com',
+            'is_active' => '1',
             'permissions' => [$viewEmployeesPermission->id, $viewPayslipsPermission->id]
         ]);
 
@@ -141,5 +143,47 @@ class StaffAuthAndPermissionTest extends TestCase
         $this->assertTrue($newStaff->hasPermission('view_employees'));
         $this->assertTrue($newStaff->hasPermission('view_payslips'));
         $this->assertFalse($newStaff->hasPermission('view_companies'));
+    }
+
+    /**
+     * Test admin can toggle staff active status and deactivated staff cannot log in.
+     */
+    public function test_admin_can_toggle_staff_status_and_deactivated_staff_cannot_login(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+        
+        $staff = Staff::where('email', 'staff@staff.com')->first();
+        $this->assertTrue($staff->is_active);
+
+        // 1. Deactivate the staff member via admin PATCH route
+        $response = $this->actingAs($admin, 'admin')->patch(route('admin.staff.toggle-status', $staff));
+        $response->assertRedirect(route('admin.staff.index'));
+        
+        $staff->refresh();
+        $this->assertFalse($staff->is_active);
+
+        // 2. Attempt login as deactivated staff - should fail
+        $response = $this->post(route('staff.login.submit'), [
+            'email' => 'staff@staff.com',
+            'password' => 'password123',
+        ]);
+        $response->assertSessionHasErrors(['email']);
+        $this->assertFalse(auth()->guard('staff')->check());
+
+        // 3. Reactivate the staff member via admin PATCH route
+        $response = $this->actingAs($admin, 'admin')->patch(route('admin.staff.toggle-status', $staff));
+        $response->assertRedirect(route('admin.staff.index'));
+        
+        $staff->refresh();
+        $this->assertTrue($staff->is_active);
+
+        // 4. Attempt login as reactivated staff - should succeed
+        $response = $this->post(route('staff.login.submit'), [
+            'email' => 'staff@staff.com',
+            'password' => 'password123',
+        ]);
+        $response->assertRedirect(route('staff.password.change'));
+        $this->assertAuthenticatedAs($staff, 'staff');
     }
 }

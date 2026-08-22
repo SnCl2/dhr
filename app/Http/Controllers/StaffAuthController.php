@@ -31,6 +31,14 @@ class StaffAuthController extends Controller
             'password' => ['required'],
         ]);
 
+        // Check if the staff member is deactivated before attempting login
+        $staff = Staff::where('email', $credentials['email'])->first();
+        if ($staff && !$staff->is_active) {
+            return back()->withErrors([
+                'email' => 'Your account is deactivated. Please contact support.',
+            ])->onlyInput('email');
+        }
+
         if (Auth::guard('staff')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
