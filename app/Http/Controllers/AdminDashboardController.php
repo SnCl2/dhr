@@ -506,14 +506,20 @@ class AdminDashboardController extends Controller
         ];
 
         $companyName = $request->query('company');
-        $defaultSalary = '18000';
+        $defaultSalary = '';
         if ($companyName) {
             $company = \App\Models\Company::where('name', $companyName)->first();
             if ($company && $company->net_salary !== null) {
                 $defaultSalary = (float)$company->net_salary == (int)$company->net_salary 
                     ? (string)(int)$company->net_salary 
                     : (string)$company->net_salary;
+            } else {
+                $defaultSalary = '18000';
             }
+        }
+
+        if ($request->filled('salary')) {
+            $defaultSalary = $request->query('salary');
         }
 
         $callback = function() use ($request, $defaultSalary) {
@@ -553,38 +559,38 @@ class AdminDashboardController extends Controller
                 'NTH Salary'
             ]);
 
-            // Sample prefilled row
+            // Prefilled row with only dynamic selection values
             fputcsv($file, [
-                'Rahul Sharma',
-                '987654321012',
-                'ABCDE1234F',
-                'WBF1234567',
-                'Mr.',
-                'Suresh Sharma',
-                'Anita Sharma',
-                'Male',
-                '1995-06-15',
-                'Bengali',
-                '12/A Park Street, Flat 4B',
-                'Near Metro Station',
-                '9876543210',
-                'Kolkata',
-                '9876543211',
-                '700016',
-                'West Bengal',
-                'B.Tech',
-                '2018',
-                'Single',
-                'rahul.sharma@example.com',
-                '100888999123',
-                '12345678901234567',
-                '987654321000',
-                'SBIN0000123',
-                'State Bank of India',
-                $request->query('company') ?: 'Acme Corp',
-                'Kolkata Hub',
-                $request->query('designation') ?: 'Office Assistant',
-                $defaultSalary
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                $request->query('company') ?: '',
+                '',
+                $request->query('designation') ?: '',
+                $defaultSalary ?: ''
             ]);
 
             fclose($file);
@@ -1412,10 +1418,20 @@ class AdminDashboardController extends Controller
         $file = fopen($path, 'r');
 
         $header = fgetcsv($file);
+        if (!$header) {
+            fclose($file);
+            return redirect()->route('admin.employees.index')->with('error', 'Empty CSV file uploaded.');
+        }
 
         $count = 0;
+        $failedCount = 0;
         while (($row = fgetcsv($file)) !== FALSE) {
-            if (count($row) < 4) continue;
+            if (empty(array_filter($row))) continue;
+
+            if (count($row) !== count($header)) {
+                $failedCount++;
+                continue;
+            }
 
             $data = array_combine($header, $row);
             $employee = Employee::where('employee_id', trim($data['employee_id']))->first();
@@ -1473,8 +1489,13 @@ class AdminDashboardController extends Controller
         }
         fclose($file);
 
+        if ($failedCount > 0) {
+            return redirect()->route('admin.employees.index')
+                ->with('warning', "Successfully generated {$count} payslips from CSV. {$failedCount} rows skipped due to column formatting issues.");
+        }
+
         return redirect()->route('admin.employees.index')
-            ->with('success', "Successfully bulk generated {$count} payslips from CSV.");
+            ->with('success', "Successfully bulk generated all {$count} payslips from CSV.");
     }
 
     public function downloadPayslipTemplate()
@@ -1597,7 +1618,14 @@ class AdminDashboardController extends Controller
 
     public function cmsUpdate(Request $request)
     {
-        $data = $request->except('_token');
+        $data = $request->validate([
+            'home_banner_title' => ['required', 'string', 'max:255'],
+            'home_banner_subtitle' => ['required', 'string'],
+            'about_us_text' => ['required', 'string'],
+            'contact_phone' => ['required', 'string', 'max:255'],
+            'contact_email' => ['required', 'email', 'max:255'],
+            'contact_address' => ['required', 'string', 'max:500'],
+        ]);
 
         foreach ($data as $key => $val) {
             SiteContent::updateOrCreate(
@@ -1608,7 +1636,6 @@ class AdminDashboardController extends Controller
 
         return back()->with('success', 'CMS marketing contents updated successfully.');
     }
-
     /*
     |--------------------------------------------------------------------------
     | Inquiries Inbox
@@ -1742,5 +1769,141 @@ class AdminDashboardController extends Controller
 
         return redirect()->route('admin.profile')
             ->with('success', 'Security password changed successfully.');
+    }
+
+    public function showBulkUpload()
+    {
+        return view('admin.documents.bulk-upload');
+    }
+
+    public function bulkUpload(Request $request)
+    {
+        $request->validate([
+            'doc_type' => ['required', 'string', 'in:offer_letter,payslip'],
+            'files' => ['required', 'array', 'min:1'],
+            'files.*' => ['file', 'mimes:pdf'],
+            'month' => ['required_if:doc_type,payslip', 'nullable', 'string'],
+            'type' => ['required_if:doc_type,payslip', 'nullable', 'string', 'in:internal,external'],
+        ]);
+
+        $docType = $request->doc_type;
+        $files = $request->file('files');
+        $month = $request->month;
+        $type = $request->type;
+
+        $successCount = 0;
+        $failedCount = 0;
+        $messages = [];
+
+        foreach ($files as $file) {
+            $originalName = $file->getClientOriginalName();
+            $employeeId = pathinfo($originalName, PATHINFO_FILENAME);
+            $employeeId = trim($employeeId);
+
+            // Match employee by employee_id
+            $employee = Employee::where('employee_id', $employeeId)->first();
+
+            if (!$employee) {
+                $failedCount++;
+                $messages[] = "Skipped '{$originalName}': No employee found with ID '{$employeeId}'.";
+                continue;
+            }
+
+            try {
+                if ($docType === 'offer_letter') {
+                    // Create storage directory if not exists
+                    $dir = public_path('storage/offer_letters');
+                    if (!file_exists($dir)) {
+                        mkdir($dir, 0777, true);
+                    }
+                    $fileName = 'Offer_Letter_' . $employee->employee_id . '_' . time() . '_' . rand(1000, 9999) . '.pdf';
+                    $file->move($dir, $fileName);
+                    $pdfPath = 'storage/offer_letters/' . $fileName;
+
+                    OfferLetter::create([
+                        'employee_id' => $employee->id,
+                        'pdf_path' => $pdfPath,
+                    ]);
+
+                    $successCount++;
+                } else {
+                    // Create storage directory if not exists
+                    $dir = public_path('storage/payslips');
+                    if (!file_exists($dir)) {
+                        mkdir($dir, 0777, true);
+                    }
+                    $fileName = 'Payslip_' . $employee->employee_id . '_' . str_replace(' ', '_', $month) . '_' . time() . '_' . rand(1000, 9999) . '.pdf';
+                    $file->move($dir, $fileName);
+                    $pdfPath = 'storage/payslips/' . $fileName;
+
+                    // Resolve basic, allowances, deductions, net salary from employee profile or defaults
+                    $basic = 0.00;
+                    $allowances = 0.00;
+                    $deductions = 0.00;
+                    $net = 0.00;
+                    $hra = 0.00;
+                    $spAllowance = 0.00;
+                    $employeePf = 0.00;
+                    $employeeEsic = 0.00;
+                    $pTax = 0.00;
+
+                    if ($employee->salary) {
+                        $salaryVal = (float) $employee->salary;
+                        $bonus = ($salaryVal > 5000) ? 500.00 : 0.00;
+                        $basic = round(($salaryVal - $bonus) / 1.215721, 2);
+                        $hra = round($basic * 0.05, 2);
+                        $gross = $basic + $hra;
+                        
+                        $employeePf = round($basic * 0.12, 2);
+                        $employeeEsic = round($gross * 0.00793, 2);
+                        $pTax = ($gross > 15000) ? 150 : (($gross > 10000) ? 110 : 0);
+                        
+                        $deductions = $employeePf + $employeeEsic + $pTax;
+                        $allowances = $gross - $basic;
+                        $net = $gross - $deductions + $bonus;
+                    }
+
+                    Payslip::create([
+                        'employee_id' => $employee->id,
+                        'month' => $month,
+                        'basic_salary' => $basic,
+                        'allowances' => $allowances,
+                        'deductions' => $deductions,
+                        'net_salary' => $net,
+                        'type' => $type,
+                        'pdf_path' => $pdfPath,
+                        'working_days' => 31,
+                        'net_payable_days' => 31,
+                        'ot_days' => 0,
+                        'pay_mode' => 'Bank Transfer',
+                        'hra' => $hra,
+                        'provident_fund' => $employeePf,
+                        'esic' => $employeeEsic,
+                        'professional_tax' => $pTax,
+                    ]);
+
+                    $successCount++;
+                }
+            } catch (\Exception $e) {
+                $failedCount++;
+                $messages[] = "Failed to upload '{$originalName}': " . $e->getMessage();
+            }
+        }
+
+        $summary = [
+            'success_count' => $successCount,
+            'fail_count' => $failedCount,
+            'errors' => $messages,
+        ];
+        
+        session()->flash('bulk_upload_summary', $summary);
+
+        if ($failedCount > 0) {
+            return redirect()->route('admin.documents.bulk-upload')
+                ->with('warning', "Bulk upload completed. Successfully processed: {$successCount}, Skipped/Failed: {$failedCount}.");
+        }
+
+        return redirect()->route('admin.documents.bulk-upload')
+            ->with('success', "Successfully uploaded and assigned {$successCount} document(s).");
     }
 }

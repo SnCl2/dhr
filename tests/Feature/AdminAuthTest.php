@@ -892,4 +892,78 @@ class AdminAuthTest extends TestCase
         $loginResponse->assertRedirect();
         $this->assertAuthenticatedAs($employee, 'employee');
     }
+
+    public function test_admin_can_bulk_upload_offer_letters_and_distribute_by_filename()
+    {
+        $this->seed();
+        $admin = Admin::first();
+        
+        $employee = \App\Models\Employee::create([
+            'employee_id' => 'EMP-BULK-01',
+            'first_name' => 'Bulk',
+            'last_name' => 'One',
+            'email' => 'bulk01@example.com',
+            'password' => Hash::make('password123'),
+            'status' => 'active',
+        ]);
+
+        // Visit upload page
+        $response = $this->actingAs($admin, 'admin')->get(route('admin.documents.bulk-upload'));
+        $response->assertStatus(200);
+
+        // Upload matching and mismatching files
+        $file1 = \Illuminate\Http\UploadedFile::fake()->create('EMP-BULK-01.pdf', 100, 'application/pdf');
+        $file2 = \Illuminate\Http\UploadedFile::fake()->create('EMP-BULK-UNKNOWN.pdf', 100, 'application/pdf');
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.documents.bulk-upload.submit'), [
+            'doc_type' => 'offer_letter',
+            'files' => [$file1, $file2],
+        ]);
+
+        $response->assertRedirect(route('admin.documents.bulk-upload'));
+        
+        // Assert distribution logic succeeded
+        $this->assertEquals(1, \App\Models\OfferLetter::where('employee_id', $employee->id)->count());
+        
+        // Check session flashes
+        $response->assertSessionHas('bulk_upload_summary');
+        $summary = session('bulk_upload_summary');
+        $this->assertEquals(1, $summary['success_count']);
+        $this->assertEquals(1, $summary['fail_count']);
+        $this->assertStringContainsString('EMP-BULK-UNKNOWN.pdf', $summary['errors'][0]);
+    }
+
+    public function test_admin_can_bulk_upload_payslips_and_distribute_by_filename()
+    {
+        $this->seed();
+        $admin = Admin::first();
+        
+        $employee = \App\Models\Employee::create([
+            'employee_id' => 'EMP-BULK-02',
+            'first_name' => 'Bulk',
+            'last_name' => 'Two',
+            'email' => 'bulk02@example.com',
+            'password' => Hash::make('password123'),
+            'status' => 'active',
+            'salary' => 20000.00,
+        ]);
+
+        $file1 = \Illuminate\Http\UploadedFile::fake()->create('EMP-BULK-02.pdf', 100, 'application/pdf');
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.documents.bulk-upload.submit'), [
+            'doc_type' => 'payslip',
+            'files' => [$file1],
+            'month' => 'September 2026',
+            'type' => 'external',
+        ]);
+
+        $response->assertRedirect(route('admin.documents.bulk-upload'));
+        
+        // Assert payslip created
+        $payslip = \App\Models\Payslip::where('employee_id', $employee->id)->first();
+        $this->assertNotNull($payslip);
+        $this->assertEquals('September 2026', $payslip->month);
+        $this->assertEquals('external', $payslip->type);
+        $this->assertGreaterThan(0, $payslip->net_salary);
+    }
 }

@@ -159,9 +159,16 @@
             </a>
 
             @can('view_employees')
-            <a href="{{ route('admin.employees.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.employees.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
+            <a href="{{ route('admin.employees.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.employees.*') && !request()->routeIs('admin.documents.bulk-upload') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-users w-5 text-center"></i>
                 <span>Candidate / Staff CRUD</span>
+            </a>
+            @endcan
+
+            @can('create_employees')
+            <a href="{{ route('admin.documents.bulk-upload') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.documents.bulk-upload') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
+                <i class="fa-solid fa-cloud-arrow-up w-5 text-center"></i>
+                <span>Bulk Upload Docs</span>
             </a>
             @endcan
 

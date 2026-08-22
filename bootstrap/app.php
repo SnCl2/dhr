@@ -29,6 +29,10 @@ return Application::configure(basePath: dirname(__DIR__))
             $currentUrl = $request->url();
 
             if ($previousUrl === $currentUrl || empty($previousUrl)) {
+                if (\Illuminate\Support\Facades\Auth::guard('employee')->check()) {
+                    return redirect()->route('employee.dashboard')
+                        ->with('error', 'Access Denied: You do not have permission to perform this action.');
+                }
                 return redirect()->route('admin.dashboard')
                     ->with('error', 'Access Denied: You do not have permission to perform this action.');
             }
@@ -48,6 +52,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 $currentUrl = $request->url();
 
                 if ($previousUrl === $currentUrl || empty($previousUrl)) {
+                    if (\Illuminate\Support\Facades\Auth::guard('employee')->check()) {
+                        return redirect()->route('employee.dashboard')
+                            ->with('error', 'Access Denied: You do not have permission to perform this action.');
+                    }
                     return redirect()->route('admin.dashboard')
                         ->with('error', 'Access Denied: You do not have permission to perform this action.');
                 }

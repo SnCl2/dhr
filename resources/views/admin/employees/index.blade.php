@@ -469,7 +469,7 @@
             <p class="text-xs text-slate-500">Pre-select Client and Designation to download an Excel/CSV ready template:</p>
             
             <form action="{{ route('admin.employees.download-template') }}" method="GET" class="space-y-3">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                         <label for="template_company" class="block text-xxs font-bold text-slate-600 uppercase tracking-wider mb-1">Assigned Client / Company</label>
                         <select id="template_company" name="company" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs">
@@ -487,6 +487,10 @@
                                 <option value="{{ $desig->name }}">{{ $desig->name }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    <div>
+                        <label for="template_salary" class="block text-xxs font-bold text-slate-600 uppercase tracking-wider mb-1">Default NTH Salary</label>
+                        <input type="number" id="template_salary" name="salary" class="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs shadow-2xs" placeholder="Default (18000)" min="0">
                     </div>
                 </div>
                 <button type="submit" class="w-full py-2.5 bg-white hover:bg-blue-50 text-blue-600 hover:text-blue-700 rounded-xl text-xs font-bold border border-blue-200 hover:border-blue-300 transition-all shadow-2xs flex items-center justify-center">

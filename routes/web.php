@@ -87,6 +87,8 @@ Route::middleware(['auth.admin', 'password.change.staff'])->prefix('admin')->nam
         Route::post('/employees/store', [AdminDashboardController::class, 'employeesStore'])->name('employees.store');
         Route::post('/employees/import', [AdminDashboardController::class, 'employeesImport'])->name('employees.import');
         Route::get('/employees/download-failed-import/{filename}', [AdminDashboardController::class, 'downloadFailedImport'])->name('employees.download-failed-import');
+        Route::get('/documents/bulk-upload', [AdminDashboardController::class, 'showBulkUpload'])->name('documents.bulk-upload');
+        Route::post('/documents/bulk-upload', [AdminDashboardController::class, 'bulkUpload'])->name('documents.bulk-upload.submit');
     });
     Route::middleware(['can:edit_employees'])->group(function () {
         Route::get('/employees/{employee}/edit', [AdminDashboardController::class, 'employeesEdit'])->name('employees.edit');
