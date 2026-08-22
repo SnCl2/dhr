@@ -953,8 +953,7 @@ class AdminAuthTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->post(route('admin.documents.bulk-upload.submit'), [
             'doc_type' => 'payslip',
             'files' => [$file1],
-            'month' => 'September 2026',
-            'type' => 'external',
+            'month' => '2026-09',
         ]);
 
         $response->assertRedirect(route('admin.documents.bulk-upload'));

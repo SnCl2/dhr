@@ -66,23 +66,12 @@
                 </div>
 
                 <!-- Payslip Specific Month Section -->
-                <div id="payslip_fields" class="sm:col-span-2 hidden space-y-6">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div>
-                            <label for="month" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Payslip Month & Year</label>
-                            <input type="text" id="month" name="month" placeholder="e.g., August 2026"
-                                value="{{ old('month') }}"
-                                class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
-                        </div>
-
-                        <div>
-                            <label for="type" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Payroll Type</label>
-                            <select id="type" name="type"
-                                class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
-                                <option value="external" {{ old('type') === 'external' ? 'selected' : '' }}>External Staff</option>
-                                <option value="internal" {{ old('type') === 'internal' ? 'selected' : '' }}>Internal Staff</option>
-                            </select>
-                        </div>
+                <div id="payslip_fields" class="sm:col-span-2 hidden">
+                    <div>
+                        <label for="month" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Payslip Month & Year</label>
+                        <input type="month" id="month" name="month"
+                            value="{{ old('month') }}"
+                            class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-1 focus:ring-purple-500 text-sm">
                     </div>
                 </div>
 

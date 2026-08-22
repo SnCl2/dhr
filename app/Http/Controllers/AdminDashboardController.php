@@ -1782,14 +1782,16 @@ class AdminDashboardController extends Controller
             'doc_type' => ['required', 'string', 'in:offer_letter,payslip'],
             'files' => ['required', 'array', 'min:1'],
             'files.*' => ['file', 'mimes:pdf'],
-            'month' => ['required_if:doc_type,payslip', 'nullable', 'string'],
-            'type' => ['required_if:doc_type,payslip', 'nullable', 'string', 'in:internal,external'],
+            'month' => ['required_if:doc_type,payslip', 'nullable', 'date_format:Y-m'],
         ]);
 
         $docType = $request->doc_type;
         $files = $request->file('files');
-        $month = $request->month;
-        $type = $request->type;
+        
+        $month = null;
+        if ($request->filled('month')) {
+            $month = \Carbon\Carbon::parse($request->month)->format('F Y');
+        }
 
         $successCount = 0;
         $failedCount = 0;
@@ -1870,7 +1872,7 @@ class AdminDashboardController extends Controller
                         'allowances' => $allowances,
                         'deductions' => $deductions,
                         'net_salary' => $net,
-                        'type' => $type,
+                        'type' => ($employee->company_id == 1) ? 'internal' : 'external',
                         'pdf_path' => $pdfPath,
                         'working_days' => 31,
                         'net_payable_days' => 31,
