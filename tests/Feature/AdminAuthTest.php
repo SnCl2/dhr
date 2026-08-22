@@ -628,4 +628,194 @@ class AdminAuthTest extends TestCase
         $nextIdCompany1 = \App\Models\Employee::generateNextEmployeeId(1);
         $this->assertEquals('RM010002', $nextIdCompany1);
     }
+
+    public function test_admin_import_handles_failures_and_generates_failed_csv(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        // Let's create an existing email in DB to force validation failure
+        \App\Models\Employee::create([
+            'employee_id' => 'RM019999',
+            'aadhaar_full_name' => 'Existing Person',
+            'email' => 'existing.person@example.com',
+            'password' => bcrypt('password'),
+            'status' => 'active',
+        ]);
+
+        $csvContent = implode(',', [
+            'Full Name as per Aadhaar',
+            'Aadhaar Number',
+            'PAN Number',
+            'Voter ID Number',
+            'Prefix',
+            "Father's Name as per Aadhaar",
+            "Mother's Name as per Aadhaar",
+            'Gender',
+            'Date of Birth',
+            'Mother Tongue',
+            'Full Address as per Aadhaar',
+            'Landmark',
+            'Contact Number',
+            'City',
+            'Emargency Contact Number',
+            'Pin Code',
+            'State',
+            'Last Qualification',
+            'Pass out Year',
+            'Marital Status',
+            'Email ID',
+            'Old UAN Number',
+            'Old ESIC Number',
+            'Bank Account Number',
+            'IFSC Code Number',
+            'Bank Name',
+            'Client Name',
+            'Work Location',
+            'Designation',
+            'NTH Salary'
+        ]) . "\n" . 
+        // 1. Success row
+        implode(',', [
+            'Success Person',
+            '123456789012',
+            'ABCDE1234F',
+            'VOTER123',
+            'Mr.',
+            'Father Success',
+            'Mother Success',
+            'Male',
+            '1995-01-01',
+            'Hindi',
+            '123 Address',
+            'Near Landmark',
+            '9876543210',
+            'Kolkata',
+            '9876543210',
+            '700001',
+            'West Bengal',
+            'Graduate',
+            '2018',
+            'Single',
+            'success.person@example.com',
+            'UAN12345',
+            'ESIC12345',
+            'ACC12345',
+            'IFSC12345',
+            'Bank of India',
+            'Acme Corp',
+            'Kolkata Branch',
+            'Support Staff',
+            '15000'
+        ]) . "\n" . 
+        // 2. Failure row: duplicate email
+        implode(',', [
+            'Duplicate Email Person',
+            '223456789012',
+            'ABCDE1234F',
+            'VOTER123',
+            'Mr.',
+            'Father Dup',
+            'Mother Dup',
+            'Male',
+            '1995-01-01',
+            'Hindi',
+            '123 Address',
+            'Near Landmark',
+            '9876543210',
+            'Kolkata',
+            '9876543210',
+            '700001',
+            'West Bengal',
+            'Graduate',
+            '2018',
+            'Single',
+            'existing.person@example.com',
+            'UAN12345',
+            'ESIC12345',
+            'ACC12345',
+            'IFSC12345',
+            'Bank of India',
+            'Acme Corp',
+            'Kolkata Branch',
+            'Support Staff',
+            '15000'
+        ]) . "\n" . 
+        // 3. Failure row: missing Aadhaar number and contact number
+        implode(',', [
+            'Missing Fields Person',
+            '', // Missing Aadhaar
+            'ABCDE1234F',
+            'VOTER123',
+            'Mr.',
+            'Father Miss',
+            'Mother Miss',
+            'Male',
+            '1995-01-01',
+            'Hindi',
+            '123 Address',
+            'Near Landmark',
+            '', // Missing Contact
+            'Kolkata',
+            '9876543210',
+            '700001',
+            'West Bengal',
+            'Graduate',
+            '2018',
+            'Single',
+            'missing.person@example.com',
+            'UAN12345',
+            'ESIC12345',
+            'ACC12345',
+            'IFSC12345',
+            'Bank of India',
+            'Acme Corp',
+            'Kolkata Branch',
+            'Support Staff',
+            '15000'
+        ]);
+
+        $file = \Illuminate\Http\UploadedFile::fake()->createWithContent('import_failures.csv', $csvContent);
+
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.import'), [
+            'csv_file' => $file,
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+        $response->assertSessionHas('import_summary');
+
+        $summary = session('import_summary');
+        $this->assertEquals(1, $summary['success_count']);
+        $this->assertEquals(2, $summary['fail_count']);
+        $this->assertNotNull($summary['failed_file']);
+        $this->assertCount(2, $summary['errors']);
+
+        // Check details of first error (duplicate email)
+        $this->assertEquals('Duplicate Email Person', $summary['errors'][0]['name']);
+        $this->assertStringContainsString('already been taken', implode(' ', $summary['errors'][0]['reasons']));
+
+        // Check details of second error (missing fields)
+        $this->assertEquals('Missing Fields Person', $summary['errors'][1]['name']);
+        $this->assertStringContainsString('Aadhaar Number is required', implode(' ', $summary['errors'][1]['reasons']));
+        $this->assertStringContainsString('Contact Number is required', implode(' ', $summary['errors'][1]['reasons']));
+
+        // Assert database has successfully imported candidate and not the failed ones
+        $this->assertDatabaseHas('employees', ['email' => 'success.person@example.com']);
+        $this->assertDatabaseMissing('employees', ['email' => 'missing.person@example.com']);
+
+        // Test downloading the failed CSV file
+        $downloadResponse = $this->actingAs($admin, 'admin')->get(route('admin.employees.download-failed-import', [
+            'filename' => $summary['failed_file']
+        ]));
+
+        $downloadResponse->assertStatus(200);
+        $downloadResponse->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $downloadResponse->assertHeader('Content-Disposition', 'attachment; filename=failed_candidate_records.csv');
+
+        // Clean up the generated file
+        $filePath = storage_path('app/failed_imports/' . $summary['failed_file']);
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+    }
 }

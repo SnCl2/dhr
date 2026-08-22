@@ -532,6 +532,96 @@
         </form>
     </div>
 </div>
+
+@if(session()->has('import_summary'))
+    @php $summary = session('import_summary'); @endphp
+    <!-- CSV Import Results Modal (Popup) -->
+    <div id="csv-results-modal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white p-6 sm:p-8 rounded-3xl max-w-2xl w-full border border-slate-200 shadow-2xl space-y-5 flex flex-col max-h-[90vh]">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl {{ $summary['fail_count'] > 0 ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600' }} flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-outfit font-bold text-base text-slate-800">CSV Bulk Import Summary</h3>
+                        <p class="text-xs text-slate-500">Overview of successfully imported and failed candidate records</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('csv-results-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 gap-4 shrink-0">
+                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-center">
+                    <span class="block text-xxs font-bold text-emerald-800 uppercase tracking-wider mb-1">Successfully Imported</span>
+                    <span class="text-2xl font-bold text-emerald-700">{{ $summary['success_count'] }}</span>
+                </div>
+                <div class="p-4 rounded-2xl {{ $summary['fail_count'] > 0 ? 'bg-rose-50 border-rose-100 text-rose-700' : 'bg-slate-50 border-slate-100 text-slate-500' }} text-center">
+                    <span class="block text-xxs font-bold uppercase tracking-wider mb-1 {{ $summary['fail_count'] > 0 ? 'text-rose-800' : 'text-slate-500' }}">Failed / Skipped</span>
+                    <span class="text-2xl font-bold {{ $summary['fail_count'] > 0 ? 'text-rose-700' : 'text-slate-500' }}">{{ $summary['fail_count'] }}</span>
+                </div>
+            </div>
+
+            @if($summary['fail_count'] > 0)
+                <div class="space-y-2 flex-grow overflow-hidden flex flex-col">
+                    <div class="flex items-center justify-between shrink-0">
+                        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Failed Record Details</h4>
+                        <span class="text-xxs font-semibold bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full">Requires Correction</span>
+                    </div>
+                    
+                    <!-- Scrollable Table -->
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden flex-grow overflow-y-auto min-h-[150px]">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 border-b border-slate-200 font-semibold sticky top-0 z-10">
+                                <tr>
+                                    <th class="px-4 py-2 text-slate-600 w-16 text-center">Row</th>
+                                    <th class="px-4 py-2 text-slate-650 w-44">Name</th>
+                                    <th class="px-4 py-2 text-slate-650">Reasons</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 bg-white">
+                                @foreach($summary['errors'] as $err)
+                                    <tr class="hover:bg-slate-50/50">
+                                        <td class="px-4 py-2.5 font-bold text-slate-500 text-center">{{ $err['row'] }}</td>
+                                        <td class="px-4 py-2.5">
+                                            <span class="font-bold text-slate-800 block">{{ $err['name'] }}</span>
+                                            <span class="text-xxs text-slate-400 font-medium">{{ $err['email'] }}</span>
+                                        </td>
+                                        <td class="px-4 py-2.5 text-rose-600 font-medium">
+                                            <ul class="list-disc list-inside space-y-0.5 text-xxs">
+                                                @foreach($err['reasons'] as $reason)
+                                                    <li>{{ $reason }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100 shrink-0">
+                @if($summary['fail_count'] > 0 && !empty($summary['failed_file']))
+                    <a href="{{ route('admin.employees.download-failed-import', ['filename' => $summary['failed_file']]) }}"
+                       class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-bold shadow-md shadow-orange-500/10 transition-all flex items-center">
+                        <i class="fa-solid fa-download mr-2 text-sm"></i> Download Failed Records CSV
+                    </a>
+                @else
+                    <div></div>
+                @endif
+                <button type="button" onclick="document.getElementById('csv-results-modal').classList.add('hidden')"
+                    class="px-6 py-2.5 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-semibold transition-all">
+                    Close Summary
+                </button>
+            </div>
+        </div>
+    </div>
+@endif
 @endsection
 
 @section('scripts')

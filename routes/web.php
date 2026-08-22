@@ -86,6 +86,7 @@ Route::middleware(['auth.admin', 'password.change.staff'])->prefix('admin')->nam
         Route::get('/employees/create', [AdminDashboardController::class, 'employeesCreate'])->name('employees.create');
         Route::post('/employees/store', [AdminDashboardController::class, 'employeesStore'])->name('employees.store');
         Route::post('/employees/import', [AdminDashboardController::class, 'employeesImport'])->name('employees.import');
+        Route::get('/employees/download-failed-import/{filename}', [AdminDashboardController::class, 'downloadFailedImport'])->name('employees.download-failed-import');
     });
     Route::middleware(['can:edit_employees'])->group(function () {
         Route::get('/employees/{employee}/edit', [AdminDashboardController::class, 'employeesEdit'])->name('employees.edit');

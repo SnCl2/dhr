@@ -609,8 +609,15 @@ class AdminDashboardController extends Controller
         $normalizedHeaders = array_map($normalizeKey, $rawHeader);
         
         $importedCount = 0;
+        $failedCount = 0;
+        $seenEmails = [];
+        $failedRowsInfo = [];
+        $failedFileName = null;
+        $failedFileHandle = null;
 
+        $rowNum = 1; // Header is row 1
         while (($row = fgetcsv($file)) !== FALSE) {
+            $rowNum++;
             if (empty(array_filter($row))) continue;
 
             $data = [];
@@ -624,18 +631,102 @@ class AdminDashboardController extends Controller
             $fullName = $data['fullnameasperaadhaar'] ?? $data['fullname'] ?? $data['name'] ?? $data['aadhaarfullname'] ?? '';
             $email = $data['emailid'] ?? $data['email'] ?? '';
             
-            if (empty($fullName) && empty($email)) {
-                continue;
-            }
-
-            // Default email if missing
-            if (empty($email)) {
+            // Default email if missing and name exists, matching original behavior
+            if (empty($email) && !empty($fullName)) {
                 $cleanName = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($fullName)) ?: 'emp';
                 $email = $cleanName . rand(100, 9999) . '@rmhrsolutions.in';
             }
 
-            // Skip existing emails
-            if (Employee::where('email', $email)->exists()) {
+            $rowErrors = [];
+
+            // 1. Validate Full Name
+            if (empty($fullName)) {
+                $rowErrors[] = "Full Name as per Aadhaar is required.";
+            }
+
+            // 2. Validate Email
+            if (empty($email)) {
+                $rowErrors[] = "Email ID is required.";
+            } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $rowErrors[] = "Email ID '$email' has an invalid format.";
+            } elseif (Employee::where('email', $email)->exists()) {
+                $rowErrors[] = "Email ID '$email' has already been taken.";
+            } elseif (in_array($email, $seenEmails)) {
+                $rowErrors[] = "Duplicate Email ID '$email' in this CSV batch.";
+            }
+
+            // 3. Validate Aadhaar Number
+            $aadhaar = $data['aadhaarnumber'] ?? '';
+            if (empty($aadhaar)) {
+                $rowErrors[] = "Aadhaar Number is required.";
+            } elseif ($aadhaar !== 'NA' && !preg_match('/^\d{12}$/', $aadhaar)) {
+                $rowErrors[] = "Aadhaar Number must be exactly 12 digits.";
+            }
+
+            // 4. Validate Contact Number
+            $contact = $data['contactnumber'] ?? $data['phone'] ?? '';
+            if (empty($contact)) {
+                $rowErrors[] = "Contact Number is required.";
+            }
+
+            // 5. Validate Bank Details
+            $bankAcc = $data['bankaccountnumber'] ?? '';
+            if (empty($bankAcc)) {
+                $rowErrors[] = "Bank Account Number is required.";
+            }
+
+            $ifsc = $data['ifsccodenumber'] ?? $data['ifsccode'] ?? '';
+            if (empty($ifsc)) {
+                $rowErrors[] = "IFSC Code is required.";
+            }
+
+            // 6. Validate NTH Salary
+            $nthSalaryRaw = $data['nthsalary'] ?? $data['salary'] ?? '';
+            if ($nthSalaryRaw === '') {
+                $rowErrors[] = "NTH Salary is required.";
+            } elseif (!is_numeric($nthSalaryRaw)) {
+                $rowErrors[] = "NTH Salary must be a number.";
+            }
+
+            // If there are validation failures, skip database insertion and write to failed CSV
+            if (!empty($rowErrors)) {
+                $failedCount++;
+                $failedRowsInfo[] = [
+                    'row' => $rowNum,
+                    'name' => $fullName ?: 'Unknown',
+                    'email' => $email ?: 'Unknown',
+                    'reasons' => $rowErrors,
+                ];
+
+                // Lazy initialize the failed CSV file
+                if (!$failedFileHandle) {
+                    $directory = storage_path('app/failed_imports');
+                    if (!file_exists($directory)) {
+                        mkdir($directory, 0755, true);
+                    }
+                    $failedFileName = 'failed_import_' . time() . '_' . \Illuminate\Support\Str::random(10) . '.csv';
+                    $failedFilePath = $directory . '/' . $failedFileName;
+                    $failedFileHandle = fopen($failedFilePath, 'w');
+                    
+                    // Add UTF-8 BOM for Excel compatibility
+                    fputs($failedFileHandle, "\xEF\xBB\xBF");
+
+                    // Write header with an extra "Failure Reason" column
+                    $failedHeader = $rawHeader;
+                    $failedHeader[] = 'Failure Reason';
+                    fputcsv($failedFileHandle, $failedHeader);
+                }
+
+                // Write the failed row to file
+                $failedRowData = $row;
+                $headerCount = count($rawHeader);
+                $rowLength = count($failedRowData);
+                if ($rowLength < $headerCount) {
+                    $failedRowData = array_pad($failedRowData, $headerCount, '');
+                }
+                $failedRowData[] = implode('; ', $rowErrors);
+                fputcsv($failedFileHandle, $failedRowData);
+
                 continue;
             }
 
@@ -671,7 +762,7 @@ class AdminDashboardController extends Controller
             // Generate temporary password
             $plainPassword = 'password1234';
 
-            $nthSalary = (float) ($data['nthsalary'] ?? $data['salary'] ?? 15000.00);
+            $nthSalary = (float) $nthSalaryRaw;
             $grossSalary = $nthSalary > 0 ? round($nthSalary * 1.15, 2) : 15000.00;
 
             Employee::create([
@@ -718,13 +809,50 @@ class AdminDashboardController extends Controller
                 'nth_salary' => $nthSalary,
             ]);
 
+            $seenEmails[] = $email;
             $importedCount++;
         }
 
         fclose($file);
 
+        if ($failedFileHandle) {
+            fclose($failedFileHandle);
+        }
+
+        // Store the result summary in the session to show in popup modal
+        $summary = [
+            'success_count' => $importedCount,
+            'fail_count' => $failedCount,
+            'errors' => $failedRowsInfo,
+            'failed_file' => $failedFileName,
+        ];
+        session()->flash('import_summary', $summary);
+
+        if ($failedCount > 0) {
+            return redirect()->route('admin.employees.index')
+                ->with('warning', "CSV Import completed with some issues. Successfully imported: {$importedCount}, Failed: {$failedCount}.");
+        }
+
         return redirect()->route('admin.employees.index')
-            ->with('success', "Successfully imported {$importedCount} candidates/employees from CSV.");
+            ->with('success', "Successfully imported all {$importedCount} candidates/employees from CSV.");
+    }
+
+    public function downloadFailedImport($filename)
+    {
+        // Simple security checks to prevent directory traversal
+        if (str_contains($filename, '..') || str_contains($filename, '/') || str_contains($filename, '\\')) {
+            abort(404);
+        }
+
+        $filePath = storage_path('app/failed_imports/' . $filename);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'File not found or has expired.');
+        }
+
+        return response()->download($filePath, 'failed_candidate_records.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 
     public function loginAsEmployee(Employee $employee)
