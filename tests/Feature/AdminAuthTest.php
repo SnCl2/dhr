@@ -818,4 +818,78 @@ class AdminAuthTest extends TestCase
             unlink($filePath);
         }
     }
+
+    public function test_admin_can_update_employee_password(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+
+        // Create an employee first
+        $employee = \App\Models\Employee::create([
+            'employee_id' => 'EMP-RESET-PWD',
+            'aadhaar_full_name' => 'Reset Pwd Person',
+            'email' => 'reset.pwd@example.com',
+            'password' => bcrypt('oldpassword123'),
+            'status' => 'active',
+            'first_name' => 'Reset',
+            'last_name' => 'Pwd',
+        ]);
+
+        $dept = \App\Models\Department::first();
+        $desig = \App\Models\Designation::first();
+        $company = \App\Models\Company::first();
+
+        // Update employee details including password
+        $response = $this->actingAs($admin, 'admin')->put(route('admin.employees.update', $employee), [
+            'email' => 'reset.pwd@example.com',
+            'status' => 'active',
+            'department_id' => $dept->id,
+            'designation_id' => $desig->id,
+            'company_id' => $company->id,
+            'joining_date' => '2026-08-17',
+            'salary' => 16000.00,
+            'aadhaar_full_name' => 'Reset Pwd Person',
+            'aadhaar_number' => '987654321012',
+            'prefix' => 'Mr.',
+            'father_name_aadhaar' => 'Richard Doe',
+            'mother_name_aadhaar' => 'Mary Doe',
+            'gender' => 'Male',
+            'dob' => '1990-05-15',
+            'mother_tongue' => 'Hindi',
+            'aadhaar_address' => '456 Park Avenue, Delhi',
+            'landmark' => 'Near Metro Gate 3',
+            'contact_number' => '9999988888',
+            'city' => 'Delhi',
+            'emergency_contact_number' => '9999988889',
+            'pin_code' => '110001',
+            'state' => 'Delhi',
+            'last_qualification' => 'Post Graduate',
+            'pass_out_year' => '2012',
+            'marital_status' => 'Married',
+            'old_uan_number' => '100888888888',
+            'bank_account_number' => '9876543210',
+            'ifsc_code' => 'SBIN0000123',
+            'bank_name' => 'State Bank of India',
+            'work_location' => 'Delhi Hub',
+            'nth_salary' => 14000.00,
+            'password' => 'newpassword123',
+        ]);
+
+        $response->assertRedirect(route('admin.employees.index'));
+        
+        $employee->refresh();
+        
+        // Verify password was changed by trying to log in
+        $this->assertTrue(\Illuminate\Support\Facades\Hash::check('newpassword123', $employee->password));
+        $this->assertFalse(\Illuminate\Support\Facades\Hash::check('oldpassword123', $employee->password));
+
+        // Test login with the updated password
+        $loginResponse = $this->post(route('login.submit'), [
+            'employee_id' => 'EMP-RESET-PWD',
+            'password' => 'newpassword123',
+        ]);
+        
+        $loginResponse->assertRedirect();
+        $this->assertAuthenticatedAs($employee, 'employee');
+    }
 }

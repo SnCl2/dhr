@@ -390,6 +390,9 @@ class AdminDashboardController extends Controller
             // Profile Image & Documents
             'profile_image' => ['nullable', 'image', 'mimes:jpeg,jpg,png,webp', 'max:5120'],
             'employee_document' => ['nullable', 'file', 'mimes:jpeg,jpg,png,pdf,zip,rar,doc,docx', 'max:20480'],
+
+            // Optional Login Password override
+            'password' => ['nullable', 'string', 'min:8'],
         ]);
 
         if ($request->hasFile('profile_image')) {
@@ -416,6 +419,12 @@ class AdminDashboardController extends Controller
             $validated['employee_document'] = 'storage/' . $path;
         } else {
             unset($validated['employee_document']);
+        }
+
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($request->password);
+        } else {
+            unset($validated['password']);
         }
 
         $employee->update($validated);

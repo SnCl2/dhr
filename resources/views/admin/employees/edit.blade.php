@@ -185,6 +185,16 @@
                         <input type="text" id="emergency_contact_number" name="emergency_contact_number" value="{{ old('emergency_contact_number', $employee->emergency_contact_number) }}" class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-xs" placeholder="Emergency Phone" required>
                         @error('emergency_contact_number') <p class="mt-1.5 text-xs text-rose-500 font-medium">{{ $message }}</p> @enderror
                     </div>
+
+                    <!-- Reset Password -->
+                    <div class="sm:col-span-3">
+                        <label for="password" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Update Password <span class="text-slate-400 font-normal">(Optional)</span></label>
+                        <input type="password" id="password" name="password"
+                            class="mt-2 block w-full px-4 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-xs"
+                            placeholder="••••••••">
+                        <span class="text-[11px] text-slate-500 mt-1.5 block leading-relaxed"><i class="fa-solid fa-circle-info mr-1 text-blue-500"></i> Leave this field blank if you do not want to change the candidate's password.</span>
+                        @error('password') <p class="mt-1.5 text-xs text-rose-500 font-medium">{{ $message }}</p> @enderror
+                    </div>
                 </div>
 
                 <!-- Full Address -->
