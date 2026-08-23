@@ -172,6 +172,13 @@
             </a>
             @endcan
 
+            @can('view_employees')
+            <a href="{{ route('admin.audit-logs.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.audit-logs.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
+                <i class="fa-solid fa-clock-rotate-left w-5 text-center"></i>
+                <span>Audit & Import Logs</span>
+            </a>
+            @endcan
+
             @can('view_companies')
             <a href="{{ route('admin.companies.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.companies.*') ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/10' : 'text-slate-600 hover:text-purple-650 hover:bg-slate-100' }}">
                 <i class="fa-solid fa-building w-5 text-center"></i>

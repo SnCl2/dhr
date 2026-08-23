@@ -14,6 +14,7 @@ use App\Models\Inquiry;
 use App\Models\Bulletin;
 use App\Models\SiteContent;
 use App\Models\Staff;
+use App\Models\AuditLog;
 use App\Services\DocumentGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -629,6 +630,7 @@ class AdminDashboardController extends Controller
         $failedRowsInfo = [];
         $failedFileName = null;
         $failedFileHandle = null;
+        $importedCandidates = [];
 
         $rowNum = 1; // Header is row 1
         while (($row = fgetcsv($file)) !== FALSE) {
@@ -826,6 +828,11 @@ class AdminDashboardController extends Controller
 
             $seenEmails[] = $email;
             $importedCount++;
+            $importedCandidates[] = [
+                'identifier' => $employeeId,
+                'name' => $fullName,
+                'message' => "Successfully imported employee {$employeeId}."
+            ];
         }
 
         fclose($file);
@@ -833,6 +840,33 @@ class AdminDashboardController extends Controller
         if ($failedFileHandle) {
             fclose($failedFileHandle);
         }
+
+        // Create audit log entry
+        $guard = \Illuminate\Support\Facades\Auth::guard('admin')->check() ? 'admin' : 'staff';
+        $user = \Illuminate\Support\Facades\Auth::guard($guard)->user();
+
+        $logDetails = [
+            'success' => $importedCandidates,
+            'failures' => array_map(function($info) {
+                return [
+                    'row_or_file' => 'Row ' . $info['row'],
+                    'identifier' => $info['email'] ?: 'Unknown',
+                    'reasons' => $info['reasons'],
+                ];
+            }, $failedRowsInfo),
+        ];
+
+        AuditLog::create([
+            'activity_type' => 'employee_import',
+            'performed_by_type' => get_class($user),
+            'performed_by_id' => $user->id,
+            'performed_by_name' => $user->name,
+            'filename' => $request->file('csv_file')->getClientOriginalName(),
+            'success_count' => $importedCount,
+            'failed_count' => $failedCount,
+            'failed_csv_path' => $failedFileName ? 'failed_imports/' . $failedFileName : null,
+            'details' => $logDetails,
+        ]);
 
         // Store the result summary in the session to show in popup modal
         $summary = [
@@ -1423,21 +1457,42 @@ class AdminDashboardController extends Controller
             return redirect()->route('admin.employees.index')->with('error', 'Empty CSV file uploaded.');
         }
 
-        $count = 0;
+        $successCount = 0;
         $failedCount = 0;
+        $successLogs = [];
+        $failedLogs = [];
+        $rowNum = 1;
+
         while (($row = fgetcsv($file)) !== FALSE) {
+            $rowNum++;
             if (empty(array_filter($row))) continue;
 
             if (count($row) !== count($header)) {
                 $failedCount++;
+                $failedLogs[] = [
+                    'row_or_file' => 'Row ' . $rowNum,
+                    'identifier' => 'Unknown',
+                    'reasons' => ["Column count mismatch. Expected " . count($header) . ", got " . count($row)]
+                ];
                 continue;
             }
 
             $data = array_combine($header, $row);
-            $employee = Employee::where('employee_id', trim($data['employee_id']))->first();
+            $employeeId = trim($data['employee_id'] ?? '');
+            $employee = Employee::where('employee_id', $employeeId)->first();
 
-            if ($employee) {
-                $month = $data['month'];
+            if (!$employee) {
+                $failedCount++;
+                $failedLogs[] = [
+                    'row_or_file' => 'Row ' . $rowNum,
+                    'identifier' => $employeeId,
+                    'reasons' => ["No candidate/employee found with ID '{$employeeId}'"]
+                ];
+                continue;
+            }
+
+            try {
+                $month = $data['month'] ?? '';
                 $type = $data['type'] ?? 'external';
                 
                 $basic = (float) ($data['basic_salary'] ?? 0);
@@ -1484,18 +1539,48 @@ class AdminDashboardController extends Controller
 
                 Payslip::create($payslipData);
 
-                $count++;
+                $successCount++;
+                $successLogs[] = [
+                    'identifier' => $employee->employee_id,
+                    'name' => $employee->full_name,
+                    'message' => "Successfully generated payslip for {$month}."
+                ];
+            } catch (\Exception $e) {
+                $failedCount++;
+                $failedLogs[] = [
+                    'row_or_file' => 'Row ' . $rowNum,
+                    'identifier' => $employee->employee_id,
+                    'reasons' => [$e->getMessage()]
+                ];
             }
         }
         fclose($file);
 
+        // Create audit log entry
+        $guard = \Illuminate\Support\Facades\Auth::guard('admin')->check() ? 'admin' : 'staff';
+        $user = \Illuminate\Support\Facades\Auth::guard($guard)->user();
+
+        AuditLog::create([
+            'activity_type' => 'bulk_payslip_generate',
+            'performed_by_type' => get_class($user),
+            'performed_by_id' => $user->id,
+            'performed_by_name' => $user->name,
+            'filename' => $request->file('csv_file')->getClientOriginalName(),
+            'success_count' => $successCount,
+            'failed_count' => $failedCount,
+            'details' => [
+                'success' => $successLogs,
+                'failures' => $failedLogs,
+            ],
+        ]);
+
         if ($failedCount > 0) {
             return redirect()->route('admin.employees.index')
-                ->with('warning', "Successfully generated {$count} payslips from CSV. {$failedCount} rows skipped due to column formatting issues.");
+                ->with('warning', "Successfully generated {$successCount} payslips from CSV. {$failedCount} rows skipped due to column formatting or missing data issues.");
         }
 
         return redirect()->route('admin.employees.index')
-            ->with('success', "Successfully bulk generated all {$count} payslips from CSV.");
+            ->with('success', "Successfully bulk generated all {$successCount} payslips from CSV.");
     }
 
     public function downloadPayslipTemplate()
@@ -1796,6 +1881,8 @@ class AdminDashboardController extends Controller
         $successCount = 0;
         $failedCount = 0;
         $messages = [];
+        $successLogs = [];
+        $failedLogs = [];
 
         foreach ($files as $file) {
             $originalName = $file->getClientOriginalName();
@@ -1808,6 +1895,11 @@ class AdminDashboardController extends Controller
             if (!$employee) {
                 $failedCount++;
                 $messages[] = "Skipped '{$originalName}': No employee found with ID '{$employeeId}'.";
+                $failedLogs[] = [
+                    'row_or_file' => $originalName,
+                    'identifier' => $employeeId,
+                    'reasons' => ["No employee found with ID '{$employeeId}'"]
+                ];
                 continue;
             }
 
@@ -1828,6 +1920,11 @@ class AdminDashboardController extends Controller
                     ]);
 
                     $successCount++;
+                    $successLogs[] = [
+                        'identifier' => $employee->employee_id,
+                        'name' => $employee->full_name,
+                        'message' => "Successfully uploaded offer letter PDF '{$originalName}'"
+                    ];
                 } else {
                     // Create storage directory if not exists
                     $dir = public_path('storage/payslips');
@@ -1885,12 +1982,40 @@ class AdminDashboardController extends Controller
                     ]);
 
                     $successCount++;
+                    $successLogs[] = [
+                        'identifier' => $employee->employee_id,
+                        'name' => $employee->full_name,
+                        'message' => "Successfully uploaded payslip PDF '{$originalName}'"
+                    ];
                 }
             } catch (\Exception $e) {
                 $failedCount++;
                 $messages[] = "Failed to upload '{$originalName}': " . $e->getMessage();
+                $failedLogs[] = [
+                    'row_or_file' => $originalName,
+                    'identifier' => $employeeId,
+                    'reasons' => [$e->getMessage()]
+                ];
             }
         }
+
+        // Create audit log entry
+        $guard = \Illuminate\Support\Facades\Auth::guard('admin')->check() ? 'admin' : 'staff';
+        $user = \Illuminate\Support\Facades\Auth::guard($guard)->user();
+
+        AuditLog::create([
+            'activity_type' => $docType === 'offer_letter' ? 'bulk_offer_letter_upload' : 'bulk_payslip_upload',
+            'performed_by_type' => get_class($user),
+            'performed_by_id' => $user->id,
+            'performed_by_name' => $user->name,
+            'filename' => "Uploaded " . count($files) . " PDF file(s)",
+            'success_count' => $successCount,
+            'failed_count' => $failedCount,
+            'details' => [
+                'success' => $successLogs,
+                'failures' => $failedLogs,
+            ],
+        ]);
 
         $summary = [
             'success_count' => $successCount,
@@ -1907,5 +2032,50 @@ class AdminDashboardController extends Controller
 
         return redirect()->route('admin.documents.bulk-upload')
             ->with('success', "Successfully uploaded and assigned {$successCount} document(s).");
+    }
+
+    public function auditLogsIndex(Request $request)
+    {
+        $query = AuditLog::latest();
+
+        if ($request->filled('activity_type')) {
+            $query->where('activity_type', $request->activity_type);
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        $logs = $query->paginate(15)->withQueryString();
+
+        return view('admin.audit-logs.index', compact('logs'));
+    }
+
+    public function auditLogsShowJson(AuditLog $auditLog)
+    {
+        return response()->json($auditLog->details);
+    }
+
+    public function downloadFailedImportFromLog(AuditLog $auditLog)
+    {
+        $filename = $auditLog->failed_csv_path;
+        if (!$filename) {
+            abort(404, 'No failed CSV file associated with this log.');
+        }
+
+        $filename = basename($filename);
+        $filePath = storage_path('app/failed_imports/' . $filename);
+
+        if (!file_exists($filePath)) {
+            abort(404, 'Failed CSV file not found or has expired.');
+        }
+
+        return response()->download($filePath, 'failed_candidate_records.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
     }
 }

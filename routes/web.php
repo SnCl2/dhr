@@ -81,6 +81,11 @@ Route::middleware(['auth.admin', 'password.change.staff'])->prefix('admin')->nam
         Route::get('/employees/download-template', [AdminDashboardController::class, 'downloadEmployeeTemplate'])->name('employees.download-template');
         Route::get('/employees/export', [AdminDashboardController::class, 'employeesExport'])->name('employees.export');
         Route::post('/employees/bulk-action', [AdminDashboardController::class, 'employeesBulkAction'])->name('employees.bulk-action');
+        
+        // Audit & Import Logs
+        Route::get('/audit-logs', [AdminDashboardController::class, 'auditLogsIndex'])->name('audit-logs.index');
+        Route::get('/audit-logs/{auditLog}/json', [AdminDashboardController::class, 'auditLogsShowJson'])->name('audit-logs.json');
+        Route::get('/audit-logs/{auditLog}/download', [AdminDashboardController::class, 'downloadFailedImportFromLog'])->name('audit-logs.download-failed');
     });
     Route::middleware(['can:create_employees'])->group(function () {
         Route::get('/employees/create', [AdminDashboardController::class, 'employeesCreate'])->name('employees.create');
