@@ -83,7 +83,7 @@
                             <span class="text-[10px] text-slate-400 font-mono">{{ basename(str_replace('\\', '/', $log->performed_by_type)) }} (ID: {{ $log->performed_by_id }})</span>
                         </div>
                     </td>
-                    <td class="p-4 text-xs text-slate-500">{{ $log->created_at->setTimezone('Asia/Kolkata')->format('d-M-Y h:i A') }}</td>
+                    <td class="p-4 text-xs text-slate-500">{{ $log->created_at ? $log->created_at->format('d-M-Y h:i A') : 'N/A' }}</td>
                     <td class="p-4 text-xs text-slate-650 max-w-[200px] truncate" title="{{ $log->filename }}">{{ $log->filename ?: 'N/A' }}</td>
                     <td class="p-4 text-center">
                         <div class="inline-flex items-center space-x-1.5 text-xs font-semibold">
