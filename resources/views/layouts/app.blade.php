@@ -297,7 +297,7 @@
             </div>
 
             <div class="mt-12 pt-8 border-t border-slate-900 flex flex-col md:flex-row items-center justify-between text-slate-500 text-xs">
-                <p>&copy; {{ date('Y') }} Propszy Infotech. All rights reserved.</p>
+                <p>2026, RM HR Solutions Private Limited. All right reserved</p>
                 <div class="flex space-x-4 mt-4 md:mt-0">
                     <a href="#" class="hover:text-purple-400">Privacy Policy</a>
                     <a href="#" class="hover:text-purple-400">Terms of Service</a>
