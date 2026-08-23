@@ -32,7 +32,7 @@
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Assigned Permissions</th>
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Account Status</th>
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Password Changed</th>
-                        <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Date Registered</th>
+                        <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500">Created / Updated</th>
                         <th class="p-5 text-xs font-bold uppercase tracking-wider text-slate-500 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -83,9 +83,12 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="p-5 text-xs text-slate-500">
-                                {{ $staff->created_at->format('d-M-Y h:i A') }}
-                            </td>
+                             <td class="p-5 text-xs text-slate-500">
+                                 <div class="flex flex-col">
+                                     <span>C: {{ $staff->created_at ? $staff->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                                     <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $staff->updated_at ? $staff->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                                 </div>
+                             </td>
                             <td class="p-5 text-right space-x-2">
                                 <form action="{{ route('admin.staff.toggle-status', $staff) }}" method="POST" class="inline">
                                     @csrf

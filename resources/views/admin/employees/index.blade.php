@@ -330,6 +330,7 @@
                             <th class="p-5">Contact Details</th>
                             <th class="p-5">Company & Designation</th>
                             <th class="p-5">Status</th>
+                            <th class="p-5">Created / Updated</th>
                             <th class="p-5 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -388,6 +389,12 @@
                                     {{ str_replace('_', ' ', $emp->status) }}
                                 </span>
                             </td>
+                            <td class="p-5 text-xs text-slate-500">
+                                <div class="flex flex-col">
+                                    <span>C: {{ $emp->created_at ? $emp->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                                    <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $emp->updated_at ? $emp->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                                </div>
+                            </td>
                             <td class="p-5 text-right space-x-2">
                                 <!-- Generate Offer Letter (Only if they do not have one already) -->
                                 @if($emp->offerLetters->isEmpty() && $emp->status !== 'terminated')
@@ -421,7 +428,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="p-12 text-center text-slate-500 text-sm">
+                            <td colspan="8" class="p-12 text-center text-slate-500 text-sm">
                                 <i class="fa-solid fa-folder-open text-3xl mb-3 text-slate-300 block"></i>
                                 No candidates or staff members match your selected search filters.
                             </td>

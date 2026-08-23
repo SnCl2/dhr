@@ -21,6 +21,7 @@
                     <th class="p-6">Address</th>
                     <th class="p-6">Annexure CTC / Net</th>
                     <th class="p-6">Staff Count</th>
+                    <th class="p-6">Created / Updated</th>
                     <th class="p-6 text-right">Actions</th>
                 </tr>
             </thead>
@@ -45,6 +46,12 @@
                             {{ $company->employees_count ?? $company->employees()->count() }} Active Staff
                         </span>
                     </td>
+                    <td class="p-6 text-xs text-slate-500">
+                        <div class="flex flex-col">
+                            <span>C: {{ $company->created_at ? $company->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $company->updated_at ? $company->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                        </div>
+                    </td>
                     <td class="p-6 text-right space-x-2">
                         <a href="{{ route('admin.companies.edit', $company) }}" title="Edit Company" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-350 transition-colors">
                             <i class="fa-solid fa-pen-to-square"></i>
@@ -60,7 +67,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="p-12 text-center text-slate-500 text-base">
+                    <td colspan="7" class="p-12 text-center text-slate-500 text-base">
                         <i class="fa-solid fa-building text-3xl mb-4 block"></i>
                         No companies registered yet. Get started by creating your first company.
                     </td>

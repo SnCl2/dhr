@@ -19,6 +19,7 @@
                     <th class="p-6">ID</th>
                     <th class="p-6">Department Name</th>
                     <th class="p-6">Staff Count</th>
+                    <th class="p-6">Created / Updated</th>
                     <th class="p-6 text-right">Actions</th>
                 </tr>
             </thead>
@@ -31,6 +32,12 @@
                         <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
                             {{ $dept->employees_count ?? $dept->employees()->count() }} Staff Members
                         </span>
+                    </td>
+                    <td class="p-6 text-xs text-slate-500">
+                        <div class="flex flex-col">
+                            <span>C: {{ $dept->created_at ? $dept->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $dept->updated_at ? $dept->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                        </div>
                     </td>
                     <td class="p-6 text-right space-x-2">
                         <a href="{{ route('admin.departments.edit', $dept) }}" title="Edit Department" class="inline-flex p-2 rounded-lg bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-350 transition-colors">
@@ -47,7 +54,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4" class="p-12 text-center text-slate-500 text-base">
+                    <td colspan="5" class="p-12 text-center text-slate-500 text-base">
                         <i class="fa-solid fa-folder-tree text-3xl mb-4 block text-slate-400"></i>
                         No departments registered yet. Get started by creating your first department.
                     </td>

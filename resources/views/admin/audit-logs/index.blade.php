@@ -49,7 +49,7 @@
                     <th class="p-4 pl-6">ID</th>
                     <th class="p-4">Activity</th>
                     <th class="p-4">Performed By</th>
-                    <th class="p-4">Date & Time</th>
+                    <th class="p-4">Created / Updated</th>
                     <th class="p-4">Filename / Scope</th>
                     <th class="p-4 text-center">Success / Fail</th>
                     <th class="p-4">Status</th>
@@ -83,7 +83,12 @@
                             <span class="text-[10px] text-slate-400 font-mono">{{ basename(str_replace('\\', '/', $log->performed_by_type)) }} (ID: {{ $log->performed_by_id }})</span>
                         </div>
                     </td>
-                    <td class="p-4 text-xs text-slate-500">{{ $log->created_at ? $log->created_at->format('d-M-Y h:i A') : 'N/A' }}</td>
+                    <td class="p-4 text-xs text-slate-500">
+                        <div class="flex flex-col">
+                            <span>C: {{ $log->created_at ? $log->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $log->updated_at ? $log->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                        </div>
+                    </td>
                     <td class="p-4 text-xs text-slate-650 max-w-[200px] truncate" title="{{ $log->filename }}">{{ $log->filename ?: 'N/A' }}</td>
                     <td class="p-4 text-center">
                         <div class="inline-flex items-center space-x-1.5 text-xs font-semibold">

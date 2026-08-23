@@ -54,7 +54,7 @@
                     <th class="p-4">Phone</th>
                     <th class="p-4">Subject</th>
                     <th class="p-4">Message</th>
-                    <th class="p-4">Received Date</th>
+                    <th class="p-4">Created / Updated</th>
                     <th class="p-4">Status</th>
                     <th class="p-4 pr-6 text-right">Actions</th>
                 </tr>
@@ -67,7 +67,12 @@
                     <td class="p-4 text-xs text-slate-600">{{ $inq->phone ?: 'N/A' }}</td>
                     <td class="p-4 font-semibold text-slate-700 text-xs max-w-[150px] truncate" title="{{ $inq->subject }}">{{ $inq->subject }}</td>
                     <td class="p-4 text-xs text-slate-500 max-w-[200px] truncate" title="{{ $inq->message }}">{{ \Illuminate\Support\Str::limit($inq->message, 45) }}</td>
-                    <td class="p-4 text-xs text-slate-500">{{ $inq->created_at->format('d-M-Y h:i A') }}</td>
+                    <td class="p-4 text-xs text-slate-500">
+                        <div class="flex flex-col">
+                            <span>C: {{ $inq->created_at ? $inq->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $inq->updated_at ? $inq->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                        </div>
+                    </td>
                     <td class="p-4">
                         <span class="px-2.5 py-0.5 rounded-lg text-xxs font-bold uppercase tracking-wider inline-block
                             @if($inq->status === 'unread') bg-pink-500/10 text-pink-700 border border-pink-500/20
