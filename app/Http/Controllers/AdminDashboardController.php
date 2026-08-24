@@ -479,7 +479,7 @@ class AdminDashboardController extends Controller
 
                 $customData = [
                     'salary' => $employee->salary,
-                    'joining_date' => $employee->joining_date ? $employee->joining_date->format('d-M-Y') : null,
+                    'joining_date' => $employee->joining_date ? $employee->joining_date->format('d-m-Y') : null,
                 ];
 
                 $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $type, $customData);
@@ -1136,7 +1136,7 @@ class AdminDashboardController extends Controller
 
         $customData = [
             'salary' => $request->salary ?? $employee->salary,
-            'joining_date' => $request->joining_date ? date('d-M-Y', strtotime($request->joining_date)) : null,
+            'joining_date' => $request->joining_date ? date('d-m-Y', strtotime($request->joining_date)) : null,
             'basic' => $request->filled('basic') ? $request->basic : null,
             'hra' => $request->filled('hra') ? $request->hra : null,
             'conveyance' => $request->filled('conveyance') ? $request->conveyance : null,
@@ -1182,7 +1182,7 @@ class AdminDashboardController extends Controller
         foreach ($employees as $employee) {
             $customData = [
                 'salary' => $employee->salary,
-                'joining_date' => $employee->joining_date ? $employee->joining_date->format('d-M-Y') : null,
+                'joining_date' => $employee->joining_date ? $employee->joining_date->format('d-m-Y') : null,
             ];
 
             $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $request->type, $customData);
@@ -1223,7 +1223,7 @@ class AdminDashboardController extends Controller
             if ($employee) {
                 $customData = [
                     'salary' => $data['salary'] ?? $employee->salary,
-                    'joining_date' => isset($data['joining_date']) ? date('d-M-Y', strtotime($data['joining_date'])) : null,
+                    'joining_date' => isset($data['joining_date']) ? date('d-m-Y', strtotime($data['joining_date'])) : null,
                 ];
 
                 $pdfPath = $this->pdfService->generateOfferLetterPdf($employee, $type, $customData);

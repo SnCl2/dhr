@@ -43,7 +43,7 @@
                     </div>
                     <div>
                         <span class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Date of Onboarding</span>
-                        <span class="block font-medium text-slate-700 mt-1">{{ $employee->joining_date ? $employee->joining_date->format('d-M-Y') : 'N/A' }}</span>
+                        <span class="block font-medium text-slate-700 mt-1">{{ $employee->joining_date ? $employee->joining_date->format('d-m-Y') : 'N/A' }}</span>
                     </div>
                 </div>
             </div>

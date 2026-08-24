@@ -64,7 +64,7 @@ class DocumentGeneratorService
         $pdf->Cell(30, 5, 'Address:', 0, 0);
         $pdf->SetFont('Arial', 'B', 10);
         
-        $address = $employee->company ? $employee->company->address : 'NAIKURI, Tamluk, East Medinipur, West Bengal - 721630';
+        $address = $employee->aadhaar_address ?? 'N/A';
         $pdf->MultiCell(0, 5, $address);
         $pdf->Ln(8);
 
@@ -365,7 +365,11 @@ class DocumentGeneratorService
 
         $pdf->SetY(40);
         $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(0, 10, 'Date: ' . ($customData['joining_date'] ?? date('d-M-Y')), 0, 1, 'R');
+        $letterDate = $customData['joining_date'] ?? date('d-m-Y');
+        if (strtotime($letterDate)) {
+            $letterDate = date('d-m-Y', strtotime($letterDate));
+        }
+        $pdf->Cell(0, 10, 'Date: ' . $letterDate, 0, 1, 'R');
         $pdf->Ln(2);
 
         $pdf->Cell(0, 5, 'To,', 0, 1);
@@ -410,24 +414,15 @@ class DocumentGeneratorService
         $ctcAnnual = $ctc * 12;
         $ctcAnnualInWords = $this->convertNumberToWords($ctcAnnual);
 
-        $startDate = $customData['joining_date'] ?? ($employee->joining_date ? $employee->joining_date->format('d-M-Y') : date('d-M-Y'));
-        $timestamp = strtotime($startDate);
-        $day = date('j', $timestamp);
-        $monthYear = date('F Y', $timestamp);
-        $suffix = 'th';
-        if ($day == 1 || $day == 21 || $day == 31) $suffix = 'st';
-        elseif ($day == 2 || $day == 22) $suffix = 'nd';
-        elseif ($day == 3 || $day == 23) $suffix = 'rd';
-        $formattedJoiningDate = $day . $suffix . ' of ' . $monthYear;
+        $startDate = $customData['joining_date'] ?? ($employee->joining_date ? $employee->joining_date->format('d-m-Y') : date('d-m-Y'));
+        if (strtotime($startDate)) {
+            $startDate = date('d-m-Y', strtotime($startDate));
+        }
+        $formattedJoiningDate = $startDate;
 
+        $timestamp = strtotime($startDate);
         $acceptanceTimestamp = strtotime('-3 days', $timestamp);
-        $acceptDay = date('j', $acceptanceTimestamp);
-        $acceptMonthYear = date('F Y', $acceptanceTimestamp);
-        $acceptSuffix = 'th';
-        if ($acceptDay == 1 || $acceptDay == 21 || $acceptDay == 31) $acceptSuffix = 'st';
-        elseif ($acceptDay == 2 || $acceptDay == 22) $acceptSuffix = 'nd';
-        elseif ($acceptDay == 3 || $acceptDay == 23) $acceptSuffix = 'rd';
-        $formattedAcceptDate = $acceptDay . $acceptSuffix . ' of ' . $acceptMonthYear;
+        $formattedAcceptDate = date('d-m-Y', $acceptanceTimestamp);
 
         $pdf->SetFont('Arial', '', 10);
         
@@ -645,7 +640,7 @@ class DocumentGeneratorService
             ['Working Days', $workingDays, 'Net Payable Days', $netPayableDays],
             ['Employee ID', $employee->employee_id, 'OT Days', $otDays],
             ['Employee Name', $employee->aadhaar_full_name ?? $employee->full_name, 'Pay Mode', $payMode],
-            ['Joining Date', ($employee->joining_date ? $employee->joining_date->format('d-M-Y') : 'N/A'), 'Bank Name', ($employee->bank_name ?? 'N/A')],
+            ['Joining Date', ($employee->joining_date ? $employee->joining_date->format('d-m-Y') : 'N/A'), 'Bank Name', ($employee->bank_name ?? 'N/A')],
             ['UAN', ($employee->old_uan_number ?? 'N/A'), 'Account No.', ($employee->bank_account_number ?? 'N/A')],
             ['ESI No', ($employee->old_esic_number ?? 'N/A'), 'IFSC Code', ($employee->ifsc_code ?? 'N/A')],
         ];
@@ -946,7 +941,7 @@ class AlphaPDF extends \FPDF
             $this->SetFont('Arial', '', 9.5);
             $this->SetTextColor(55, 65, 81);
             $this->SetX(20);
-            $this->Cell(0, 10, 'Issued Date: ' . date('d-M-Y'), 0, 0, 'R');
+            $this->Cell(0, 10, 'Issued Date: ' . date('d-m-Y'), 0, 0, 'R');
 
             // Divider line below header
             $this->SetDrawColor(226, 232, 240); // slate-200

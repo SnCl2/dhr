@@ -35,8 +35,8 @@
                     </td>
                     <td class="p-6 text-xs text-slate-500">
                         <div class="flex flex-col">
-                            <span>C: {{ $dept->created_at ? $dept->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
-                            <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $dept->updated_at ? $dept->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                            <span>C: {{ $dept->created_at ? $dept->created_at->format('d-m-Y h:i A') : 'N/A' }}</span>
+                            <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $dept->updated_at ? $dept->updated_at->format('d-m-Y h:i A') : 'N/A' }}</span>
                         </div>
                     </td>
                     <td class="p-6 text-right space-x-2">

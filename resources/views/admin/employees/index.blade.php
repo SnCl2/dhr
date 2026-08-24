@@ -353,7 +353,7 @@
                                     <div>
                                         <span class="block font-bold text-slate-900">{{ $emp->full_name }}</span>
                                         <span class="block text-xs text-slate-500 mt-0.5">
-                                            <i class="fa-regular fa-calendar mr-1 text-slate-400"></i>Joined: {{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}
+                                            <i class="fa-regular fa-calendar mr-1 text-slate-400"></i>Joined: {{ $emp->joining_date ? $emp->joining_date->format('d-m-Y') : 'N/A' }}
                                         </span>
                                     </div>
                                 </div>
@@ -391,8 +391,8 @@
                             </td>
                             <td class="p-5 text-xs text-slate-500">
                                 <div class="flex flex-col">
-                                    <span>C: {{ $emp->created_at ? $emp->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
-                                    <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $emp->updated_at ? $emp->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                                    <span>C: {{ $emp->created_at ? $emp->created_at->format('d-m-Y h:i A') : 'N/A' }}</span>
+                                    <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $emp->updated_at ? $emp->updated_at->format('d-m-Y h:i A') : 'N/A' }}</span>
                                 </div>
                             </td>
                             <td class="p-5 text-right space-x-2">

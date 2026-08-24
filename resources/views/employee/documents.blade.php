@@ -32,7 +32,7 @@
                                 Active Contract
                             </span>
                         </td>
-                        <td class="py-4 text-slate-500">{{ $ol->created_at->format('d-M-Y') }}</td>
+                        <td class="py-4 text-slate-500">{{ $ol->created_at->format('d-m-Y') }}</td>
                         <td class="py-4 text-right">
                             <a href="{{ route('employee.download.offer-letter', $ol) }}" class="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-blue-500/10">
                                 <i class="fa-solid fa-cloud-arrow-down mr-1.5"></i> Download PDF

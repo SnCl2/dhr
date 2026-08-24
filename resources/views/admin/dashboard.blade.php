@@ -111,7 +111,7 @@
                                 {{ str_replace('_', ' ', $emp->status) }}
                             </span>
                         </td>
-                        <td class="py-3 text-slate-500">{{ $emp->joining_date ? $emp->joining_date->format('d-M-Y') : 'N/A' }}</td>
+                        <td class="py-3 text-slate-500">{{ $emp->joining_date ? $emp->joining_date->format('d-m-Y') : 'N/A' }}</td>
                     </tr>
                     @empty
                     <tr>

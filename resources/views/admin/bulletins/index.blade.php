@@ -51,7 +51,7 @@
         <div class="glass-dark p-6 rounded-3xl border border-slate-200 flex flex-col justify-between hover:border-slate-350 transition-all duration-200 shadow-lg">
             <div>
                 <div class="flex items-center justify-between mb-3">
-                    <span class="text-xs text-slate-500">C: {{ $bull->created_at ? $bull->created_at->format('d-M-Y h:i A') : 'N/A' }} | U: {{ $bull->updated_at ? $bull->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                    <span class="text-xs text-slate-500">C: {{ $bull->created_at ? $bull->created_at->format('d-m-Y h:i A') : 'N/A' }} | U: {{ $bull->updated_at ? $bull->updated_at->format('d-m-Y h:i A') : 'N/A' }}</span>
                     <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">Active</span>
                 </div>
                 <h4 class="font-outfit font-bold text-lg text-slate-800 mb-2">{{ $bull->title }}</h4>

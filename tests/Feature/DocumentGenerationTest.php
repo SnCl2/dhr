@@ -39,7 +39,7 @@ class DocumentGenerationTest extends TestCase
         // 1. Test Offer Letter PDF generation
         $offerLetterPath = $service->generateOfferLetterPdf($employee, 'external', [
             'salary' => 25000.00,
-            'joining_date' => '01-Aug-2026',
+            'joining_date' => '01-08-2026',
         ]);
 
         $this->assertNotEmpty($offerLetterPath);
@@ -48,7 +48,7 @@ class DocumentGenerationTest extends TestCase
         // 1b. Test Internal Offer Letter PDF generation
         $internalOfferLetterPath = $service->generateOfferLetterPdf($employee, 'internal', [
             'salary' => 25000.00,
-            'joining_date' => '01-Aug-2026',
+            'joining_date' => '01-08-2026',
         ]);
 
         $this->assertNotEmpty($internalOfferLetterPath);

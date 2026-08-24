@@ -85,8 +85,8 @@
                             </td>
                              <td class="p-5 text-xs text-slate-500">
                                  <div class="flex flex-col">
-                                     <span>C: {{ $staff->created_at ? $staff->created_at->format('d-M-Y h:i A') : 'N/A' }}</span>
-                                     <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $staff->updated_at ? $staff->updated_at->format('d-M-Y h:i A') : 'N/A' }}</span>
+                                     <span>C: {{ $staff->created_at ? $staff->created_at->format('d-m-Y h:i A') : 'N/A' }}</span>
+                                     <span class="text-[10px] text-slate-400 mt-0.5">U: {{ $staff->updated_at ? $staff->updated_at->format('d-m-Y h:i A') : 'N/A' }}</span>
                                  </div>
                              </td>
                             <td class="p-5 text-right space-x-2">
