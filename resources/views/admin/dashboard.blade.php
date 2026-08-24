@@ -54,11 +54,11 @@
         </div>
     </a>
 
-    <!-- Card 5 (Manage Staff) -->
+    <!-- Card 5 (Manage Operators) -->
     <a href="{{ route('admin.staff.index') }}" 
        class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-indigo-500/20 shadow-lg hover:shadow-indigo-500/5 group">
         <div>
-            <span class="block text-xs font-semibold text-slate-400 group-hover:text-indigo-400 transition-colors uppercase tracking-wider">Total Manage Staff</span>
+            <span class="block text-xs font-semibold text-slate-400 group-hover:text-indigo-400 transition-colors uppercase tracking-wider">Total Operators</span>
             <span class="block font-outfit font-extrabold text-3xl text-indigo-600 mt-1">{{ $stats['total_staff'] }}</span>
         </div>
         <div class="w-12 h-12 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xl shrink-0 group-hover:bg-indigo-500/20 transition-all">
