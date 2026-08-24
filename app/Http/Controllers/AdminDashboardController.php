@@ -58,6 +58,17 @@ class AdminDashboardController extends Controller
     {
         $query = Employee::with(['department', 'designationRelation', 'company', 'offerLetters']);
 
+        // Filter by staff_type (employee = company_id != 1 or null, staff = company_id == 1)
+        $staffType = $request->input('staff_type', 'employee');
+        if ($staffType === 'staff') {
+            $query->where('company_id', 1);
+        } else {
+            $query->where(function($q) {
+                $q->where('company_id', '!=', 1)
+                  ->orWhereNull('company_id');
+            });
+        }
+
         // Comprehensive search filter
         if ($request->filled('search')) {
             $search = trim($request->search);
@@ -143,7 +154,11 @@ class AdminDashboardController extends Controller
         $employees = $query->latest()->paginate(15)->withQueryString();
         $departments = Department::all();
         $designations = Designation::all();
-        $companies = Company::all();
+        if ($request->input('staff_type', 'employee') === 'staff') {
+            $companies = Company::where('id', 1)->get();
+        } else {
+            $companies = Company::where('id', '!=', 1)->get();
+        }
         
         // Distinct work locations for filter dropdown
         $workLocations = Employee::whereNotNull('work_location')
@@ -334,7 +349,8 @@ class AdminDashboardController extends Controller
 
         Employee::create($validated);
 
-        return redirect()->route('admin.employees.index')
+        $staffType = ($request->company_id == 1) ? 'staff' : 'employee';
+        return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
             ->with('success', "Employee created successfully! ID: {$employeeId} | Temp Password: {$plainPassword}");
     }
 
@@ -430,14 +446,16 @@ class AdminDashboardController extends Controller
 
         $employee->update($validated);
 
-        return redirect()->route('admin.employees.index')
+        $staffType = ($employee->company_id == 1) ? 'staff' : 'employee';
+        return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
             ->with('success', "Employee {$employee->employee_id} updated successfully.");
     }
 
     public function employeesDestroy(Employee $employee)
     {
+        $staffType = ($employee->company_id == 1) ? 'staff' : 'employee';
         $employee->delete();
-        return redirect()->route('admin.employees.index')
+        return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
             ->with('success', "Employee deleted successfully.");
     }
 
@@ -457,14 +475,16 @@ class AdminDashboardController extends Controller
         if ($action === 'delete') {
             \Illuminate\Support\Facades\Gate::authorize('delete_employees');
             Employee::whereIn('id', $employeeIds)->delete();
-            return redirect()->route('admin.employees.index')
+            $staffType = $request->input('staff_type', 'employee');
+            return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
                 ->with('success', 'Successfully deleted ' . count($employeeIds) . ' employees.');
         }
 
         if ($action === 'status_change') {
             \Illuminate\Support\Facades\Gate::authorize('edit_employees');
             Employee::whereIn('id', $employeeIds)->update(['status' => $request->status]);
-            return redirect()->route('admin.employees.index')
+            $staffType = $request->input('staff_type', 'employee');
+            return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
                 ->with('success', 'Successfully updated status for ' . count($employeeIds) . ' employees.');
         }
 
@@ -492,11 +512,13 @@ class AdminDashboardController extends Controller
                 $count++;
             }
 
-            return redirect()->route('admin.employees.index')
+            $staffType = $request->input('staff_type', 'employee');
+            return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
                 ->with('success', 'Successfully generated ' . $count . ' offer letters.');
         }
 
-        return redirect()->route('admin.employees.index');
+        $staffType = $request->input('staff_type', 'employee');
+        return redirect()->route('admin.employees.index', ['staff_type' => $staffType]);
     }
 
     public function downloadEmployeeTemplate(Request $request)

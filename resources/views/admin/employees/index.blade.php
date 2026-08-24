@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Candidate & Staff Management - RM HR Solutions')
-@section('page_title', 'Candidate & Staff Database')
+@section('title', request('staff_type') === 'staff' ? 'Staff Management - RM HR Solutions' : 'Employee Management - RM HR Solutions')
+@section('page_title', request('staff_type') === 'staff' ? 'Staff Database' : 'Employee Database')
 
 @section('content')
 @php
@@ -17,12 +17,12 @@
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
             <h2 class="text-lg font-bold text-slate-800 flex items-center">
-                <i class="fa-solid fa-users text-blue-600 mr-2.5"></i> Employee Records
+                <i class="fa-solid fa-users text-blue-600 mr-2.5"></i> {{ request('staff_type') === 'staff' ? 'Staff Records' : 'Employee Records' }}
                 <span class="ml-3 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
                     {{ $employees->total() }} Total
                 </span>
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Manage onboarded candidates, export data, and generate official documentation.</p>
+            <p class="text-xs text-slate-500 mt-0.5">{{ request('staff_type') === 'staff' ? 'Manage internal staff members, export data, and generate official documentation.' : 'Manage external employees and candidates, export data, and generate official documentation.' }}</p>
         </div>
 
         <div class="flex flex-wrap items-center gap-3">
@@ -40,7 +40,7 @@
             </button>
 
             <!-- Add Candidate -->
-            <a href="{{ route('admin.employees.create') }}" 
+            <a href="{{ route('admin.employees.create', ['staff_type' => request('staff_type')]) }}" 
                class="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition-all">
                 <i class="fa-solid fa-user-plus mr-2"></i> Onboard Candidate
             </a>
@@ -54,13 +54,14 @@
                 <i class="fa-solid fa-filter text-blue-600 mr-2"></i> Comprehensive Search & Multi-Filters
             </h3>
             @if(request()->hasAny(['search', 'company_id', 'designation_id', 'department_id', 'status', 'work_location', 'from_date', 'to_date', 'offer_letter_status']))
-                <a href="{{ route('admin.employees.index') }}" class="text-xs font-semibold text-rose-600 hover:underline flex items-center">
+                <a href="{{ route('admin.employees.index', ['staff_type' => request('staff_type')]) }}" class="text-xs font-semibold text-rose-600 hover:underline flex items-center">
                     <i class="fa-solid fa-rotate-left mr-1.5"></i> Reset All Filters
                 </a>
             @endif
         </div>
 
         <form action="{{ route('admin.employees.index') }}" method="GET" class="space-y-4" id="filters-form">
+            <input type="hidden" name="staff_type" value="{{ request('staff_type', 'employee') }}">
             <!-- Row 1: Keyword Search Bar -->
             <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
@@ -254,7 +255,7 @@
                         <i class="fa-solid fa-magnifying-glass mr-2"></i> Apply Filters
                     </button>
                     @if(request()->hasAny(['search', 'company_id', 'designation_id', 'department_id', 'status', 'work_location', 'from_date', 'to_date', 'offer_letter_status']))
-                        <a href="{{ route('admin.employees.index') }}" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
+                        <a href="{{ route('admin.employees.index', ['staff_type' => request('staff_type')]) }}" class="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition-all">
                             Clear
                         </a>
                     @endif
@@ -266,6 +267,7 @@
     <!-- Bulk Actions Form -->
     <form id="bulk-generate-form" action="{{ route('admin.employees.bulk-action') }}" method="POST" onsubmit="return handleBulkGenerateSubmit(event)">
         @csrf
+        <input type="hidden" name="staff_type" value="{{ request('staff_type', 'employee') }}">
 
         <!-- Bulk Actions Header Panel (hidden by default) -->
         <div id="bulk-actions-panel" class="hidden mb-6 p-4 bg-slate-900 border border-slate-800 rounded-2xl flex flex-col lg:flex-row items-center justify-between text-sm shadow-xl transition-all">

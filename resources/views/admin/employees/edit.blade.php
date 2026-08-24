@@ -6,7 +6,7 @@
 @section('content')
 <div class="max-w-6xl mx-auto space-y-6">
     <div class="flex items-center justify-between">
-        <a href="{{ route('admin.employees.index') }}" class="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 transition-all">
+        <a href="{{ route('admin.employees.index', ['staff_type' => request('staff_type')]) }}" class="inline-flex items-center text-xs font-semibold text-blue-600 hover:text-blue-700 transition-all">
             <i class="fa-solid fa-arrow-left mr-2"></i> Back to Employees List
         </a>
         <div class="flex items-center space-x-2">
@@ -473,7 +473,7 @@
 
             <!-- Form Action Buttons -->
             <div class="pt-6 border-t border-slate-100 flex items-center justify-end space-x-4">
-                <a href="{{ route('admin.employees.index') }}"
+                <a href="{{ route('admin.employees.index', ['staff_type' => request('staff_type')]) }}"
                     class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 rounded-xl text-sm font-semibold transition-all">
                     Cancel
                 </a>

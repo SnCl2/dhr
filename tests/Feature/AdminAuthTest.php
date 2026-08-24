@@ -133,7 +133,7 @@ class AdminAuthTest extends TestCase
             'work_location' => 'Kolkata Office',
             'nth_salary' => 10000.00,
         ]);
-        $response->assertRedirect(route('admin.employees.index'));
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'employee']));
         $this->assertDatabaseHas('employees', [
             'aadhaar_full_name' => 'Mark Taylor',
             'company_id' => $company->id,
@@ -204,7 +204,7 @@ class AdminAuthTest extends TestCase
             'profile_image' => $profileImage,
         ]);
 
-        $response->assertRedirect(route('admin.employees.index'));
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'staff']));
         
         $employee = \App\Models\Employee::where('email', 'unique.test.employee@example.com')->first();
         $this->assertNotNull($employee);
@@ -252,7 +252,7 @@ class AdminAuthTest extends TestCase
             'profile_image' => $profileImageUpdated,
         ]);
 
-        $response->assertRedirect(route('admin.employees.index'));
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'staff']));
         
         $employee->refresh();
         $this->assertEquals('John Updated', $employee->aadhaar_full_name);
@@ -526,7 +526,7 @@ class AdminAuthTest extends TestCase
             'action' => 'delete',
         ]);
 
-        $response->assertRedirect(route('admin.employees.index'));
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'employee']));
         $this->assertDatabaseMissing('employees', ['id' => $emp1->id]);
         $this->assertDatabaseMissing('employees', ['id' => $emp2->id]);
     }
@@ -558,7 +558,7 @@ class AdminAuthTest extends TestCase
             'status' => 'active',
         ]);
 
-        $response->assertRedirect(route('admin.employees.index'));
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'employee']));
         $this->assertDatabaseHas('employees', ['id' => $emp1->id, 'status' => 'active']);
         $this->assertDatabaseHas('employees', ['id' => $emp2->id, 'status' => 'active']);
     }
@@ -590,7 +590,7 @@ class AdminAuthTest extends TestCase
             'type' => 'internal',
         ]);
 
-        $response->assertRedirect(route('admin.employees.index'));
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'employee']));
         $this->assertDatabaseHas('offer_letters', ['employee_id' => $emp1->id]);
         $this->assertDatabaseHas('offer_letters', ['employee_id' => $emp2->id]);
     }
@@ -875,7 +875,7 @@ class AdminAuthTest extends TestCase
             'password' => 'newpassword123',
         ]);
 
-        $response->assertRedirect(route('admin.employees.index'));
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'staff']));
         
         $employee->refresh();
         
