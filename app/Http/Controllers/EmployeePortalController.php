@@ -25,7 +25,10 @@ class EmployeePortalController extends Controller
             'payslips_count' => Payslip::where('employee_id', $employee->id)->count(),
         ];
 
-        return view('employee.dashboard', compact('employee', 'bulletins', 'stats'));
+        $latestOfferLetter = OfferLetter::where('employee_id', $employee->id)->latest()->first();
+        $latestPayslip = Payslip::where('employee_id', $employee->id)->latest()->first();
+
+        return view('employee.dashboard', compact('employee', 'bulletins', 'stats', 'latestOfferLetter', 'latestPayslip'));
     }
 
     /**

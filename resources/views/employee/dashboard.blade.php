@@ -16,6 +16,30 @@
                 Employment Record Details
             </h3>
 
+            <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 mb-6 border-b border-slate-100">
+                <div class="relative shrink-0">
+                    @if($employee->profile_image)
+                        <img src="{{ asset($employee->profile_image) }}" alt="{{ $employee->full_name }}" class="w-24 h-24 rounded-2xl object-cover border border-slate-200 shadow-sm">
+                    @else
+                        <div class="w-24 h-24 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-500 shadow-sm">
+                            <i class="fa-solid fa-user text-3xl"></i>
+                        </div>
+                    @endif
+                    <span class="absolute -bottom-2 -right-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-550 text-white border-2 border-white shadow-sm" style="background-color: #10b981;">
+                        {{ $employee->status ?? 'Active' }}
+                    </span>
+                </div>
+                <div class="text-center sm:text-left space-y-1">
+                    <span class="text-[10px] font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">{{ $employee->employee_id }}</span>
+                    <h3 class="font-outfit font-extrabold text-2xl text-slate-800 pt-1.5">{{ $employee->full_name }}</h3>
+                    <p class="text-sm text-slate-500 font-medium">
+                        {{ $employee->designationRelation ? $employee->designationRelation->name : 'Unassigned' }} 
+                        &bull; 
+                        {{ $employee->department ? $employee->department->name : 'Unassigned' }}
+                    </p>
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm">
                 <div class="space-y-5">
                     <div>
@@ -107,6 +131,71 @@
                 <span>Access Document Center</span>
                 <i class="fa-solid fa-arrow-right text-xs"></i>
             </a>
+        </div>
+        
+        <!-- Quick Downloads Card -->
+        <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h4 class="font-outfit font-bold text-xs text-slate-400 uppercase tracking-wider">Quick Downloads</h4>
+            
+            <div class="space-y-3">
+                <!-- Offer Letter Button -->
+                @if($latestOfferLetter)
+                    <a href="{{ route('employee.download.offer-letter', $latestOfferLetter->id) }}" class="w-full flex items-center justify-between p-3.5 bg-blue-50/50 hover:bg-blue-50 border border-blue-100 hover:border-blue-200 rounded-2xl text-xs font-semibold text-blue-700 transition-all shadow-2xs group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 transition-colors group-hover:bg-blue-600 group-hover:text-white">
+                                <i class="fa-solid fa-file-signature"></i>
+                            </div>
+                            <div class="text-left">
+                                <span class="block text-slate-800 font-bold">Offer Letter</span>
+                                <span class="block text-[10px] text-slate-400 font-medium">Download official offer letter</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-download text-sm text-slate-400 group-hover:text-blue-600 transition-colors"></i>
+                    </a>
+                @else
+                    <div class="w-full flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-400 cursor-not-allowed opacity-60">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-xl bg-slate-200 flex items-center justify-center text-slate-450">
+                                <i class="fa-solid fa-file-signature"></i>
+                            </div>
+                            <div class="text-left">
+                                <span class="block text-slate-400 font-bold">Offer Letter</span>
+                                <span class="block text-[10px] text-slate-400 font-medium">Not generated yet</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-lock text-sm text-slate-400"></i>
+                    </div>
+                @endif
+
+                <!-- Payslip Button -->
+                @if($latestPayslip)
+                    <a href="{{ route('employee.download.payslip', $latestPayslip->id) }}" class="w-full flex items-center justify-between p-3.5 bg-indigo-50/50 hover:bg-indigo-50 border border-indigo-100 hover:border-indigo-200 rounded-2xl text-xs font-semibold text-indigo-700 transition-all shadow-2xs group">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="text-left">
+                                <span class="block text-slate-800 font-bold">Current Payslip</span>
+                                <span class="block text-[10px] text-slate-400 font-medium">Download latest payslip</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-download text-sm text-slate-400 group-hover:text-indigo-600 transition-colors"></i>
+                    </a>
+                @else
+                    <div class="w-full flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-semibold text-slate-400 cursor-not-allowed opacity-60">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-xl bg-slate-200 flex items-center justify-center text-slate-450">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </div>
+                            <div class="text-left">
+                                <span class="block text-slate-400 font-bold">Current Payslip</span>
+                                <span class="block text-[10px] text-slate-400 font-medium">Not generated yet</span>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-lock text-sm text-slate-400"></i>
+                    </div>
+                @endif
+            </div>
         </div>
 
         <!-- Notices Board Bulletin -->

@@ -179,9 +179,13 @@
         <!-- Employee Info & Logout -->
         <div class="p-6 border-t border-slate-200 bg-slate-50">
             <div class="flex items-center space-x-3 mb-4">
-                <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-purple-600 font-bold border border-slate-300">
-                    {{ substr(Auth::guard('employee')->user()->first_name, 0, 1) }}
-                </div>
+                @if(Auth::guard('employee')->user()->profile_image)
+                    <img src="{{ asset(Auth::guard('employee')->user()->profile_image) }}" alt="{{ Auth::guard('employee')->user()->full_name }}" class="w-10 h-10 rounded-full object-cover border border-slate-300 shadow-2xs">
+                @else
+                    <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-purple-600 font-bold border border-slate-300">
+                        {{ substr(Auth::guard('employee')->user()->first_name, 0, 1) }}
+                    </div>
+                @endif
                 <div class="overflow-hidden">
                     <span class="block text-sm font-semibold text-slate-800 truncate">{{ Auth::guard('employee')->user()->full_name }}</span>
                     <span class="block text-xs text-slate-500 truncate">{{ Auth::guard('employee')->user()->employee_id }}</span>
