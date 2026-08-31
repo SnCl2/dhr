@@ -40,7 +40,9 @@ class AdminDashboardController extends Controller
             'pending_reviews' => Employee::where('status', 'pending_review')->count(),
             'unread_inquiries' => Inquiry::where('status', 'unread')->count(),
             'total_staff' => Staff::count(),
-            'internal_staff' => Employee::where('company_id', 1)->count(),
+            'internal_staff' => Employee::whereHas('company', function($q) {
+                $q->where('type', 'staff');
+            })->count(),
         ];
 
         $recentEmployees = Employee::latest()->take(5)->get();
@@ -58,14 +60,17 @@ class AdminDashboardController extends Controller
     {
         $query = Employee::with(['department', 'designationRelation', 'company', 'offerLetters']);
 
-        // Filter by staff_type (employee = company_id != 1 or null, staff = company_id == 1)
+        // Filter by staff_type (staff = company.type == 'staff', employee = company.type != 'staff' or unassigned)
         $staffType = $request->input('staff_type', 'employee');
         if ($staffType === 'staff') {
-            $query->where('company_id', 1);
+            $query->whereHas('company', function($q) {
+                $q->where('type', 'staff');
+            });
         } else {
             $query->where(function($q) {
-                $q->where('company_id', '!=', 1)
-                  ->orWhereNull('company_id');
+                $q->whereHas('company', function($sub) {
+                    $sub->where('type', '!=', 'staff')->orWhereNull('type');
+                })->orWhereNull('company_id');
             });
         }
 
@@ -155,9 +160,11 @@ class AdminDashboardController extends Controller
         $departments = Department::all();
         $designations = Designation::all();
         if ($request->input('staff_type', 'employee') === 'staff') {
-            $companies = Company::where('id', 1)->get();
+            $companies = Company::where('type', 'staff')->get();
         } else {
-            $companies = Company::where('id', '!=', 1)->get();
+            $companies = Company::where(function($q) {
+                $q->where('type', '!=', 'staff')->orWhereNull('type');
+            })->get();
         }
         
         // Distinct work locations for filter dropdown
@@ -349,7 +356,8 @@ class AdminDashboardController extends Controller
 
         Employee::create($validated);
 
-        $staffType = ($request->company_id == 1) ? 'staff' : 'employee';
+        $company = $request->company_id ? Company::find($request->company_id) : null;
+        $staffType = ($company && $company->isStaff()) ? 'staff' : 'employee';
         return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
             ->with('success', "Employee created successfully! ID: {$employeeId} | Temp Password: {$plainPassword}");
     }
@@ -446,14 +454,16 @@ class AdminDashboardController extends Controller
 
         $employee->update($validated);
 
-        $staffType = ($employee->company_id == 1) ? 'staff' : 'employee';
+        $employee->load('company');
+        $staffType = ($employee->company && $employee->company->isStaff()) ? 'staff' : 'employee';
         return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
             ->with('success', "Employee {$employee->employee_id} updated successfully.");
     }
 
     public function employeesDestroy(Employee $employee)
     {
-        $staffType = ($employee->company_id == 1) ? 'staff' : 'employee';
+        $employee->load('company');
+        $staffType = ($employee->company && $employee->company->isStaff()) ? 'staff' : 'employee';
         $employee->delete();
         return redirect()->route('admin.employees.index', ['staff_type' => $staffType])
             ->with('success', "Employee deleted successfully.");
@@ -954,6 +964,7 @@ class AdminDashboardController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:companies,name'],
             'address' => ['nullable', 'string', 'max:500'],
+            'type' => ['required', 'string', 'in:staff,employee'],
             'basic' => ['nullable', 'numeric', 'min:0'],
             'hra' => ['nullable', 'numeric', 'min:0'],
             'conveyance' => ['nullable', 'numeric', 'min:0'],
@@ -985,6 +996,7 @@ class AdminDashboardController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:companies,name,' . $company->id],
             'address' => ['nullable', 'string', 'max:500'],
+            'type' => ['required', 'string', 'in:staff,employee'],
             'basic' => ['nullable', 'numeric', 'min:0'],
             'hra' => ['nullable', 'numeric', 'min:0'],
             'conveyance' => ['nullable', 'numeric', 'min:0'],
@@ -1991,7 +2003,7 @@ class AdminDashboardController extends Controller
                         'allowances' => $allowances,
                         'deductions' => $deductions,
                         'net_salary' => $net,
-                        'type' => ($employee->company_id == 1) ? 'internal' : 'external',
+                        'type' => ($employee->company && $employee->company->isStaff()) ? 'internal' : 'external',
                         'pdf_path' => $pdfPath,
                         'working_days' => 31,
                         'net_payable_days' => 31,

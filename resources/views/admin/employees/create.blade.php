@@ -266,10 +266,19 @@
                     <!-- Client Company -->
                     <div>
                         <label for="company_id" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">Client / Company <span class="text-rose-500">*</span></label>
+                        @php
+                            $defaultCompanyId = '';
+                            if (request('staff_type') === 'staff') {
+                                $staffComp = $companies->firstWhere('type', 'staff');
+                                $defaultCompanyId = $staffComp ? $staffComp->id : '';
+                            }
+                        @endphp
                         <select id="company_id" name="company_id" class="mt-2 block w-full px-3 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-xs">
                             <option value="">Unassigned</option>
                             @foreach($companies as $company)
-                                <option value="{{ $company->id }}" {{ old('company_id', request('staff_type') === 'staff' ? 1 : '') == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                                <option value="{{ $company->id }}" {{ old('company_id', $defaultCompanyId) == $company->id ? 'selected' : '' }}>
+                                    {{ $company->name }} ({{ ($company->type ?? 'employee') === 'staff' ? 'Staff / Internal' : 'Client / External' }})
+                                </option>
                             @endforeach
                         </select>
                         @error('company_id') <p class="mt-1.5 text-xs text-rose-500 font-medium">{{ $message }}</p> @enderror

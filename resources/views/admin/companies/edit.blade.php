@@ -36,6 +36,53 @@
                     @enderror
                 </div>
             </div>
+
+            <!-- Company Type (Staff vs Employee) Selection Card -->
+            <div class="border-t border-slate-100 pt-5">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Company Assignment Type *</label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Option 1: Employee / External Client -->
+                    <label class="relative flex p-4 cursor-pointer rounded-2xl border-2 transition-all duration-200 {{ old('type', $company->type ?? 'employee') === 'employee' ? 'border-purple-500 bg-purple-50/40 ring-2 ring-purple-500/20' : 'border-slate-200 hover:border-slate-300 bg-white' }}" id="type_employee_card">
+                        <input type="radio" name="type" value="employee" {{ old('type', $company->type ?? 'employee') === 'employee' ? 'checked' : '' }} class="sr-only" onchange="updateTypeSelection(this.value)">
+                        <div class="flex items-start space-x-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-users"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-outfit font-bold text-sm text-slate-900">Client / External Company</span>
+                                    <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700">Client</span>
+                                </div>
+                                <p class="text-xs text-slate-500 leading-relaxed">
+                                    Assigned employees are managed as <strong>External Employees</strong> (ID Suffix Range: <code class="font-mono text-purple-700">0101+</code>).
+                                </p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: Staff / Internal Agency -->
+                    <label class="relative flex p-4 cursor-pointer rounded-2xl border-2 transition-all duration-200 {{ old('type', $company->type) === 'staff' ? 'border-purple-500 bg-purple-50/40 ring-2 ring-purple-500/20' : 'border-slate-200 hover:border-slate-300 bg-white' }}" id="type_staff_card">
+                        <input type="radio" name="type" value="staff" {{ old('type', $company->type) === 'staff' ? 'checked' : '' }} class="sr-only" onchange="updateTypeSelection(this.value)">
+                        <div class="flex items-start space-x-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-lg shrink-0">
+                                <i class="fa-solid fa-user-tie"></i>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-outfit font-bold text-sm text-slate-900">Internal / Staff Company</span>
+                                    <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">Internal</span>
+                                </div>
+                                <p class="text-xs text-slate-500 leading-relaxed">
+                                    Assigned employees are managed as <strong>Internal Staff</strong> (ID Suffix Range: <code class="font-mono text-blue-700">0001 - 0100</code>).
+                                </p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+                @error('type')
+                    <span class="text-xs text-rose-500 mt-2 block">{{ $message }}</span>
+                @enderror
+            </div>
         </div>
 
         <!-- 2. Offer Letter Annexure (Salary Structure Breakdown) -->
@@ -263,5 +310,21 @@
 
         recalculateSalary();
     });
+
+    function updateTypeSelection(type) {
+        const empCard = document.getElementById('type_employee_card');
+        const staffCard = document.getElementById('type_staff_card');
+        if (type === 'staff') {
+            staffCard.classList.add('border-purple-500', 'bg-purple-50/40', 'ring-2', 'ring-purple-500/20');
+            staffCard.classList.remove('border-slate-200', 'bg-white');
+            empCard.classList.remove('border-purple-500', 'bg-purple-50/40', 'ring-2', 'ring-purple-500/20');
+            empCard.classList.add('border-slate-200', 'bg-white');
+        } else {
+            empCard.classList.add('border-purple-500', 'bg-purple-50/40', 'ring-2', 'ring-purple-500/20');
+            empCard.classList.remove('border-slate-200', 'bg-white');
+            staffCard.classList.remove('border-purple-500', 'bg-purple-50/40', 'ring-2', 'ring-purple-500/20');
+            staffCard.classList.add('border-slate-200', 'bg-white');
+        }
+    }
 </script>
 @endsection

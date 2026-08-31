@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\Company;
 use App\Models\Department;
 use App\Models\Designation;
+use App\Models\Employee;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -82,9 +83,13 @@ class AdminAuthTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->post(route('admin.companies.store'), [
             'name' => 'RM HR Solutions Plotters 2',
             'address' => 'Test Address 2',
+            'type' => 'employee',
         ]);
         $response->assertRedirect(route('admin.companies.index'));
-        $this->assertDatabaseHas('companies', ['name' => 'RM HR Solutions Plotters 2']);
+        $this->assertDatabaseHas('companies', [
+            'name' => 'RM HR Solutions Plotters 2',
+            'type' => 'employee'
+        ]);
 
         $company = Company::where('name', 'RM HR Solutions Plotters 2')->first();
 
@@ -92,9 +97,13 @@ class AdminAuthTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->put(route('admin.companies.update', $company), [
             'name' => 'RM HR Solutions Plotters Updated',
             'address' => 'Updated Address',
+            'type' => 'employee',
         ]);
         $response->assertRedirect(route('admin.companies.index'));
-        $this->assertDatabaseHas('companies', ['name' => 'RM HR Solutions Plotters Updated']);
+        $this->assertDatabaseHas('companies', [
+            'name' => 'RM HR Solutions Plotters Updated',
+            'type' => 'employee'
+        ]);
 
         // 3. Create an Employee assigned to that Company
         $dept = Department::first();
@@ -415,6 +424,7 @@ class AdminAuthTest extends TestCase
         $response = $this->actingAs($admin, 'admin')->post(route('admin.companies.store'), [
             'name' => 'Apex Logistics Corp',
             'address' => 'Salt Lake Sector V, Kolkata',
+            'type' => 'employee',
             'basic' => 11927.00,
             'hra' => 596.00,
             'conveyance' => 0.00,
@@ -964,5 +974,141 @@ class AdminAuthTest extends TestCase
         $this->assertEquals('September 2026', $payslip->month);
         $this->assertEquals('external', $payslip->type);
         $this->assertGreaterThan(0, $payslip->net_salary);
+    }
+
+    public function test_dynamic_company_type_assignment_for_staff_and_employee(): void
+    {
+        $this->seed();
+        $admin = Admin::first();
+        $dept = Department::first();
+        $desig = Designation::first();
+
+        // 1. Create a non-company-1 Staff Company
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.companies.store'), [
+            'name' => 'Custom Staffing Internal Unit',
+            'address' => 'Internal HQ Floor 4',
+            'type' => 'staff',
+        ]);
+        $response->assertRedirect(route('admin.companies.index'));
+        $staffCompany = Company::where('name', 'Custom Staffing Internal Unit')->first();
+        $this->assertNotNull($staffCompany);
+        $this->assertTrue($staffCompany->isStaff());
+        $this->assertFalse($staffCompany->isEmployee());
+
+        // 2. Onboard an employee assigned to this custom staff company
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.store'), [
+            'email' => 'custom.staff@example.com',
+            'status' => 'active',
+            'department_id' => $dept->id,
+            'designation_id' => $desig->id,
+            'company_id' => $staffCompany->id,
+            'joining_date' => '2026-08-31',
+            'salary' => 25000.00,
+            'aadhaar_full_name' => 'Custom Staff Member',
+            'aadhaar_number' => '998877665544',
+            'prefix' => 'Mr.',
+            'father_name_aadhaar' => 'Father Name',
+            'mother_name_aadhaar' => 'Mother Name',
+            'gender' => 'Male',
+            'dob' => '1992-05-15',
+            'mother_tongue' => 'Bengali',
+            'aadhaar_address' => 'Staff Quarters, Kolkata',
+            'landmark' => 'HQ Block',
+            'contact_number' => '9876543299',
+            'city' => 'Kolkata',
+            'emergency_contact_number' => '9876543298',
+            'pin_code' => '700001',
+            'state' => 'West Bengal',
+            'last_qualification' => 'Post Graduate',
+            'pass_out_year' => '2016',
+            'marital_status' => 'Married',
+            'old_uan_number' => 'NA',
+            'bank_account_number' => '9876543210123',
+            'ifsc_code' => 'SBIN0001234',
+            'bank_name' => 'State Bank of India',
+            'work_location' => 'HQ Main Office',
+            'nth_salary' => 22000.00,
+        ]);
+
+        // Must redirect to staff_type=staff
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'staff']));
+        
+        $staffEmployee = Employee::where('email', 'custom.staff@example.com')->first();
+        $this->assertNotNull($staffEmployee);
+        $this->assertTrue($staffEmployee->isStaff());
+        $this->assertEquals('staff', $staffEmployee->staff_type);
+        // ID should be generated in staff range 0001-0100 (RM010002 since RM010001 is seeded)
+        $this->assertEquals('RM010002', $staffEmployee->employee_id);
+
+        // Verify it appears in staff list and not in employee list
+        $staffListResponse = $this->actingAs($admin, 'admin')->get(route('admin.employees.index', ['staff_type' => 'staff']));
+        $staffListResponse->assertSee('Custom Staff Member');
+
+        $empListResponse = $this->actingAs($admin, 'admin')->get(route('admin.employees.index', ['staff_type' => 'employee']));
+        $empListResponse->assertDontSee('Custom Staff Member');
+
+        // 3. Create a Client Company with type = employee
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.companies.store'), [
+            'name' => 'Outsourced Client Enterprise',
+            'address' => 'Tech Park Zone 2',
+            'type' => 'employee',
+        ]);
+        $response->assertRedirect(route('admin.companies.index'));
+        $clientCompany = Company::where('name', 'Outsourced Client Enterprise')->first();
+        $this->assertNotNull($clientCompany);
+        $this->assertTrue($clientCompany->isEmployee());
+        $this->assertFalse($clientCompany->isStaff());
+
+        // 4. Onboard an employee assigned to this client company
+        $response = $this->actingAs($admin, 'admin')->post(route('admin.employees.store'), [
+            'email' => 'client.worker@example.com',
+            'status' => 'active',
+            'department_id' => $dept->id,
+            'designation_id' => $desig->id,
+            'company_id' => $clientCompany->id,
+            'joining_date' => '2026-08-31',
+            'salary' => 15000.00,
+            'aadhaar_full_name' => 'Client Field Worker',
+            'aadhaar_number' => '112233445566',
+            'prefix' => 'Ms.',
+            'father_name_aadhaar' => 'Father Name',
+            'mother_name_aadhaar' => 'Mother Name',
+            'gender' => 'Female',
+            'dob' => '1996-08-20',
+            'mother_tongue' => 'Hindi',
+            'aadhaar_address' => 'Salt Lake Sector 5',
+            'landmark' => 'Near Metro',
+            'contact_number' => '9876543288',
+            'city' => 'Kolkata',
+            'emergency_contact_number' => '9876543287',
+            'pin_code' => '700091',
+            'state' => 'West Bengal',
+            'last_qualification' => 'Graduate',
+            'pass_out_year' => '2019',
+            'marital_status' => 'Single',
+            'old_uan_number' => 'NA',
+            'bank_account_number' => '1122334455667',
+            'ifsc_code' => 'HDFC0001234',
+            'bank_name' => 'HDFC Bank',
+            'work_location' => 'Client Site',
+            'nth_salary' => 13500.00,
+        ]);
+
+        // Must redirect to staff_type=employee
+        $response->assertRedirect(route('admin.employees.index', ['staff_type' => 'employee']));
+
+        $clientEmployee = Employee::where('email', 'client.worker@example.com')->first();
+        $this->assertNotNull($clientEmployee);
+        $this->assertFalse($clientEmployee->isStaff());
+        $this->assertEquals('employee', $clientEmployee->staff_type);
+        // ID should be generated in external range 0101+
+        $this->assertEquals('RM010101', $clientEmployee->employee_id);
+
+        // Verify it appears in employee list and not in staff list
+        $empListResponse2 = $this->actingAs($admin, 'admin')->get(route('admin.employees.index', ['staff_type' => 'employee']));
+        $empListResponse2->assertSee('Client Field Worker');
+
+        $staffListResponse2 = $this->actingAs($admin, 'admin')->get(route('admin.employees.index', ['staff_type' => 'staff']));
+        $staffListResponse2->assertDontSee('Client Field Worker');
     }
 }

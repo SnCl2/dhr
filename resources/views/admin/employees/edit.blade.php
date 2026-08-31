@@ -292,7 +292,9 @@
                         <select id="company_id" name="company_id" class="mt-2 block w-full px-3 py-3 bg-white border border-slate-300 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm shadow-xs">
                             <option value="">Unassigned</option>
                             @foreach($companies as $company)
-                                <option value="{{ $company->id }}" {{ old('company_id', $employee->company_id) == $company->id ? 'selected' : '' }}>{{ $company->name }}</option>
+                                <option value="{{ $company->id }}" {{ old('company_id', $employee->company_id) == $company->id ? 'selected' : '' }}>
+                                    {{ $company->name }} ({{ ($company->type ?? 'employee') === 'staff' ? 'Staff / Internal' : 'Client / External' }})
+                                </option>
                             @endforeach
                         </select>
                         @error('company_id') <p class="mt-1.5 text-xs text-rose-500 font-medium">{{ $message }}</p> @enderror

@@ -107,6 +107,22 @@ class Employee extends Authenticatable
         return $this->hasMany(Payslip::class);
     }
 
+    /**
+     * Determine if this employee belongs to a staff company.
+     */
+    public function isStaff(): bool
+    {
+        return $this->company ? $this->company->isStaff() : false;
+    }
+
+    /**
+     * Get the staff type ('staff' or 'employee').
+     */
+    public function getStaffTypeAttribute(): string
+    {
+        return $this->isStaff() ? 'staff' : 'employee';
+    }
+
     public static function generateNextEmployeeId($companyId)
     {
         $prefix = 'RM01';
@@ -117,15 +133,18 @@ class Employee extends Authenticatable
                 return (int) substr($id, 4);
             });
 
-        if ($companyId == 1) {
-            $company1Ids = $ids->filter(function ($num) {
+        $company = $companyId ? Company::find($companyId) : null;
+        $isStaff = $company ? $company->isStaff() : ($companyId == 1);
+
+        if ($isStaff) {
+            $staffIds = $ids->filter(function ($num) {
                 return $num >= 1 && $num <= 100;
             });
 
-            if ($company1Ids->isEmpty()) {
+            if ($staffIds->isEmpty()) {
                 $nextNum = 1;
             } else {
-                $nextNum = $company1Ids->max() + 1;
+                $nextNum = $staffIds->max() + 1;
             }
         } else {
             $otherIds = $ids->filter(function ($num) {

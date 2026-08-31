@@ -33,9 +33,9 @@ class DatabaseSeeder extends Seeder
 
         // 2. Seed Companies
         $companies = [
-            ['name' => 'RM HR Solutions Plotters Private Limited', 'address' => 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503'],
-            ['name' => 'Propszy Staffing Solutions', 'address' => 'Salt Lake Sector V, Kolkata, West Bengal, 700091'],
-            ['name' => 'Global Logistics Inc.', 'address' => 'Haldia Port Area, Purba Medinipur, West Bengal, 721606']
+            ['name' => 'RM HR Solutions Plotters Private Limited', 'address' => 'Amtala, DH Road, South 24 Parganas, West Bengal, 743503', 'type' => 'staff'],
+            ['name' => 'Propszy Staffing Solutions', 'address' => 'Salt Lake Sector V, Kolkata, West Bengal, 700091', 'type' => 'employee'],
+            ['name' => 'Global Logistics Inc.', 'address' => 'Haldia Port Area, Purba Medinipur, West Bengal, 721606', 'type' => 'employee']
         ];
         foreach ($companies as $comp) {
             Company::create($comp);

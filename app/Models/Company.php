@@ -12,6 +12,7 @@ class Company extends Model
     protected $fillable = [
         'name',
         'address',
+        'type',
         'basic',
         'hra',
         'conveyance',
@@ -32,6 +33,7 @@ class Company extends Model
     ];
 
     protected $casts = [
+        'type' => 'string',
         'basic' => 'decimal:2',
         'hra' => 'decimal:2',
         'conveyance' => 'decimal:2',
@@ -83,6 +85,22 @@ class Company extends Model
 
             $company->net_salary = $gross - $totalDeductions + $bonus;
         });
+    }
+
+    /**
+     * Determine if this company is configured for internal staff.
+     */
+    public function isStaff(): bool
+    {
+        return ($this->type ?? 'employee') === 'staff';
+    }
+
+    /**
+     * Determine if this company is configured for client employees.
+     */
+    public function isEmployee(): bool
+    {
+        return ($this->type ?? 'employee') !== 'staff';
     }
 
     /**

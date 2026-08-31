@@ -18,6 +18,7 @@
                 <tr class="border-b border-slate-200 bg-slate-50 text-xs font-semibold text-slate-650 uppercase tracking-wider">
                     <th class="p-6">ID</th>
                     <th class="p-6">Company Name</th>
+                    <th class="p-6">Type</th>
                     <th class="p-6">Address</th>
                     <th class="p-6">Annexure CTC / Net</th>
                     <th class="p-6">Staff Count</th>
@@ -30,6 +31,17 @@
                 <tr class="hover:bg-slate-100/40 text-slate-700">
                     <td class="p-6 font-semibold text-slate-500">{{ $company->id }}</td>
                     <td class="p-6 font-bold text-slate-900">{{ $company->name }}</td>
+                    <td class="p-6">
+                        @if(($company->type ?? 'employee') === 'staff')
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
+                                <i class="fa-solid fa-user-tie mr-1.5 text-[10px]"></i> Staff (Internal)
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
+                                <i class="fa-solid fa-users mr-1.5 text-[10px]"></i> Client (External)
+                            </span>
+                        @endif
+                    </td>
                     <td class="p-6 text-slate-500">{{ $company->address ?? 'No address provided' }}</td>
                     <td class="p-6">
                         @if($company->ctc > 0)
@@ -42,8 +54,8 @@
                         @endif
                     </td>
                     <td class="p-6">
-                        <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700">
-                            {{ $company->employees_count ?? $company->employees()->count() }} Active Staff
+                        <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+                            {{ $company->employees_count ?? $company->employees()->count() }} Enrolled
                         </span>
                     </td>
                     <td class="p-6 text-xs text-slate-500">
@@ -67,7 +79,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="p-12 text-center text-slate-500 text-base">
+                    <td colspan="8" class="p-12 text-center text-slate-500 text-base">
                         <i class="fa-solid fa-building text-3xl mb-4 block"></i>
                         No companies registered yet. Get started by creating your first company.
                     </td>

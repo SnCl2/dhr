@@ -67,7 +67,7 @@
     </a>
 
     <!-- Card 6 (Internal Staff) -->
-    <a href="{{ route('admin.employees.index', ['company_id' => [1]]) }}" 
+    <a href="{{ route('admin.employees.index', ['staff_type' => 'staff']) }}" 
        class="glass-dark p-6 rounded-2xl flex items-center justify-between hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 transform cursor-pointer border border-transparent hover:border-sky-500/20 shadow-lg hover:shadow-sky-500/5 group">
         <div>
             <span class="block text-xs font-semibold text-slate-400 group-hover:text-sky-400 transition-colors uppercase tracking-wider">Total Internal Staff</span>
