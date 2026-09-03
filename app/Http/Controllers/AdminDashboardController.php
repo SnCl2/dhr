@@ -192,8 +192,9 @@ class AdminDashboardController extends Controller
             // Output UTF-8 BOM for Excel compatibility
             fputs($file, "\xEF\xBB\xBF");
 
-            // 30 Column headers matching Book 9.xlsx
+            // Column headers with Employee ID as the 1st column
             fputcsv($file, [
+                'Employee ID',
                 'Full Name as per Aadhaar',
                 'Aadhaar Number',
                 'PAN Number',
@@ -229,6 +230,7 @@ class AdminDashboardController extends Controller
             $query->chunk(100, function($employees) use ($file) {
                 foreach ($employees as $emp) {
                     fputcsv($file, [
+                        $emp->employee_id ?? '',
                         $emp->aadhaar_full_name ?? $emp->full_name,
                         $emp->aadhaar_number ?? '',
                         $emp->pan_number ?? '',
